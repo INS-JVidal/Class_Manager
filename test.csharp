@@ -1,0 +1,19 @@
+using System.IO;
+
+string path = @"X:\PlanetaHostil\Bunker";
+
+if (!Directory.Exists(path)) // Comprovar existència
+{
+    Directory.CreateDirectory(path); // Construir estructura
+    Console.WriteLine("Refugi establert.");
+}
+else 
+{
+    Console.WriteLine("El refugi ja existeix.");
+}
+
+string filePath = Path.Combine(path, "diari_supervivent.log"); // Combinar rutes
+if (File.Exists(filePath)) // Detectar existència
+{
+    File.Delete(filePath); // Eliminar fitxer
+}

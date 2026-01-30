@@ -1,0 +1,779 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# CURRÍCULUM FORMACIÓ PROFESSIONAL - INFORMÀTICA I COMUNICACIONS
+# Generalitat de Catalunya - Departament d'Educació
+# ═══════════════════════════════════════════════════════════════════════════════
+# ESTRUCTURA: Cicle → Mòdul → UF
+# NOTA: UF (Unitat Formativa) = RA (Resultat d'Aprenentatge) - són el mateix
+# ═══════════════════════════════════════════════════════════════════════════════
+
+familia_professional: "Informàtica i Comunicacions"
+grau: "Superior"
+
+cicles:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DAW - DESENVOLUPAMENT D'APLICACIONS WEB
+  # ═══════════════════════════════════════════════════════════════════════════
+  - codi: "ICC0"
+    nom: "Desenvolupament d'Aplicacions Web"
+    acronim: "DAW"
+    hores_totals: 2000
+    hores_centre: 1485
+    hores_empresa: 515
+    
+    moduls:
+      - codi: "MP01"
+        codi_bod: "0483"
+        nom: "Sistemes Informàtics"
+        hores: 198
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Instal·lació, configuració i explotació del sistema informàtic"
+            hores: 60
+          - codi: "UF2"
+            nom: "Gestió de la informació i de recursos en una xarxa"
+            hores: 80
+          - codi: "UF3"
+            nom: "Implantació de programari específic"
+            hores: 25
+          - codi: "UF4"
+            nom: "Seguretat, rendiment i recursos"
+            hores: 33
+
+      - codi: "MP02"
+        codi_bod: "0484"
+        nom: "Bases de Dades"
+        hores: 231
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Introducció a les bases de dades"
+            hores: 33
+          - codi: "UF2"
+            nom: "Llenguatges SQL: DML i DDL"
+            hores: 99
+          - codi: "UF3"
+            nom: "Llenguatges SQL: DCL i extensió procedimental"
+            hores: 66
+          - codi: "UF4"
+            nom: "Bases de dades objecte-relacionals"
+            hores: 33
+
+      - codi: "MP03"
+        codi_bod: "0485"
+        nom: "Programació"
+        hores: 297
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació estructurada"
+            hores: 85
+          - codi: "UF2"
+            nom: "Disseny modular"
+            hores: 50
+          - codi: "UF3"
+            nom: "Fonaments de gestió de fitxers"
+            hores: 30
+          - codi: "UF4"
+            nom: "Programació orientada a objectes (POO)"
+            hores: 85
+          - codi: "UF5"
+            nom: "POO. Introducció a la persistència en BD"
+            hores: 47
+
+      - codi: "MP04"
+        codi_bod: "0373"
+        nom: "Llenguatges de Marques i Sistemes de Gestió d'Informació"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació amb XML"
+            hores: 45
+          - codi: "UF2"
+            nom: "Àmbits d'aplicació de l'XML"
+            hores: 27
+          - codi: "UF3"
+            nom: "Sistemes de gestió empresarial"
+            hores: 27
+
+      - codi: "MP05"
+        codi_bod: "0487"
+        nom: "Entorns de Desenvolupament"
+        hores: 66
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Desenvolupament de programari"
+            hores: 33
+          - codi: "UF2"
+            nom: "Optimització de programari"
+            hores: 33
+
+      - codi: "MP10"
+        codi_bod: "1709"
+        nom: "Itinerari Personal per a l'Ocupabilitat I"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Incorporació al treball"
+            hores: 66
+          - codi: "UF2"
+            nom: "Prevenció de riscos laborals"
+            hores: 33
+
+      - codi: "MP15"
+        codi_bod: "0179"
+        nom: "Anglès Professional"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Anglès tècnic"
+            hores: 99
+
+      - codi: "MP06"
+        codi_bod: "0612"
+        nom: "Desenvolupament Web en Entorn Client"
+        hores: 165
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Sintaxi del llenguatge. Objectes predefinits del llenguatge"
+            hores: 30
+          - codi: "UF2"
+            nom: "Estructures definides pel programador. Objectes"
+            hores: 30
+          - codi: "UF3"
+            nom: "Esdeveniments. Manegament de formularis. Model d'objectes del document"
+            hores: 42
+          - codi: "UF4"
+            nom: "Comunicació asíncrona client-servidor"
+            hores: 30
+
+      - codi: "MP07"
+        codi_bod: "0613"
+        nom: "Desenvolupament Web en Entorn Servidor"
+        hores: 165
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Desenvolupament web en entorn servidor"
+            hores: 30
+          - codi: "UF2"
+            nom: "Generació dinàmica de pàgines web"
+            hores: 40
+          - codi: "UF3"
+            nom: "Accés a dades"
+            hores: 40
+          - codi: "UF4"
+            nom: "Serveis web. Pàgines dinàmiques interactives. Webs híbrides"
+            hores: 22
+
+      - codi: "MP08"
+        codi_bod: "0614"
+        nom: "Desplegament d'Aplicacions Web"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Servidors web i de transferència de fitxers"
+            hores: 40
+          - codi: "UF2"
+            nom: "Servidors d'aplicacions web"
+            hores: 30
+          - codi: "UF3"
+            nom: "Serveis de xarxa implicats en el desplegament"
+            hores: 15
+          - codi: "UF4"
+            nom: "Control de versions i documentació"
+            hores: 14
+
+      - codi: "MP09"
+        codi_bod: "0615"
+        nom: "Disseny d'Interfícies Web"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Disseny de la interfície. Estils"
+            hores: 45
+          - codi: "UF2"
+            nom: "Elements multimèdia: creació i integració"
+            hores: 30
+          - codi: "UF3"
+            nom: "Accessibilitat i usabilitat"
+            hores: 24
+
+      - codi: "MP11"
+        codi_bod: "1710"
+        nom: "Itinerari Personal per a l'Ocupabilitat II"
+        hores: 66
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Empresa i iniciativa emprenedora"
+            hores: 66
+
+      - codi: "MP16"
+        codi_bod: "1665"
+        nom: "Digitalització Aplicada als Sectors Productius"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Digitalització aplicada als sectors productius"
+            hores: 33
+
+      - codi: "MP17"
+        codi_bod: "1708"
+        nom: "Sostenibilitat Aplicada al Sistema Productiu"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Sostenibilitat aplicada al sistema productiu"
+            hores: 33
+
+      - codi: "MP12"
+        codi_bod: "0616"
+        nom: "Projecte Intermodular"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Projecte de desenvolupament d'aplicacions web"
+            hores: 99
+
+      - codi: "MP13"
+        codi_bod: "0617"
+        nom: "Formació en Centres de Treball"
+        hores: 515
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Formació en centres de treball"
+            hores: 515
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DAM - DESENVOLUPAMENT D'APLICACIONS MULTIPLATAFORMA
+  # ═══════════════════════════════════════════════════════════════════════════
+  - codi: "ICB0"
+    nom: "Desenvolupament d'Aplicacions Multiplataforma"
+    acronim: "DAM"
+    hores_totals: 2000
+    hores_centre: 1485
+    hores_empresa: 515
+    
+    moduls:
+      - codi: "MP01"
+        codi_bod: "0483"
+        nom: "Sistemes Informàtics"
+        hores: 198
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Instal·lació, configuració i explotació del sistema informàtic"
+            hores: 60
+          - codi: "UF2"
+            nom: "Gestió de la informació i de recursos en una xarxa"
+            hores: 80
+          - codi: "UF3"
+            nom: "Implantació de programari específic"
+            hores: 25
+          - codi: "UF4"
+            nom: "Seguretat, rendiment i recursos"
+            hores: 33
+
+      - codi: "MP02"
+        codi_bod: "0484"
+        nom: "Bases de Dades"
+        hores: 231
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Introducció a les bases de dades"
+            hores: 33
+          - codi: "UF2"
+            nom: "Llenguatges SQL: DML i DDL"
+            hores: 99
+          - codi: "UF3"
+            nom: "Llenguatges SQL: DCL i extensió procedimental"
+            hores: 66
+          - codi: "UF4"
+            nom: "Bases de dades objecte-relacionals"
+            hores: 33
+
+      - codi: "MP03"
+        codi_bod: "0485"
+        nom: "Programació"
+        hores: 297
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació estructurada"
+            hores: 85
+          - codi: "UF2"
+            nom: "Disseny modular"
+            hores: 50
+          - codi: "UF3"
+            nom: "Fonaments de gestió de fitxers"
+            hores: 30
+          - codi: "UF4"
+            nom: "Programació orientada a objectes (POO)"
+            hores: 85
+          - codi: "UF5"
+            nom: "POO. Introducció a la persistència en BD"
+            hores: 47
+
+      - codi: "MP04"
+        codi_bod: "0373"
+        nom: "Llenguatges de Marques i Sistemes de Gestió d'Informació"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació amb XML"
+            hores: 45
+          - codi: "UF2"
+            nom: "Àmbits d'aplicació de l'XML"
+            hores: 27
+          - codi: "UF3"
+            nom: "Sistemes de gestió empresarial"
+            hores: 27
+
+      - codi: "MP05"
+        codi_bod: "0487"
+        nom: "Entorns de Desenvolupament"
+        hores: 66
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Desenvolupament de programari"
+            hores: 33
+          - codi: "UF2"
+            nom: "Optimització de programari"
+            hores: 33
+
+      - codi: "MP11"
+        codi_bod: "1709"
+        nom: "Itinerari Personal per a l'Ocupabilitat I"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Incorporació al treball"
+            hores: 66
+          - codi: "UF2"
+            nom: "Prevenció de riscos laborals"
+            hores: 33
+
+      - codi: "MP16"
+        codi_bod: "0179"
+        nom: "Anglès Professional"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Anglès tècnic"
+            hores: 99
+
+      - codi: "MP06"
+        codi_bod: "0486"
+        nom: "Accés a Dades"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Persistència en fitxers"
+            hores: 27
+          - codi: "UF2"
+            nom: "Persistència en BDR"
+            hores: 33
+          - codi: "UF3"
+            nom: "Persistència en BDOR i BDOO"
+            hores: 22
+          - codi: "UF4"
+            nom: "Persistència en BD natives XML"
+            hores: 17
+
+      - codi: "MP07"
+        codi_bod: "0488"
+        nom: "Desenvolupament d'Interfícies"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Disseny i implementació d'interfícies"
+            hores: 50
+          - codi: "UF2"
+            nom: "Preparació i distribució d'aplicacions"
+            hores: 49
+
+      - codi: "MP08"
+        codi_bod: "0489"
+        nom: "Programació Multimèdia i Dispositius Mòbils"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Desenvolupament d'aplicacions per a dispositius mòbils"
+            hores: 66
+          - codi: "UF2"
+            nom: "Programació multimèdia"
+            hores: 22
+          - codi: "UF3"
+            nom: "Desenvolupament de jocs per a dispositius mòbils"
+            hores: 11
+
+      - codi: "MP09"
+        codi_bod: "0490"
+        nom: "Programació de Serveis i Processos"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Seguretat i criptografia"
+            hores: 33
+          - codi: "UF2"
+            nom: "Processos i fils"
+            hores: 33
+          - codi: "UF3"
+            nom: "Sòcols i serveis"
+            hores: 33
+
+      - codi: "MP10"
+        codi_bod: "0491"
+        nom: "Sistemes de Gestió Empresarial"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Sistemes ERP-CRM. Implantació"
+            hores: 50
+          - codi: "UF2"
+            nom: "Sistemes ERP-CRM. Explotació i adequació"
+            hores: 49
+
+      - codi: "MP12"
+        codi_bod: "1710"
+        nom: "Itinerari Personal per a l'Ocupabilitat II"
+        hores: 66
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Empresa i iniciativa emprenedora"
+            hores: 66
+
+      - codi: "MP17"
+        codi_bod: "1665"
+        nom: "Digitalització Aplicada als Sectors Productius"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Digitalització aplicada als sectors productius"
+            hores: 33
+
+      - codi: "MP18"
+        codi_bod: "1708"
+        nom: "Sostenibilitat Aplicada al Sistema Productiu"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Sostenibilitat aplicada al sistema productiu"
+            hores: 33
+
+      - codi: "MP13"
+        codi_bod: "0492"
+        nom: "Projecte Intermodular"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Projecte de desenvolupament d'aplicacions multiplataforma"
+            hores: 99
+
+      - codi: "MP14"
+        codi_bod: "0493"
+        nom: "Formació en Centres de Treball"
+        hores: 515
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Formació en centres de treball"
+            hores: 515
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ASIX - ADMINISTRACIÓ DE SISTEMES INFORMÀTICS EN XARXA
+  # ═══════════════════════════════════════════════════════════════════════════
+  - codi: "ICA0"
+    nom: "Administració de Sistemes Informàtics en Xarxa"
+    acronim: "ASIX"
+    hores_totals: 2000
+    hores_centre: 1485
+    hores_empresa: 515
+    
+    moduls:
+      - codi: "MP01"
+        codi_bod: "0369"
+        nom: "Implantació de Sistemes Operatius"
+        hores: 231
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Instal·lació, configuració i explotació del sistema informàtic"
+            hores: 71
+          - codi: "UF2"
+            nom: "Gestió de la informació i de recursos en una xarxa"
+            hores: 91
+          - codi: "UF3"
+            nom: "Implantació de programari específic"
+            hores: 36
+          - codi: "UF4"
+            nom: "Seguretat, rendiment i recursos"
+            hores: 33
+
+      - codi: "MP02"
+        codi_bod: "0372"
+        nom: "Gestió de Bases de Dades"
+        hores: 165
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Introducció a les bases de dades"
+            hores: 33
+          - codi: "UF2"
+            nom: "Llenguatges SQL: DML i DDL"
+            hores: 66
+          - codi: "UF3"
+            nom: "Llenguatges SQL: DCL i extensió procedimental"
+            hores: 33
+          - codi: "UF4"
+            nom: "Assegurament de la informació"
+            hores: 33
+
+      - codi: "MP03"
+        codi_bod: "0370"
+        nom: "Programació Bàsica"
+        hores: 165
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació estructurada"
+            hores: 85
+          - codi: "UF2"
+            nom: "Disseny modular"
+            hores: 50
+          - codi: "UF3"
+            nom: "Fonaments de gestió de fitxers"
+            hores: 30
+
+      - codi: "MP04"
+        codi_bod: "0373"
+        nom: "Llenguatges de Marques i Sistemes de Gestió d'Informació"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Programació amb XML"
+            hores: 45
+          - codi: "UF2"
+            nom: "Àmbits d'aplicació de l'XML"
+            hores: 27
+          - codi: "UF3"
+            nom: "Sistemes de gestió empresarial"
+            hores: 27
+
+      - codi: "MP05"
+        codi_bod: "0371"
+        nom: "Fonaments de Maquinari"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Arquitectura de sistemes"
+            hores: 33
+          - codi: "UF2"
+            nom: "Instal·lació, configuració i recuperació de programari"
+            hores: 33
+          - codi: "UF3"
+            nom: "Implantació i manteniment de CPD"
+            hores: 33
+
+      - codi: "MP12"
+        codi_bod: "1709"
+        nom: "Itinerari Personal per a l'Ocupabilitat I"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Incorporació al treball"
+            hores: 66
+          - codi: "UF2"
+            nom: "Prevenció de riscos laborals"
+            hores: 33
+
+      - codi: "MP15"
+        codi_bod: "0179"
+        nom: "Anglès Professional"
+        hores: 99
+        curs: 1
+        ufs:
+          - codi: "UF1"
+            nom: "Anglès tècnic"
+            hores: 99
+
+      - codi: "MP06"
+        codi_bod: "0374"
+        nom: "Administració de Sistemes Operatius"
+        hores: 132
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Administració avançada de sistemes operatius"
+            hores: 86
+          - codi: "UF2"
+            nom: "Automatització de tasques i llenguatges de guions"
+            hores: 46
+
+      - codi: "MP07"
+        codi_bod: "0380"
+        nom: "Planificació i Administració de Xarxes"
+        hores: 165
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Introducció a les xarxes"
+            hores: 55
+          - codi: "UF2"
+            nom: "Administració de dispositius de xarxa"
+            hores: 55
+          - codi: "UF3"
+            nom: "Administració avançada de xarxes"
+            hores: 55
+
+      - codi: "MP08"
+        codi_bod: "0375"
+        nom: "Serveis de Xarxa i Internet"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Serveis de noms i configuració automàtica"
+            hores: 25
+          - codi: "UF2"
+            nom: "Serveis web i de transferència de fitxers"
+            hores: 25
+          - codi: "UF3"
+            nom: "Correu electrònic i missatgeria"
+            hores: 25
+          - codi: "UF4"
+            nom: "Serveis d'àudio i vídeo"
+            hores: 24
+
+      - codi: "MP09"
+        codi_bod: "0376"
+        nom: "Implantació d'Aplicacions Web"
+        hores: 66
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Llenguatges de guions de servidor"
+            hores: 33
+          - codi: "UF2"
+            nom: "Implantació de gestors de continguts"
+            hores: 33
+
+      - codi: "MP10"
+        codi_bod: "0377"
+        nom: "Administració de Sistemes Gestors de Bases de Dades"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Llenguatges SQL: DCL i extensió procedimental"
+            hores: 66
+          - codi: "UF2"
+            nom: "Instal·lació i ajustament de SGBD corporatiu"
+            hores: 33
+
+      - codi: "MP11"
+        codi_bod: "0378"
+        nom: "Seguretat i Alta Disponibilitat"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Seguretat física, lògica i legislació"
+            hores: 24
+          - codi: "UF2"
+            nom: "Seguretat activa i accés remot"
+            hores: 24
+          - codi: "UF3"
+            nom: "Tallafocs i servidors intermediaris"
+            hores: 27
+          - codi: "UF4"
+            nom: "Alta disponibilitat"
+            hores: 24
+
+      - codi: "MP13"
+        codi_bod: "1710"
+        nom: "Itinerari Personal per a l'Ocupabilitat II"
+        hores: 66
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Empresa i iniciativa emprenedora"
+            hores: 66
+
+      - codi: "MP16"
+        codi_bod: "1665"
+        nom: "Digitalització Aplicada als Sectors Productius"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Digitalització aplicada als sectors productius"
+            hores: 33
+
+      - codi: "MP17"
+        codi_bod: "1708"
+        nom: "Sostenibilitat Aplicada al Sistema Productiu"
+        hores: 33
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Sostenibilitat aplicada al sistema productiu"
+            hores: 33
+
+      - codi: "MP14"
+        codi_bod: "0379"
+        nom: "Projecte Intermodular"
+        hores: 99
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Projecte d'administració de sistemes informàtics en xarxa"
+            hores: 99
+
+      - codi: "MP18"
+        codi_bod: "0381"
+        nom: "Formació en Centres de Treball"
+        hores: 515
+        curs: 2
+        ufs:
+          - codi: "UF1"
+            nom: "Formació en centres de treball"
+            hores: 515
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+metadata:
+  versio: "2.1"
+  data_actualitzacio: "2025-01-30"
+  font: "Departament d'Educació - Generalitat de Catalunya"
+  nota: "UF (Unitat Formativa) = RA (Resultat d'Aprenentatge)"
