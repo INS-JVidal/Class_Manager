@@ -8,10 +8,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: MarkdownTextField(
-            initialValue: '# Hello',
-            hintText: 'Hint',
-          ),
+          body: MarkdownTextField(initialValue: '# Hello', hintText: 'Hint'),
         ),
       ),
     );
@@ -44,8 +41,9 @@ void main() {
     expect(find.text('**bold**'), findsOneWidget);
   });
 
-  testWidgets('MarkdownTextField calls onChanged when text is edited',
-      (tester) async {
+  testWidgets('MarkdownTextField calls onChanged when text is edited', (
+    tester,
+  ) async {
     String? changed;
     await tester.pumpWidget(
       MaterialApp(

@@ -66,8 +66,9 @@ class _MarkdownTextFieldState extends State<MarkdownTextField> {
   }
 
   InputDecoration get _effectiveDecoration {
-    return (widget.decoration ?? const InputDecoration())
-        .copyWith(hintText: widget.hintText ?? widget.decoration?.hintText);
+    return (widget.decoration ?? const InputDecoration()).copyWith(
+      hintText: widget.hintText ?? widget.decoration?.hintText,
+    );
   }
 
   @override
@@ -87,10 +88,7 @@ class _MarkdownTextFieldState extends State<MarkdownTextField> {
     final preview = InputDecorator(
       decoration: _effectiveDecoration,
       isEmpty: _controller.text.isEmpty,
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: _buildPreview(context),
-      ),
+      child: Align(alignment: Alignment.topLeft, child: _buildPreview(context)),
     );
 
     if (widget.readOnly) {
@@ -120,11 +118,10 @@ class _MarkdownTextFieldState extends State<MarkdownTextField> {
         styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)),
       );
     } catch (e) {
-      debugPrint('MarkdownTextField: markdown parse error, falling back to plain text: $e');
-      return Text(
-        text,
-        style: Theme.of(context).textTheme.bodyLarge,
+      debugPrint(
+        'MarkdownTextField: markdown parse error, falling back to plain text: $e',
       );
+      return Text(text, style: Theme.of(context).textTheme.bodyLarge);
     }
   }
 }

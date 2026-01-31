@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/cache/sync_queue.dart';
+import '../data/datasources/local_datasource.dart';
+import '../data/services/cache_service.dart';
 import '../data/services/database_service.dart';
 
 /// Provider for the database service.
@@ -7,4 +10,31 @@ import '../data/services/database_service.dart';
 final databaseServiceProvider = Provider<DatabaseService?>((ref) {
   // Returns null by default - must be overridden in main.dart when DB is connected
   return null;
+});
+
+/// Provider for the local Isar datasource (always available).
+final localDatasourceProvider = Provider<LocalDatasource>((ref) {
+  throw UnimplementedError('Must be overridden in main.dart');
+});
+
+/// Provider for the sync queue.
+final syncQueueProvider = Provider<SyncQueue>((ref) {
+  throw UnimplementedError('Must be overridden in main.dart');
+});
+
+/// Provider for the cache service.
+final cacheServiceProvider = Provider<CacheService>((ref) {
+  throw UnimplementedError('Must be overridden in main.dart');
+});
+
+/// Stream provider for cache status (online/offline/syncing).
+final cacheStatusProvider = StreamProvider<CacheStatus>((ref) {
+  final cacheService = ref.watch(cacheServiceProvider);
+  return cacheService.statusStream;
+});
+
+/// Provider for pending sync operation count.
+final pendingSyncCountProvider = FutureProvider<int>((ref) async {
+  final queue = ref.watch(syncQueueProvider);
+  return queue.pendingCount;
 });

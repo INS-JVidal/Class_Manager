@@ -5,8 +5,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/audit/audit_logger.dart';
+import 'core/audit/file_audit_logger.dart';
 import 'core/single_instance_guard.dart';
+import 'data/cache/sync_queue.dart';
+import 'data/datasources/local_datasource.dart';
 import 'data/datasources/mongodb_datasource.dart';
+import 'data/services/cache_service.dart';
 import 'data/services/database_service.dart';
 import 'state/app_state.dart';
 import 'state/providers.dart';
@@ -27,21 +32,53 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: 'lib/.env');
 
-  // Initialize MongoDB connection
-  final datasource = MongoDbDatasource();
+  // 1. Initialize local storage FIRST (always available)
+  final localDatasource = LocalDatasource();
+  await localDatasource.initialize();
+  stderr.writeln('Local cache initialized');
+
+  // 2. Try MongoDB connection (optional)
+  final mongoDatasource = MongoDbDatasource();
   DatabaseService? databaseService;
   try {
-    await datasource.connect();
-    databaseService = DatabaseService(datasource);
+    await mongoDatasource.connect();
+    databaseService = DatabaseService(mongoDatasource);
     stderr.writeln('Connected to MongoDB');
   } catch (e) {
-    stderr.writeln('Failed to connect to MongoDB: $e');
-    stderr.writeln('App will start without database persistence.');
+    stderr.writeln('Starting in offline mode: $e');
+  }
+
+  // 3. Create sync infrastructure
+  final syncQueue = SyncQueue(localDatasource);
+  final cacheService = CacheService(
+    localDatasource,
+    mongoDatasource,
+    syncQueue,
+  );
+  await cacheService.initialize();
+
+  // Audit log to file on Linux (XDG state directory)
+  AuditLogger? auditLogger;
+  final logDir = resolveAuditLogDirectory();
+  if (logDir != null) {
+    auditLogger = FileAuditLogger(logDir);
   }
 
   runApp(
     ProviderScope(
-      overrides: [databaseServiceProvider.overrideWithValue(databaseService)],
+      overrides: [
+        localDatasourceProvider.overrideWithValue(localDatasource),
+        databaseServiceProvider.overrideWithValue(databaseService),
+        syncQueueProvider.overrideWithValue(syncQueue),
+        cacheServiceProvider.overrideWithValue(cacheService),
+        appStateProvider.overrideWith(
+          (ref) => AppStateNotifier(
+            ref.watch(databaseServiceProvider),
+            ref.watch(cacheServiceProvider),
+            auditLogger,
+          ),
+        ),
+      ],
       child: const _AppWithDatabaseInit(),
     ),
   );

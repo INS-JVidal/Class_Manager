@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../widgets/sync_status_indicator.dart';
 
 /// Navigation destinations for the sidebar.
 final navDestinations = [
@@ -14,14 +17,14 @@ final navDestinations = [
   (route: '/configuracio', label: 'Configuració', icon: Icons.settings),
 ];
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child, required this.currentRoute});
 
   final Widget child;
   final String currentRoute;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Row(
         children: [
@@ -31,14 +34,21 @@ class AppShell extends StatelessWidget {
               final route = navDestinations[index].route;
               if (route != currentRoute) context.go(route);
             },
-            children: navDestinations
-                .map(
-                  (d) => NavigationDrawerDestination(
-                    icon: Icon(d.icon),
-                    label: Text(d.label),
-                  ),
-                )
-                .toList(),
+            children: [
+              // Sync status indicator at top
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: SyncStatusIndicator(),
+              ),
+              const Divider(),
+              // Navigation destinations
+              ...navDestinations.map(
+                (d) => NavigationDrawerDestination(
+                  icon: Icon(d.icon),
+                  label: Text(d.label),
+                ),
+              ),
+            ],
           ),
           Expanded(child: child),
         ],
