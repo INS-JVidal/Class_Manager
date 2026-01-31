@@ -146,6 +146,7 @@ class CachingDailyNoteRepository {
       actualContent: cache.actualContent,
       notes: cache.notes,
       completed: cache.completed,
+      version: cache.version,
     );
   }
 
@@ -160,6 +161,7 @@ class CachingDailyNoteRepository {
       ..actualContent = note.actualContent
       ..notes = note.notes
       ..completed = note.completed
+      ..version = note.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }

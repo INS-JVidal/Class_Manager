@@ -20,6 +20,9 @@ class AcademicYearCache {
   @Index()
   late bool isActive;
 
+  /// Version for optimistic locking.
+  int version = 1;
+
   late DateTime lastModified;
   late bool pendingSync;
 }

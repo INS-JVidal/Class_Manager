@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/repositories/caching_user_preferences_repository.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../../state/providers.dart';
 
 class ConfiguracioPage extends ConsumerWidget {
   const ConfiguracioPage({super.key});
@@ -17,10 +20,12 @@ class ConfiguracioPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Configuració',
+            AppLocalizations.of(context)!.navSettings,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 24),
+          const _LanguageSection(),
+          const SizedBox(height: 32),
           _AcademicYearSection(currentYear: state.currentYear),
           const SizedBox(height: 32),
           _VacationPeriodsSection(
@@ -177,19 +182,20 @@ class ConfiguracioPage extends ConsumerWidget {
     WidgetRef ref,
     RecurringHoliday h,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar festiu'),
+        title: Text(l10n.deleteConfirmTitle),
         content: Text('Esteu segur que voleu eliminar "${h.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel·la'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Elimina'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -198,6 +204,74 @@ class ConfiguracioPage extends ConsumerWidget {
         ref.read(appStateProvider.notifier).removeRecurringHoliday(h.id);
       }
     });
+  }
+}
+
+class _LanguageSection extends ConsumerWidget {
+  const _LanguageSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final currentLocale = ref.watch(localeProvider);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.language,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            SegmentedButton<String>(
+              segments: [
+                ButtonSegment<String>(
+                  value: 'ca',
+                  label: Text(l10n.catalan),
+                ),
+                ButtonSegment<String>(
+                  value: 'en',
+                  label: Text(l10n.english),
+                ),
+              ],
+              selected: {currentLocale.languageCode},
+              onSelectionChanged: (Set<String> selection) {
+                _setLocale(ref, selection.first);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _setLocale(WidgetRef ref, String languageCode) async {
+    // Update the locale provider (triggers UI rebuild)
+    ref.read(localeProvider.notifier).state = Locale(languageCode);
+
+    // Persist the preference to local cache
+    final local = ref.read(localDatasourceProvider);
+    final queue = ref.read(syncQueueProvider);
+    final prefsRepo = CachingUserPreferencesRepository(local, queue);
+
+    var prefs = await prefsRepo.findActive();
+    if (prefs != null) {
+      prefs = prefs.copyWith(
+        languageCode: languageCode,
+        version: prefs.version + 1,
+      );
+      await prefsRepo.update(prefs);
+    } else {
+      prefs = UserPreferences.defaults().copyWith(languageCode: languageCode);
+      await prefsRepo.insert(prefs);
+    }
+
+    // Trigger sync to push to MongoDB
+    final cacheService = ref.read(cacheServiceProvider);
+    await cacheService.triggerSync();
   }
 }
 

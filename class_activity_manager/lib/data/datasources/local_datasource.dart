@@ -40,6 +40,7 @@ class LocalDatasource {
       AcademicYearCacheSchema,
       RecurringHolidayCacheSchema,
       SyncOperationSchema,
+      UserPreferencesCacheSchema,
     ], directory: dbPath);
   }
 

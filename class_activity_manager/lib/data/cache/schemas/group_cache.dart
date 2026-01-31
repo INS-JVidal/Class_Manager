@@ -16,6 +16,9 @@ class GroupCache {
   late List<String> moduleIds;
   String? color;
 
+  /// Version for optimistic locking.
+  int version = 1;
+
   late DateTime lastModified;
   late bool pendingSync;
 }

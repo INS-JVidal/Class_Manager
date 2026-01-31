@@ -114,6 +114,7 @@ class CachingModulRepository {
       officialReference: cache.officialReference,
       ras: _decodeRas(cache.rasJson),
       cicleCodes: cache.cicleCodes,
+      version: cache.version,
     );
   }
 
@@ -128,6 +129,7 @@ class CachingModulRepository {
       ..officialReference = modul.officialReference
       ..rasJson = jsonEncode(modul.ras.map((r) => r.toJson()).toList())
       ..cicleCodes = modul.cicleCodes
+      ..version = modul.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }

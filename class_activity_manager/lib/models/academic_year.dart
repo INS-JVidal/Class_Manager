@@ -13,6 +13,7 @@ class AcademicYear {
     required this.endDate,
     this.vacationPeriods = const [],
     this.isActive = true,
+    this.version = 1,
   });
 
   final String id;
@@ -22,6 +23,9 @@ class AcademicYear {
   final List<VacationPeriod> vacationPeriods;
   final bool isActive;
 
+  /// Version for optimistic locking (incremented on each update).
+  final int version;
+
   AcademicYear copyWith({
     String? id,
     String? name,
@@ -29,6 +33,7 @@ class AcademicYear {
     DateTime? endDate,
     List<VacationPeriod>? vacationPeriods,
     bool? isActive,
+    int? version,
   }) {
     return AcademicYear(
       id: id ?? this.id,
@@ -37,6 +42,7 @@ class AcademicYear {
       endDate: endDate ?? this.endDate,
       vacationPeriods: vacationPeriods ?? this.vacationPeriods,
       isActive: isActive ?? this.isActive,
+      version: version ?? this.version,
     );
   }
 
@@ -47,6 +53,7 @@ class AcademicYear {
     'endDate': endDate.toIso8601String(),
     'vacationPeriods': vacationPeriods.map((vp) => vp.toJson()).toList(),
     'isActive': isActive,
+    'version': version,
   };
 
   factory AcademicYear.fromJson(Map<String, dynamic> json) => AcademicYear(
@@ -60,6 +67,7 @@ class AcademicYear {
             .toList() ??
         [],
     isActive: json['isActive'] as bool? ?? true,
+    version: json['version'] as int? ?? 1,
   );
 
   static DateTime _parseDateTime(dynamic value) {

@@ -5,4 +5,5 @@ export 'group.dart';
 export 'modul.dart';
 export 'ra.dart';
 export 'recurring_holiday.dart';
+export 'user_preferences.dart';
 export 'vacation_period.dart';

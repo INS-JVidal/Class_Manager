@@ -27,16 +27,36 @@ const DailyNoteCacheSchema = CollectionSchema(
       name: r'completed',
       type: IsarType.bool,
     ),
-    r'date': PropertySchema(id: 2, name: r'date', type: IsarType.dateTime),
-    r'groupId': PropertySchema(id: 3, name: r'groupId', type: IsarType.string),
-    r'id': PropertySchema(id: 4, name: r'id', type: IsarType.string),
+    r'date': PropertySchema(
+      id: 2,
+      name: r'date',
+      type: IsarType.dateTime,
+    ),
+    r'groupId': PropertySchema(
+      id: 3,
+      name: r'groupId',
+      type: IsarType.string,
+    ),
+    r'id': PropertySchema(
+      id: 4,
+      name: r'id',
+      type: IsarType.string,
+    ),
     r'lastModified': PropertySchema(
       id: 5,
       name: r'lastModified',
       type: IsarType.dateTime,
     ),
-    r'modulId': PropertySchema(id: 6, name: r'modulId', type: IsarType.string),
-    r'notes': PropertySchema(id: 7, name: r'notes', type: IsarType.string),
+    r'modulId': PropertySchema(
+      id: 6,
+      name: r'modulId',
+      type: IsarType.string,
+    ),
+    r'notes': PropertySchema(
+      id: 7,
+      name: r'notes',
+      type: IsarType.string,
+    ),
     r'pendingSync': PropertySchema(
       id: 8,
       name: r'pendingSync',
@@ -47,7 +67,16 @@ const DailyNoteCacheSchema = CollectionSchema(
       name: r'plannedContent',
       type: IsarType.string,
     ),
-    r'raId': PropertySchema(id: 10, name: r'raId', type: IsarType.string),
+    r'raId': PropertySchema(
+      id: 10,
+      name: r'raId',
+      type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 11,
+      name: r'version',
+      type: IsarType.long,
+    )
   },
   estimateSize: _dailyNoteCacheEstimateSize,
   serialize: _dailyNoteCacheSerialize,
@@ -65,7 +94,7 @@ const DailyNoteCacheSchema = CollectionSchema(
           name: r'id',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
+        )
       ],
     ),
     r'raId': IndexSchema(
@@ -78,7 +107,7 @@ const DailyNoteCacheSchema = CollectionSchema(
           name: r'raId',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
+        )
       ],
     ),
     r'groupId': IndexSchema(
@@ -91,7 +120,7 @@ const DailyNoteCacheSchema = CollectionSchema(
           name: r'groupId',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
+        )
       ],
     ),
     r'date': IndexSchema(
@@ -104,9 +133,9 @@ const DailyNoteCacheSchema = CollectionSchema(
           name: r'date',
           type: IndexType.value,
           caseSensitive: false,
-        ),
+        )
       ],
-    ),
+    )
   },
   links: {},
   embeddedSchemas: {},
@@ -164,6 +193,7 @@ void _dailyNoteCacheSerialize(
   writer.writeBool(offsets[8], object.pendingSync);
   writer.writeString(offsets[9], object.plannedContent);
   writer.writeString(offsets[10], object.raId);
+  writer.writeLong(offsets[11], object.version);
 }
 
 DailyNoteCache _dailyNoteCacheDeserialize(
@@ -185,6 +215,7 @@ DailyNoteCache _dailyNoteCacheDeserialize(
   object.pendingSync = reader.readBool(offsets[8]);
   object.plannedContent = reader.readStringOrNull(offsets[9]);
   object.raId = reader.readString(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -217,6 +248,8 @@ P _dailyNoteCacheDeserializeProp<P>(
       return (reader.readStringOrNull(offset)) as P;
     case 10:
       return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -231,10 +264,7 @@ List<IsarLinkBase<dynamic>> _dailyNoteCacheGetLinks(DailyNoteCache object) {
 }
 
 void _dailyNoteCacheAttach(
-  IsarCollection<dynamic> col,
-  Id id,
-  DailyNoteCache object,
-) {
+    IsarCollection<dynamic> col, Id id, DailyNoteCache object) {
   object.isarId = id;
 }
 
@@ -287,10 +317,8 @@ extension DailyNoteCacheByIndex on IsarCollection<DailyNoteCache> {
     return putAllByIndex(r'id', objects);
   }
 
-  List<Id> putAllByIdSync(
-    List<DailyNoteCache> objects, {
-    bool saveLinks = true,
-  }) {
+  List<Id> putAllByIdSync(List<DailyNoteCache> objects,
+      {bool saveLinks = true}) {
     return putAllByIndexSync(r'id', objects, saveLinks: saveLinks);
   }
 }
@@ -315,17 +343,17 @@ extension DailyNoteCacheQueryWhereSort
 extension DailyNoteCacheQueryWhere
     on QueryBuilder<DailyNoteCache, DailyNoteCache, QWhereClause> {
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause> isarIdEqualTo(
-    Id isarId,
-  ) {
+      Id isarId) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.between(lower: isarId, upper: isarId),
-      );
+      return query.addWhereClause(IdWhereClause.between(
+        lower: isarId,
+        upper: isarId,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  isarIdNotEqualTo(Id isarId) {
+      isarIdNotEqualTo(Id isarId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -348,7 +376,7 @@ extension DailyNoteCacheQueryWhere
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  isarIdGreaterThan(Id isarId, {bool include = false}) {
+      isarIdGreaterThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: isarId, includeLower: include),
@@ -357,7 +385,7 @@ extension DailyNoteCacheQueryWhere
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  isarIdLessThan(Id isarId, {bool include = false}) {
+      isarIdLessThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: isarId, includeUpper: include),
@@ -372,240 +400,207 @@ extension DailyNoteCacheQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.between(
-          lower: lowerIsarId,
-          includeLower: includeLower,
-          upper: upperIsarId,
-          includeUpper: includeUpper,
-        ),
-      );
+      return query.addWhereClause(IdWhereClause.between(
+        lower: lowerIsarId,
+        includeLower: includeLower,
+        upper: upperIsarId,
+        includeUpper: includeUpper,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause> idEqualTo(
-    String id,
-  ) {
+      String id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.equalTo(indexName: r'id', value: [id]),
-      );
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'id',
+        value: [id],
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause> idNotEqualTo(
-    String id,
-  ) {
+      String id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'id',
-                lower: [],
-                upper: [id],
-                includeUpper: false,
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'id',
-                lower: [id],
-                includeLower: false,
-                upper: [],
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [],
+              upper: [id],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [id],
+              includeLower: false,
+              upper: [],
+            ));
       } else {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'id',
-                lower: [id],
-                includeLower: false,
-                upper: [],
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'id',
-                lower: [],
-                upper: [id],
-                includeUpper: false,
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [id],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [],
+              upper: [id],
+              includeUpper: false,
+            ));
       }
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause> raIdEqualTo(
-    String raId,
-  ) {
+      String raId) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.equalTo(indexName: r'raId', value: [raId]),
-      );
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'raId',
+        value: [raId],
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  raIdNotEqualTo(String raId) {
+      raIdNotEqualTo(String raId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'raId',
-                lower: [],
-                upper: [raId],
-                includeUpper: false,
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'raId',
-                lower: [raId],
-                includeLower: false,
-                upper: [],
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'raId',
+              lower: [],
+              upper: [raId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'raId',
+              lower: [raId],
+              includeLower: false,
+              upper: [],
+            ));
       } else {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'raId',
-                lower: [raId],
-                includeLower: false,
-                upper: [],
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'raId',
-                lower: [],
-                upper: [raId],
-                includeUpper: false,
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'raId',
+              lower: [raId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'raId',
+              lower: [],
+              upper: [raId],
+              includeUpper: false,
+            ));
       }
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  groupIdEqualTo(String groupId) {
+      groupIdEqualTo(String groupId) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.equalTo(indexName: r'groupId', value: [groupId]),
-      );
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'groupId',
+        value: [groupId],
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  groupIdNotEqualTo(String groupId) {
+      groupIdNotEqualTo(String groupId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'groupId',
-                lower: [],
-                upper: [groupId],
-                includeUpper: false,
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'groupId',
-                lower: [groupId],
-                includeLower: false,
-                upper: [],
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'groupId',
+              lower: [],
+              upper: [groupId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'groupId',
+              lower: [groupId],
+              includeLower: false,
+              upper: [],
+            ));
       } else {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'groupId',
-                lower: [groupId],
-                includeLower: false,
-                upper: [],
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'groupId',
-                lower: [],
-                upper: [groupId],
-                includeUpper: false,
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'groupId',
+              lower: [groupId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'groupId',
+              lower: [],
+              upper: [groupId],
+              includeUpper: false,
+            ));
       }
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause> dateEqualTo(
-    DateTime date,
-  ) {
+      DateTime date) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.equalTo(indexName: r'date', value: [date]),
-      );
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'date',
+        value: [date],
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  dateNotEqualTo(DateTime date) {
+      dateNotEqualTo(DateTime date) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'date',
-                lower: [],
-                upper: [date],
-                includeUpper: false,
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'date',
-                lower: [date],
-                includeLower: false,
-                upper: [],
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [],
+              upper: [date],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [date],
+              includeLower: false,
+              upper: [],
+            ));
       } else {
         return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'date',
-                lower: [date],
-                includeLower: false,
-                upper: [],
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'date',
-                lower: [],
-                upper: [date],
-                includeUpper: false,
-              ),
-            );
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [date],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [],
+              upper: [date],
+              includeUpper: false,
+            ));
       }
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterWhereClause>
-  dateGreaterThan(DateTime date, {bool include = false}) {
+      dateGreaterThan(
+    DateTime date, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'date',
-          lower: [date],
-          includeLower: include,
-          upper: [],
-        ),
-      );
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [date],
+        includeLower: include,
+        upper: [],
+      ));
     });
   }
 
@@ -614,14 +609,12 @@ extension DailyNoteCacheQueryWhere
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'date',
-          lower: [],
-          upper: [date],
-          includeUpper: include,
-        ),
-      );
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [],
+        upper: [date],
+        includeUpper: include,
+      ));
     });
   }
 
@@ -632,15 +625,13 @@ extension DailyNoteCacheQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'date',
-          lower: [lowerDate],
-          includeLower: includeLower,
-          upper: [upperDate],
-          includeUpper: includeUpper,
-        ),
-      );
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [lowerDate],
+        includeLower: includeLower,
+        upper: [upperDate],
+        includeUpper: includeUpper,
+      ));
     });
   }
 }
@@ -648,74 +639,71 @@ extension DailyNoteCacheQueryWhere
 extension DailyNoteCacheQueryFilter
     on QueryBuilder<DailyNoteCache, DailyNoteCache, QFilterCondition> {
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentIsNull() {
+      actualContentIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'actualContent'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'actualContent',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentIsNotNull() {
+      actualContentIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'actualContent'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'actualContent',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentEqualTo(String? value, {bool caseSensitive = true}) {
+      actualContentEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentGreaterThan(
+      actualContentGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentLessThan(
+      actualContentLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentBetween(
+      actualContentBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -723,204 +711,201 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'actualContent',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'actualContent',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentStartsWith(String value, {bool caseSensitive = true}) {
+      actualContentStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentEndsWith(String value, {bool caseSensitive = true}) {
+      actualContentEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentContains(String value, {bool caseSensitive = true}) {
+      actualContentContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'actualContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'actualContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentMatches(String pattern, {bool caseSensitive = true}) {
+      actualContentMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'actualContent',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'actualContent',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentIsEmpty() {
+      actualContentIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'actualContent', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'actualContent',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  actualContentIsNotEmpty() {
+      actualContentIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'actualContent', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'actualContent',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  completedEqualTo(bool value) {
+      completedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'completed', value: value),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'completed',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  dateEqualTo(DateTime value) {
+      dateEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'date', value: value),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'date',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  dateGreaterThan(DateTime value, {bool include = false}) {
+      dateGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'date',
-          value: value,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  dateLessThan(DateTime value, {bool include = false}) {
+      dateLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'date',
-          value: value,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  dateBetween(
+      dateBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'date',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'date',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdEqualTo(String value, {bool caseSensitive = true}) {
+      groupIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdGreaterThan(
+      groupIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdLessThan(
+      groupIdLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdBetween(
+      groupIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -928,86 +913,84 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'groupId',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'groupId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdStartsWith(String value, {bool caseSensitive = true}) {
+      groupIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdEndsWith(String value, {bool caseSensitive = true}) {
+      groupIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdContains(String value, {bool caseSensitive = true}) {
+      groupIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'groupId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'groupId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdMatches(String pattern, {bool caseSensitive = true}) {
+      groupIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'groupId',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'groupId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdIsEmpty() {
+      groupIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'groupId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'groupId',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  groupIdIsNotEmpty() {
+      groupIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'groupId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'groupId',
+        value: '',
+      ));
     });
   }
 
@@ -1016,45 +999,43 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idGreaterThan(
+      idGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idLessThan(String value, {bool include = false, bool caseSensitive = true}) {
+      idLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
@@ -1066,252 +1047,248 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'id',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idStartsWith(String value, {bool caseSensitive = true}) {
+      idStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idEndsWith(String value, {bool caseSensitive = true}) {
+      idEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idContains(String value, {bool caseSensitive = true}) {
+      idContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'id',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition> idMatches(
-    String pattern, {
-    bool caseSensitive = true,
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'id',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      idIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      idIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'id',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      isarIdEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isarId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      isarIdGreaterThan(
+    Id value, {
+    bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'id',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'isarId',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idIsEmpty() {
+      isarIdLessThan(
+    Id value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'id', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'isarId',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  idIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'id', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  isarIdEqualTo(Id value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'isarId', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  isarIdGreaterThan(Id value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'isarId',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  isarIdLessThan(Id value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'isarId',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  isarIdBetween(
+      isarIdBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'isarId',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'isarId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  lastModifiedEqualTo(DateTime value) {
+      lastModifiedEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'lastModified', value: value),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastModified',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  lastModifiedGreaterThan(DateTime value, {bool include = false}) {
+      lastModifiedGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'lastModified',
-          value: value,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastModified',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  lastModifiedLessThan(DateTime value, {bool include = false}) {
+      lastModifiedLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'lastModified',
-          value: value,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastModified',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  lastModifiedBetween(
+      lastModifiedBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'lastModified',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastModified',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdEqualTo(String value, {bool caseSensitive = true}) {
+      modulIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdGreaterThan(
+      modulIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdLessThan(
+      modulIdLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdBetween(
+      modulIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1319,158 +1296,153 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'modulId',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'modulId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdStartsWith(String value, {bool caseSensitive = true}) {
+      modulIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdEndsWith(String value, {bool caseSensitive = true}) {
+      modulIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdContains(String value, {bool caseSensitive = true}) {
+      modulIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'modulId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'modulId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdMatches(String pattern, {bool caseSensitive = true}) {
+      modulIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'modulId',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'modulId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdIsEmpty() {
+      modulIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'modulId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'modulId',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  modulIdIsNotEmpty() {
+      modulIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'modulId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'modulId',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesIsNull() {
+      notesIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'notes'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'notes',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesIsNotNull() {
+      notesIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'notes'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'notes',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesEqualTo(String? value, {bool caseSensitive = true}) {
+      notesEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesGreaterThan(
+      notesGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesLessThan(
+      notesLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesBetween(
+      notesBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1478,167 +1450,163 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'notes',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'notes',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesStartsWith(String value, {bool caseSensitive = true}) {
+      notesStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesEndsWith(String value, {bool caseSensitive = true}) {
+      notesEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesContains(String value, {bool caseSensitive = true}) {
+      notesContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'notes',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'notes',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesMatches(String pattern, {bool caseSensitive = true}) {
+      notesMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'notes',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'notes',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesIsEmpty() {
+      notesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'notes', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'notes',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  notesIsNotEmpty() {
+      notesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'notes', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'notes',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  pendingSyncEqualTo(bool value) {
+      pendingSyncEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'pendingSync', value: value),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pendingSync',
+        value: value,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentIsNull() {
+      plannedContentIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'plannedContent'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'plannedContent',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentIsNotNull() {
+      plannedContentIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'plannedContent'),
-      );
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'plannedContent',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentEqualTo(String? value, {bool caseSensitive = true}) {
+      plannedContentEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentGreaterThan(
+      plannedContentGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentLessThan(
+      plannedContentLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentBetween(
+      plannedContentBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1646,140 +1614,135 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'plannedContent',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'plannedContent',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentStartsWith(String value, {bool caseSensitive = true}) {
+      plannedContentStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentEndsWith(String value, {bool caseSensitive = true}) {
+      plannedContentEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentContains(String value, {bool caseSensitive = true}) {
+      plannedContentContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'plannedContent',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'plannedContent',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentMatches(String pattern, {bool caseSensitive = true}) {
+      plannedContentMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'plannedContent',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'plannedContent',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentIsEmpty() {
+      plannedContentIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'plannedContent', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'plannedContent',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  plannedContentIsNotEmpty() {
+      plannedContentIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'plannedContent', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'plannedContent',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdEqualTo(String value, {bool caseSensitive = true}) {
+      raIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdGreaterThan(
+      raIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdLessThan(
+      raIdLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdBetween(
+      raIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1787,86 +1750,140 @@ extension DailyNoteCacheQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'raId',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'raId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdStartsWith(String value, {bool caseSensitive = true}) {
+      raIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdEndsWith(String value, {bool caseSensitive = true}) {
+      raIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdContains(String value, {bool caseSensitive = true}) {
+      raIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'raId',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'raId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdMatches(String pattern, {bool caseSensitive = true}) {
+      raIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'raId',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'raId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdIsEmpty() {
+      raIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'raId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'raId',
+        value: '',
+      ));
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
-  raIdIsNotEmpty() {
+      raIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'raId', value: ''),
-      );
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'raId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
     });
   }
 }
@@ -1880,14 +1897,14 @@ extension DailyNoteCacheQueryLinks
 extension DailyNoteCacheQuerySortBy
     on QueryBuilder<DailyNoteCache, DailyNoteCache, QSortBy> {
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByActualContent() {
+      sortByActualContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'actualContent', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByActualContentDesc() {
+      sortByActualContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'actualContent', Sort.desc);
     });
@@ -1900,7 +1917,7 @@ extension DailyNoteCacheQuerySortBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByCompletedDesc() {
+      sortByCompletedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completed', Sort.desc);
     });
@@ -1925,7 +1942,7 @@ extension DailyNoteCacheQuerySortBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByGroupIdDesc() {
+      sortByGroupIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'groupId', Sort.desc);
     });
@@ -1944,14 +1961,14 @@ extension DailyNoteCacheQuerySortBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByLastModified() {
+      sortByLastModified() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastModified', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByLastModifiedDesc() {
+      sortByLastModifiedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastModified', Sort.desc);
     });
@@ -1964,7 +1981,7 @@ extension DailyNoteCacheQuerySortBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByModulIdDesc() {
+      sortByModulIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'modulId', Sort.desc);
     });
@@ -1983,28 +2000,28 @@ extension DailyNoteCacheQuerySortBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByPendingSync() {
+      sortByPendingSync() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pendingSync', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByPendingSyncDesc() {
+      sortByPendingSyncDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pendingSync', Sort.desc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByPlannedContent() {
+      sortByPlannedContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plannedContent', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  sortByPlannedContentDesc() {
+      sortByPlannedContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plannedContent', Sort.desc);
     });
@@ -2021,19 +2038,32 @@ extension DailyNoteCacheQuerySortBy
       return query.addSortBy(r'raId', Sort.desc);
     });
   }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension DailyNoteCacheQuerySortThenBy
     on QueryBuilder<DailyNoteCache, DailyNoteCache, QSortThenBy> {
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByActualContent() {
+      thenByActualContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'actualContent', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByActualContentDesc() {
+      thenByActualContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'actualContent', Sort.desc);
     });
@@ -2046,7 +2076,7 @@ extension DailyNoteCacheQuerySortThenBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByCompletedDesc() {
+      thenByCompletedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completed', Sort.desc);
     });
@@ -2071,7 +2101,7 @@ extension DailyNoteCacheQuerySortThenBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByGroupIdDesc() {
+      thenByGroupIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'groupId', Sort.desc);
     });
@@ -2096,21 +2126,21 @@ extension DailyNoteCacheQuerySortThenBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByIsarIdDesc() {
+      thenByIsarIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isarId', Sort.desc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByLastModified() {
+      thenByLastModified() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastModified', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByLastModifiedDesc() {
+      thenByLastModifiedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastModified', Sort.desc);
     });
@@ -2123,7 +2153,7 @@ extension DailyNoteCacheQuerySortThenBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByModulIdDesc() {
+      thenByModulIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'modulId', Sort.desc);
     });
@@ -2142,28 +2172,28 @@ extension DailyNoteCacheQuerySortThenBy
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByPendingSync() {
+      thenByPendingSync() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pendingSync', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByPendingSyncDesc() {
+      thenByPendingSyncDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pendingSync', Sort.desc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByPlannedContent() {
+      thenByPlannedContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plannedContent', Sort.asc);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
-  thenByPlannedContentDesc() {
+      thenByPlannedContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plannedContent', Sort.desc);
     });
@@ -2180,22 +2210,33 @@ extension DailyNoteCacheQuerySortThenBy
       return query.addSortBy(r'raId', Sort.desc);
     });
   }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension DailyNoteCacheQueryWhereDistinct
     on QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> {
   QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct>
-  distinctByActualContent({bool caseSensitive = true}) {
+      distinctByActualContent({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'actualContent',
-        caseSensitive: caseSensitive,
-      );
+      return query.addDistinctBy(r'actualContent',
+          caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct>
-  distinctByCompleted() {
+      distinctByCompleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'completed');
     });
@@ -2207,67 +2248,66 @@ extension DailyNoteCacheQueryWhereDistinct
     });
   }
 
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByGroupId({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByGroupId(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'groupId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctById({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctById(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'id', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct>
-  distinctByLastModified() {
+      distinctByLastModified() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastModified');
     });
   }
 
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByModulId({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByModulId(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'modulId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByNotes({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByNotes(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'notes', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct>
-  distinctByPendingSync() {
+      distinctByPendingSync() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pendingSync');
     });
   }
 
   QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct>
-  distinctByPlannedContent({bool caseSensitive = true}) {
+      distinctByPlannedContent({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'plannedContent',
-        caseSensitive: caseSensitive,
-      );
+      return query.addDistinctBy(r'plannedContent',
+          caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByRaId({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByRaId(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'raId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, DailyNoteCache, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -2281,7 +2321,7 @@ extension DailyNoteCacheQueryProperty
   }
 
   QueryBuilder<DailyNoteCache, String?, QQueryOperations>
-  actualContentProperty() {
+      actualContentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'actualContent');
     });
@@ -2312,7 +2352,7 @@ extension DailyNoteCacheQueryProperty
   }
 
   QueryBuilder<DailyNoteCache, DateTime, QQueryOperations>
-  lastModifiedProperty() {
+      lastModifiedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastModified');
     });
@@ -2337,7 +2377,7 @@ extension DailyNoteCacheQueryProperty
   }
 
   QueryBuilder<DailyNoteCache, String?, QQueryOperations>
-  plannedContentProperty() {
+      plannedContentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'plannedContent');
     });
@@ -2346,6 +2386,12 @@ extension DailyNoteCacheQueryProperty
   QueryBuilder<DailyNoteCache, String, QQueryOperations> raIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'raId');
+    });
+  }
+
+  QueryBuilder<DailyNoteCache, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

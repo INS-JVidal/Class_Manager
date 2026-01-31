@@ -10,6 +10,7 @@ class RecurringHoliday {
     required this.month,
     required this.day,
     this.isEnabled = true,
+    this.version = 1,
   });
 
   final String id;
@@ -18,12 +19,16 @@ class RecurringHoliday {
   final int day; // 1-31
   final bool isEnabled;
 
+  /// Version for optimistic locking (incremented on each update).
+  final int version;
+
   RecurringHoliday copyWith({
     String? id,
     String? name,
     int? month,
     int? day,
     bool? isEnabled,
+    int? version,
   }) {
     return RecurringHoliday(
       id: id ?? this.id,
@@ -31,6 +36,7 @@ class RecurringHoliday {
       month: month ?? this.month,
       day: day ?? this.day,
       isEnabled: isEnabled ?? this.isEnabled,
+      version: version ?? this.version,
     );
   }
 
@@ -40,6 +46,7 @@ class RecurringHoliday {
     'month': month,
     'day': day,
     'isEnabled': isEnabled,
+    'version': version,
   };
 
   factory RecurringHoliday.fromJson(Map<String, dynamic> json) =>
@@ -49,5 +56,6 @@ class RecurringHoliday {
         month: json['month'] as int,
         day: json['day'] as int,
         isEnabled: json['isEnabled'] as bool? ?? true,
+        version: json['version'] as int? ?? 1,
       );
 }

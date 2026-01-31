@@ -1,19 +1,16 @@
 import 'package:isar/isar.dart';
 
-part 'recurring_holiday_cache.g.dart';
+part 'user_preferences_cache.g.dart';
 
-/// Isar cache schema for RecurringHoliday entity.
+/// Isar cache schema for UserPreferences entity.
 @collection
-class RecurringHolidayCache {
+class UserPreferencesCache {
   Id isarId = Isar.autoIncrement;
 
   @Index(unique: true)
   late String id;
 
-  late String name;
-  late int month;
-  late int day;
-  late bool isEnabled;
+  late String languageCode;
 
   /// Version for optimistic locking.
   int version = 1;

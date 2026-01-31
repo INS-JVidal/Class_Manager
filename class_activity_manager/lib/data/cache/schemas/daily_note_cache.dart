@@ -26,6 +26,9 @@ class DailyNoteCache {
   String? notes;
   late bool completed;
 
+  /// Version for optimistic locking.
+  int version = 1;
+
   late DateTime lastModified;
   late bool pendingSync;
 }

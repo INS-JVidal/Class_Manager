@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
 
@@ -10,6 +11,7 @@ class GrupsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final groups = ref.watch(appStateProvider).groups;
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -19,28 +21,26 @@ class GrupsListPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Grups', style: Theme.of(context).textTheme.headlineMedium),
+              Text(l10n.groups, style: Theme.of(context).textTheme.headlineMedium),
               FilledButton.tonalIcon(
                 onPressed: () => context.go('/grups/new'),
                 icon: const Icon(Icons.add),
-                label: const Text('Afegir grup'),
+                label: Text(l10n.addGroup),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Expanded(
             child: groups.isEmpty
-                ? const Center(child: Text('Cap grup. Afegiu-ne un.'))
+                ? Center(child: Text(l10n.noGroups))
                 : ListView.builder(
                     itemCount: groups.length,
                     itemBuilder: (context, index) {
                       final g = groups[index];
                       final moduleCount = g.moduleIds.length;
                       final moduleText = moduleCount == 0
-                          ? 'Cap mòdul assignat'
-                          : moduleCount == 1
-                          ? '1 mòdul assignat'
-                          : '$moduleCount mòduls assignats';
+                          ? l10n.noModulesAssigned
+                          : '$moduleCount ${l10n.modules}';
                       return Card(
                         child: ListTile(
                           leading: g.color != null
@@ -142,6 +142,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = widget.groupId != null;
     final moduls = ref.watch(appStateProvider).moduls;
 
@@ -152,35 +153,35 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isEdit ? 'Editar grup' : 'Nou grup',
+              isEdit ? l10n.editGroup : l10n.addGroup,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 24),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nom (p.ex. DAW1-A)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.groupNameHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (opcional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.notes,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
             // Color selection section
             Text(
-              'Color del grup',
+              l10n.groupColor,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Seleccioneu un color per identificar el grup al calendari.',
+              l10n.groupColorHint,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -226,18 +227,18 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
               TextButton.icon(
                 onPressed: () => setState(() => _selectedColor = null),
                 icon: const Icon(Icons.clear, size: 16),
-                label: const Text('Treure color'),
+                label: Text(l10n.clear),
               ),
             ],
             const SizedBox(height: 24),
             // Module selection section
             Text(
-              'Mòduls assignats',
+              l10n.groupModules,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Seleccioneu els mòduls que s\'imparteixen en aquest grup.',
+              l10n.assignModule,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -252,10 +253,8 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Cap mòdul disponible. Importeu mòduls des de Configuració → Configurar currículum.',
-                        ),
+                      Expanded(
+                        child: Text(l10n.noModules),
                       ),
                     ],
                   ),
@@ -321,12 +320,12 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                       context.go('/grups');
                     }
                   },
-                  child: const Text('Desa'),
+                  child: Text(l10n.save),
                 ),
                 const SizedBox(width: 12),
                 TextButton(
                   onPressed: () => context.pop(),
-                  child: const Text('Cancel·la'),
+                  child: Text(l10n.cancel),
                 ),
                 if (isEdit) ...[
                   const Spacer(),
@@ -335,14 +334,14 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: const Text('Eliminar grup?'),
+                          title: Text(l10n.deleteGroup),
                           content: Text(
-                            'Segur que voleu eliminar el grup "${_nameController.text}"?',
+                            l10n.deleteGroupConfirm(_nameController.text),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('Cancel·la'),
+                              child: Text(l10n.cancel),
                             ),
                             FilledButton(
                               onPressed: () {
@@ -352,14 +351,14 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                                 Navigator.of(ctx).pop();
                                 context.go('/grups');
                               },
-                              child: const Text('Elimina'),
+                              child: Text(l10n.delete),
                             ),
                           ],
                         ),
                       );
                     },
                     child: Text(
-                      'Eliminar grup',
+                      l10n.deleteGroup,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),

@@ -21,6 +21,9 @@ class ModulCache {
   late String rasJson;
   late List<String> cicleCodes;
 
+  /// Version for optimistic locking.
+  int version = 1;
+
   late DateTime lastModified;
   late bool pendingSync;
 }

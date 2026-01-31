@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/services/cache_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../state/providers.dart';
 
 /// Widget that displays the current sync status as a simple LED-style dot.
@@ -25,9 +26,10 @@ class SyncStatusIndicator extends ConsumerWidget {
   }
 
   Widget _buildDot(BuildContext context, CacheStatus? status) {
+    final l10n = AppLocalizations.of(context)!;
     final isOnline = status == CacheStatus.online;
     final color = isOnline ? Colors.green : Colors.amber;
-    final label = isOnline ? 'online' : 'local';
+    final label = isOnline ? l10n.syncStatusOnline : l10n.syncStatusOffline;
 
     return InkWell(
       onTap: () => _showOfflineInfo(context),
@@ -60,6 +62,7 @@ class SyncStatusIndicator extends ConsumerWidget {
   }
 
   Widget _buildErrorDot(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return InkWell(
       onTap: () => _showOfflineInfo(context),
       borderRadius: BorderRadius.circular(8),
@@ -78,7 +81,7 @@ class SyncStatusIndicator extends ConsumerWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              'error',
+              l10n.connectionError,
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.grey[600],
@@ -91,25 +94,22 @@ class SyncStatusIndicator extends ConsumerWidget {
   }
 
   void _showOfflineInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.cloud_off, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Mode offline'),
+            const Icon(Icons.cloud_off, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(l10n.offlineMode),
           ],
         ),
-        content: const Text(
-          'L\'aplicació funciona sense connexió a MongoDB.\n\n'
-          'Els canvis es guarden localment i es sincronitzaran '
-          'automàticament quan es restableixi la connexió.',
-        ),
+        content: Text(l10n.offlineModeMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Entesos'),
+            child: Text(l10n.understood),
           ),
         ],
       ),

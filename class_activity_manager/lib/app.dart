@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
 import 'router/app_router.dart';
+import 'state/providers.dart';
 
 class ClassActivityManagerApp extends ConsumerWidget {
   const ClassActivityManagerApp({super.key});
@@ -11,6 +13,8 @@ class ClassActivityManagerApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = createAppRouter();
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp.router(
       title: 'Class Activity Manager',
       theme: AppTheme.light,
@@ -18,13 +22,10 @@ class ClassActivityManagerApp extends ConsumerWidget {
       themeMode: ThemeMode.light,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      // Catalan locale - week starts on Monday
-      locale: const Locale('ca'),
-      supportedLocales: const [
-        Locale('ca'), // Catalan
-        Locale('es'), // Spanish
-      ],
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

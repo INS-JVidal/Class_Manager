@@ -11,6 +11,7 @@ import 'core/single_instance_guard.dart';
 import 'data/cache/sync_queue.dart';
 import 'data/datasources/local_datasource.dart';
 import 'data/datasources/mongodb_datasource.dart';
+import 'data/repositories/caching_user_preferences_repository.dart';
 import 'data/services/cache_service.dart';
 import 'data/services/database_service.dart';
 import 'state/app_state.dart';
@@ -62,6 +63,20 @@ Future<void> main() async {
   final logDir = resolveAuditLogDirectory();
   if (logDir != null) {
     auditLogger = FileAuditLogger(logDir);
+    stderr.writeln('Audit log directory: $logDir');
+  }
+
+  // Load saved locale preference before runApp
+  Locale savedLocale = const Locale('ca');
+  try {
+    final prefsRepo = CachingUserPreferencesRepository(localDatasource, syncQueue);
+    final prefs = await prefsRepo.findActive();
+    if (prefs != null) {
+      savedLocale = Locale(prefs.languageCode);
+      stderr.writeln('Loaded locale preference: ${prefs.languageCode}');
+    }
+  } catch (e) {
+    stderr.writeln('Could not load locale preference: $e');
   }
 
   runApp(
@@ -71,6 +86,7 @@ Future<void> main() async {
         databaseServiceProvider.overrideWithValue(databaseService),
         syncQueueProvider.overrideWithValue(syncQueue),
         cacheServiceProvider.overrideWithValue(cacheService),
+        localeProvider.overrideWith((ref) => savedLocale),
         appStateProvider.overrideWith(
           (ref) => AppStateNotifier(
             ref.watch(databaseServiceProvider),

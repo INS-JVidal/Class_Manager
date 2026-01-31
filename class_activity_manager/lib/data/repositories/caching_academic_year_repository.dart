@@ -133,6 +133,7 @@ class CachingAcademicYearRepository {
       endDate: cache.endDate,
       vacationPeriods: _decodeVacationPeriods(cache.vacationPeriodsJson),
       isActive: cache.isActive,
+      version: cache.version,
     );
   }
 
@@ -146,6 +147,7 @@ class CachingAcademicYearRepository {
         year.vacationPeriods.map((vp) => vp.toJson()).toList(),
       )
       ..isActive = year.isActive
+      ..version = year.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }

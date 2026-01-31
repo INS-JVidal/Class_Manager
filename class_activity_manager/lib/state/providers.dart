@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/cache/sync_conflict.dart';
 import '../data/cache/sync_queue.dart';
 import '../data/datasources/local_datasource.dart';
 import '../data/services/cache_service.dart';
@@ -38,3 +41,13 @@ final pendingSyncCountProvider = FutureProvider<int>((ref) async {
   final queue = ref.watch(syncQueueProvider);
   return queue.pendingCount;
 });
+
+/// Stream provider for sync conflicts.
+final conflictStreamProvider = StreamProvider<SyncConflict>((ref) {
+  final cacheService = ref.watch(cacheServiceProvider);
+  return cacheService.conflictStream;
+});
+
+/// Provider for app locale (language).
+/// Default is Catalan ('ca'). Can be changed via settings.
+final localeProvider = StateProvider<Locale>((ref) => const Locale('ca'));

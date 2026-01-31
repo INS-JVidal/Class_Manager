@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
 
@@ -59,6 +60,8 @@ class DashboardPage extends ConsumerWidget {
       }
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: SingleChildScrollView(
@@ -66,12 +69,12 @@ class DashboardPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Class Activity Manager',
+              l10n.welcomeMessage,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Benvingut/da. Avui: ${_dateFormat.format(today)}',
+              '${l10n.welcome}. ${l10n.today}: ${_dateFormat.format(today)}',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 32),
@@ -82,7 +85,7 @@ class DashboardPage extends ConsumerWidget {
                 Icon(Icons.today, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Sessions d\'avui',
+                  l10n.sessionsToday,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
@@ -99,8 +102,8 @@ class DashboardPage extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.outline,
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text('Cap sessió planificada per avui.'),
+                      Expanded(
+                        child: Text(l10n.noSessionsToday),
                       ),
                     ],
                   ),
@@ -126,14 +129,14 @@ class DashboardPage extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'RAs actius',
+                  l10n.activeRas,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Resultats d\'aprenentatge en curs amb dates assignades.',
+              l10n.raActiveCount(activeRas.length),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -148,10 +151,8 @@ class DashboardPage extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.outline,
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Cap RA actiu. Assigneu dates a les RAs des de la configuració dels mòduls.',
-                        ),
+                      Expanded(
+                        child: Text(l10n.noRas),
                       ),
                     ],
                   ),

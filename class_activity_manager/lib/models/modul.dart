@@ -16,6 +16,7 @@ class Modul {
     this.officialReference,
     this.ras = const [],
     this.cicleCodes = const [],
+    this.version = 1,
   });
 
   final String id;
@@ -30,6 +31,9 @@ class Modul {
   /// Codis dels cicles on s'imparteix el mòdul (e.g. ICC0, ICB0).
   final List<String> cicleCodes;
 
+  /// Version for optimistic locking (incremented on each update).
+  final int version;
+
   /// Display string for cycle codes (e.g., "DAM, DAW").
   String get cicleCodesDisplay => cicleCodes.join(', ');
 
@@ -43,6 +47,7 @@ class Modul {
     String? officialReference,
     List<RA>? ras,
     List<String>? cicleCodes,
+    int? version,
   }) {
     return Modul(
       id: id ?? this.id,
@@ -54,6 +59,7 @@ class Modul {
       officialReference: officialReference ?? this.officialReference,
       ras: ras ?? this.ras,
       cicleCodes: cicleCodes ?? this.cicleCodes,
+      version: version ?? this.version,
     );
   }
 
@@ -67,6 +73,7 @@ class Modul {
     if (officialReference != null) 'officialReference': officialReference,
     'ras': ras.map((ra) => ra.toJson()).toList(),
     'cicleCodes': cicleCodes,
+    'version': version,
   };
 
   factory Modul.fromJson(Map<String, dynamic> json) => Modul(
@@ -83,5 +90,6 @@ class Modul {
             .toList() ??
         [],
     cicleCodes: (json['cicleCodes'] as List<dynamic>?)?.cast<String>() ?? [],
+    version: json['version'] as int? ?? 1,
   );
 }

@@ -14,6 +14,7 @@ class DailyNote {
     this.actualContent,
     this.notes,
     this.completed = false,
+    this.version = 1,
   });
 
   final String id;
@@ -32,6 +33,9 @@ class DailyNote {
   final String? notes;
   final bool completed;
 
+  /// Version for optimistic locking (incremented on each update).
+  final int version;
+
   DailyNote copyWith({
     String? id,
     String? raId,
@@ -42,6 +46,7 @@ class DailyNote {
     String? actualContent,
     String? notes,
     bool? completed,
+    int? version,
   }) {
     return DailyNote(
       id: id ?? this.id,
@@ -53,6 +58,7 @@ class DailyNote {
       actualContent: actualContent ?? this.actualContent,
       notes: notes ?? this.notes,
       completed: completed ?? this.completed,
+      version: version ?? this.version,
     );
   }
 
@@ -66,6 +72,7 @@ class DailyNote {
     if (actualContent != null) 'actualContent': actualContent,
     if (notes != null) 'notes': notes,
     'completed': completed,
+    'version': version,
   };
 
   factory DailyNote.fromJson(Map<String, dynamic> json) => DailyNote(
@@ -78,6 +85,7 @@ class DailyNote {
     actualContent: json['actualContent'] as String?,
     notes: json['notes'] as String?,
     completed: json['completed'] as bool? ?? false,
+    version: json['version'] as int? ?? 1,
   );
 
   static DateTime _parseDateTime(dynamic value) {

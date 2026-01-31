@@ -5,3 +5,4 @@ export 'group_cache.dart';
 export 'modul_cache.dart';
 export 'recurring_holiday_cache.dart';
 export 'sync_operation.dart';
+export 'user_preferences_cache.dart';

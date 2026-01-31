@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:mongo_dart/mongo_dart.dart';
 
+import '../cache/sync_conflict.dart';
 import '../cache/sync_queue.dart';
 import '../datasources/local_datasource.dart';
 import '../datasources/mongodb_datasource.dart';
@@ -24,12 +25,17 @@ class CacheService {
   CacheStatus _currentStatus = CacheStatus.offline;
 
   final _statusController = StreamController<CacheStatus>.broadcast();
+  final _conflictController = StreamController<SyncConflict>.broadcast();
+
   /// Stream that emits current status immediately, then updates.
   Stream<CacheStatus> get statusStream async* {
     yield _currentStatus;
     yield* _statusController.stream;
   }
   CacheStatus get currentStatus => _currentStatus;
+
+  /// Stream of sync conflicts for UI notification.
+  Stream<SyncConflict> get conflictStream => _conflictController.stream;
 
   bool get isRemoteConnected => _remote.isConnected;
   LocalDatasource get local => _local;
@@ -95,6 +101,18 @@ class CacheService {
         try {
           await _syncOperation(op);
           await _queue.remove(op.id);
+        } on ConflictException catch (e) {
+          // Conflict detected - remove from queue and notify listeners
+          await _queue.remove(op.id);
+          _conflictController.add(SyncConflict(
+            entityType: e.entityType,
+            entityId: e.entityId,
+            type: e.type,
+            serverDocument: e.serverDocument,
+          ));
+          stderr.writeln(
+            'Sync conflict: ${e.type.name} for ${e.entityType}/${e.entityId}',
+          );
         } catch (e) {
           await _queue.markFailed(op.id, e.toString());
           if (op.retryCount >= 3) {
@@ -115,20 +133,53 @@ class CacheService {
     final collection = _remote.collection(
       _collectionName(op.entityType as String),
     );
+    final entityId = op.entityId as String;
+    final entityType = op.entityType as String;
 
     switch (op.operationType as String) {
       case 'insert':
+        // Insert: ensure version is set to 1
+        payload['version'] = payload['version'] ?? 1;
         await collection.insertOne(payload);
         break;
+
       case 'update':
+        final localVersion = payload['version'] as int? ?? 1;
+
+        // Fetch current server document
+        final serverDoc = await collection.findOne(where.eq('_id', entityId));
+
+        if (serverDoc == null) {
+          // Document was deleted on server - conflict
+          throw ConflictException(
+            type: SyncConflictType.deleted,
+            entityType: entityType,
+            entityId: entityId,
+          );
+        }
+
+        final serverVersion = serverDoc['version'] as int? ?? 1;
+
+        if (serverVersion != localVersion) {
+          // Version mismatch - conflict
+          throw ConflictException(
+            type: SyncConflictType.versionMismatch,
+            entityType: entityType,
+            entityId: entityId,
+            serverDocument: serverDoc,
+          );
+        }
+
+        // Versions match - safe to update with incremented version
+        payload['version'] = localVersion + 1;
         await collection.replaceOne(
-          where.eq('_id', op.entityId),
+          where.eq('_id', entityId),
           payload,
-          upsert: true,
         );
         break;
+
       case 'delete':
-        await collection.deleteOne(where.eq('_id', op.entityId));
+        await collection.deleteOne(where.eq('_id', entityId));
         break;
     }
   }
@@ -140,6 +191,7 @@ class CacheService {
       'dailyNote' => 'daily_notes',
       'academicYear' => 'academic_years',
       'recurringHoliday' => 'recurring_holidays',
+      'userPreferences' => 'user_preferences',
       _ => throw ArgumentError('Unknown entity type: $entityType'),
     };
   }
@@ -162,8 +214,19 @@ class CacheService {
     }
   }
 
+  /// Removes a conflicted operation from the queue by entity ID.
+  Future<void> removeConflictedOperation(String entityId) async {
+    final pending = await _queue.getPending();
+    for (final op in pending) {
+      if (op.entityId == entityId) {
+        await _queue.remove(op.id);
+      }
+    }
+  }
+
   void dispose() {
     _connectivityTimer?.cancel();
     _statusController.close();
+    _conflictController.close();
   }
 }

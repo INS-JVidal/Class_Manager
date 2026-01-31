@@ -103,6 +103,7 @@ class CachingGroupRepository {
       academicYearId: cache.academicYearId,
       moduleIds: cache.moduleIds,
       color: cache.color,
+      version: cache.version,
     );
   }
 
@@ -114,6 +115,7 @@ class CachingGroupRepository {
       ..academicYearId = group.academicYearId
       ..moduleIds = group.moduleIds
       ..color = group.color
+      ..version = group.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }

@@ -103,6 +103,7 @@ class CachingRecurringHolidayRepository {
       month: cache.month,
       day: cache.day,
       isEnabled: cache.isEnabled,
+      version: cache.version,
     );
   }
 
@@ -116,6 +117,7 @@ class CachingRecurringHolidayRepository {
       ..month = holiday.month
       ..day = holiday.day
       ..isEnabled = holiday.isEnabled
+      ..version = holiday.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }

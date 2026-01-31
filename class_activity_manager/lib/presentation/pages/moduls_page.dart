@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
 
@@ -11,6 +12,7 @@ class ModulsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final moduls = ref.watch(appStateProvider).moduls;
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -20,18 +22,18 @@ class ModulsListPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Mòduls', style: Theme.of(context).textTheme.headlineMedium),
+              Text(l10n.modules, style: Theme.of(context).textTheme.headlineMedium),
               OutlinedButton.icon(
                 onPressed: () => context.go('/setup-curriculum'),
                 icon: const Icon(Icons.menu_book),
-                label: const Text('Configuració currículum'),
+                label: Text(l10n.setupCurriculum),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Expanded(
             child: moduls.isEmpty
-                ? const Center(child: Text('Cap mòdul.'))
+                ? Center(child: Text(l10n.noModules))
                 : ListView.builder(
                     itemCount: moduls.length,
                     itemBuilder: (context, index) {
@@ -115,6 +117,7 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = widget.modulId != null;
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -122,50 +125,50 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isEdit ? 'Editar mòdul' : 'Nou mòdul',
+            isEdit ? l10n.editModule : l10n.addModule,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 24),
           TextField(
             controller: _codeController,
-            decoration: const InputDecoration(
-              labelText: 'Codi (p.ex. MP06)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.moduleCodeHint,
+              border: const OutlineInputBorder(),
             ),
             textCapitalization: TextCapitalization.characters,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Nom',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.name,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descController,
-            decoration: const InputDecoration(
-              labelText: 'Descripció (opcional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.description,
+              border: const OutlineInputBorder(),
             ),
             maxLines: 2,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _hoursController,
-            decoration: const InputDecoration(
-              labelText: 'Total hores',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.totalHours,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _objectivesController,
-            decoration: const InputDecoration(
-              labelText: 'Objectius (un per línia)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: '${l10n.objectives} (${l10n.objectivesHint})',
+              border: const OutlineInputBorder(),
             ),
             maxLines: 4,
           ),
@@ -217,12 +220,12 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                     context.go('/moduls/${modul.id}');
                   }
                 },
-                child: const Text('Desa'),
+                child: Text(l10n.save),
               ),
               const SizedBox(width: 12),
               TextButton(
                 onPressed: () => context.pop(),
-                child: const Text('Cancel·la'),
+                child: Text(l10n.cancel),
               ),
             ],
           ),
@@ -241,11 +244,12 @@ class ModulDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final moduls = ref.watch(appStateProvider).moduls;
     final modulList = moduls.where((m) => m.id == modulId).toList();
     final modul = modulList.isEmpty ? null : modulList.first;
     if (modul == null) {
-      return const Center(child: Text('Mòdul no trobat'));
+      return Center(child: Text(l10n.noModules));
     }
     final ras = modul.ras;
     return Padding(
@@ -258,7 +262,7 @@ class ModulDetailPage extends ConsumerWidget {
               // Back button
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                tooltip: 'Tornar a Mòduls',
+                tooltip: l10n.back,
                 onPressed: () => context.go('/moduls'),
               ),
               const SizedBox(width: 8),
@@ -276,7 +280,7 @@ class ModulDetailPage extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     Text(
-                      'Total: ${modul.totalHours} h',
+                      '${l10n.totalHours}: ${modul.totalHours} h',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ],
@@ -286,12 +290,12 @@ class ModulDetailPage extends ConsumerWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit),
-                    tooltip: 'Editar mòdul',
+                    tooltip: l10n.editModule,
                     onPressed: () => context.go('/moduls/edit/$modulId'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    tooltip: 'Eliminar mòdul',
+                    tooltip: l10n.deleteModule,
                     onPressed: () => _confirmDelete(context, ref, modul),
                   ),
                 ],
@@ -301,25 +305,25 @@ class ModulDetailPage extends ConsumerWidget {
           const SizedBox(height: 24),
           Row(
             children: [
-              Text('RAs', style: Theme.of(context).textTheme.titleLarge),
+              Text(l10n.ras, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(width: 12),
               FilledButton.tonalIcon(
                 onPressed: () => context.go('/moduls/$modulId/ra/new'),
                 icon: const Icon(Icons.add),
-                label: const Text('Afegir RA'),
+                label: Text(l10n.addRa),
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
                 onPressed: () => context.go('/moduls/$modulId/ra-config'),
                 icon: const Icon(Icons.date_range),
-                label: const Text('Configurar dates'),
+                label: Text(l10n.selectDates),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Expanded(
             child: ras.isEmpty
-                ? const Center(child: Text('Cap RA. Afegiu-ne un.'))
+                ? Center(child: Text(l10n.noRas))
                 : ListView.builder(
                     itemCount: ras.length,
                     itemBuilder: (context, index) {
@@ -368,19 +372,20 @@ class ModulDetailPage extends ConsumerWidget {
   }
 
   static void _confirmDelete(BuildContext context, WidgetRef ref, Modul modul) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar mòdul'),
-        content: Text('Esteu segur que voleu eliminar "${modul.name}"?'),
+        title: Text(l10n.deleteModule),
+        content: Text(l10n.deleteModuleConfirm(modul.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel·la'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Elimina'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -398,19 +403,20 @@ class ModulDetailPage extends ConsumerWidget {
     Modul modul,
     RA ra,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar RA'),
-        content: Text('Esteu segur que voleu eliminar "${ra.title}"?'),
+        title: Text(l10n.deleteRa),
+        content: Text(l10n.deleteRaConfirm(ra.code)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel·la'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Elimina'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -485,6 +491,7 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = widget.raId != null;
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -492,7 +499,7 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isEdit ? 'Editar RA' : 'Nou RA',
+            isEdit ? l10n.editRa : l10n.addRa,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 24),
@@ -507,34 +514,34 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
           const SizedBox(height: 12),
           TextField(
             controller: _codeController,
-            decoration: const InputDecoration(
-              labelText: 'Codi (p.ex. RA1)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.raCodeHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(
-              labelText: 'Títol',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.raTitle,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descController,
-            decoration: const InputDecoration(
-              labelText: 'Descripció (opcional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.description,
+              border: const OutlineInputBorder(),
             ),
             maxLines: 2,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _hoursController,
-            decoration: const InputDecoration(
-              labelText: 'Durada (hores)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.durationHours,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
           ),
@@ -584,12 +591,12 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                     context.go('/moduls/${widget.modulId}');
                   }
                 },
-                child: const Text('Desa'),
+                child: Text(l10n.save),
               ),
               const SizedBox(width: 12),
               TextButton(
                 onPressed: () => context.go('/moduls/${widget.modulId}'),
-                child: const Text('Cancel·la'),
+                child: Text(l10n.cancel),
               ),
             ],
           ),

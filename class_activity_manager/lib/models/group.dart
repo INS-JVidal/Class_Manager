@@ -11,6 +11,7 @@ class Group {
     this.academicYearId,
     this.moduleIds = const [],
     this.color,
+    this.version = 1,
   });
 
   final String id;
@@ -24,6 +25,9 @@ class Group {
   /// Color del grup en format hexadecimal (p.ex. "#4CAF50").
   final String? color;
 
+  /// Version for optimistic locking (incremented on each update).
+  final int version;
+
   Group copyWith({
     String? id,
     String? name,
@@ -31,6 +35,7 @@ class Group {
     String? academicYearId,
     List<String>? moduleIds,
     String? color,
+    int? version,
   }) {
     return Group(
       id: id ?? this.id,
@@ -39,6 +44,7 @@ class Group {
       academicYearId: academicYearId ?? this.academicYearId,
       moduleIds: moduleIds ?? this.moduleIds,
       color: color ?? this.color,
+      version: version ?? this.version,
     );
   }
 
@@ -49,6 +55,7 @@ class Group {
     if (academicYearId != null) 'academicYearId': academicYearId,
     'moduleIds': moduleIds,
     if (color != null) 'color': color,
+    'version': version,
   };
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
@@ -62,5 +69,6 @@ class Group {
             .toList() ??
         [],
     color: json['color'] as String?,
+    version: json['version'] as int? ?? 1,
   );
 }
