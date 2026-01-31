@@ -1,3 +1,7 @@
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
+
 /// Festiu recurrent (mateixa data cada any): Nadal, Diada, etc.
 class RecurringHoliday {
   RecurringHoliday({
@@ -29,4 +33,21 @@ class RecurringHoliday {
       isEnabled: isEnabled ?? this.isEnabled,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'name': name,
+        'month': month,
+        'day': day,
+        'isEnabled': isEnabled,
+      };
+
+  factory RecurringHoliday.fromJson(Map<String, dynamic> json) =>
+      RecurringHoliday(
+        id: json['_id']?.toString() ?? _uuid.v4(),
+        name: json['name'] as String,
+        month: json['month'] as int,
+        day: json['day'] as int,
+        isEnabled: json['isEnabled'] as bool? ?? true,
+      );
 }

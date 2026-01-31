@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../data/models/curriculum/curriculum.dart';
+import '../data/services/database_service.dart';
 import '../models/models.dart';
+import 'providers.dart';
 
 const _uuid = Uuid();
 
@@ -15,6 +17,8 @@ class AppState {
     List<Modul>? moduls,
     List<String>? selectedCicleIds,
     List<DailyNote>? dailyNotes,
+    this.isLoading = false,
+    this.isInitialized = false,
   })  : recurringHolidays = recurringHolidays ?? [],
         groups = groups ?? [],
         moduls = moduls ?? [],
@@ -27,6 +31,8 @@ class AppState {
   final List<Modul> moduls;
   final List<String> selectedCicleIds;
   final List<DailyNote> dailyNotes;
+  final bool isLoading;
+  final bool isInitialized;
 
   AppState copyWith({
     AcademicYear? currentYear,
@@ -35,6 +41,8 @@ class AppState {
     List<Modul>? moduls,
     List<String>? selectedCicleIds,
     List<DailyNote>? dailyNotes,
+    bool? isLoading,
+    bool? isInitialized,
   }) {
     return AppState(
       currentYear: currentYear ?? this.currentYear,
@@ -43,14 +51,64 @@ class AppState {
       moduls: moduls ?? this.moduls,
       selectedCicleIds: selectedCicleIds ?? this.selectedCicleIds,
       dailyNotes: dailyNotes ?? this.dailyNotes,
+      isLoading: isLoading ?? this.isLoading,
+      isInitialized: isInitialized ?? this.isInitialized,
     );
   }
 }
 
-/// Notifier that holds and updates [AppState]. No persistence.
+/// Notifier that holds and updates [AppState] with MongoDB persistence.
 class AppStateNotifier extends StateNotifier<AppState> {
-  AppStateNotifier([AppState? initial])
-      : super(initial ?? AppState(recurringHolidays: _defaultRecurringHolidays()));
+  AppStateNotifier(this._db) : super(AppState(recurringHolidays: _defaultRecurringHolidays()));
+
+  final DatabaseService? _db;
+
+  bool get hasDatabase => _db != null && _db.isConnected;
+
+  /// Load all data from database on startup.
+  Future<void> loadFromDatabase() async {
+    if (!hasDatabase) {
+      state = state.copyWith(isInitialized: true);
+      return;
+    }
+
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final moduls = await _db!.modulRepository.findAll();
+      final groups = await _db!.groupRepository.findAll();
+      final dailyNotes = await _db!.dailyNoteRepository.findAll();
+      final recurringHolidays = await _db!.recurringHolidayRepository.findAll();
+      final currentYear = await _db!.academicYearRepository.findActive();
+
+      state = state.copyWith(
+        moduls: moduls,
+        groups: groups,
+        dailyNotes: dailyNotes,
+        recurringHolidays: recurringHolidays.isEmpty
+            ? _defaultRecurringHolidays()
+            : recurringHolidays,
+        currentYear: currentYear,
+        isLoading: false,
+        isInitialized: true,
+      );
+
+      // If holidays were empty, persist the defaults
+      if (recurringHolidays.isEmpty) {
+        for (final holiday in state.recurringHolidays) {
+          await _db!.recurringHolidayRepository.insert(holiday);
+        }
+      }
+    } catch (e) {
+      // On error, fall back to empty state with default holidays
+      state = state.copyWith(
+        recurringHolidays: _defaultRecurringHolidays(),
+        isLoading: false,
+        isInitialized: true,
+      );
+      rethrow;
+    }
+  }
 
   static List<RecurringHoliday> _defaultRecurringHolidays() {
     // (month, day, name) - PRD defaults for Catalunya
@@ -80,56 +138,79 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   // Academic year
-  void setCurrentYear(AcademicYear year) {
+  Future<void> setCurrentYear(AcademicYear year) async {
+    if (hasDatabase) {
+      await _db!.academicYearRepository.insert(year);
+      await _db!.academicYearRepository.setActiveYear(year.id);
+    }
     state = state.copyWith(currentYear: year);
   }
 
-  void updateCurrentYear(AcademicYear year) {
+  Future<void> updateCurrentYear(AcademicYear year) async {
+    if (hasDatabase) {
+      await _db!.academicYearRepository.update(year);
+    }
     state = state.copyWith(currentYear: year);
   }
 
-  void clearCurrentYear() {
+  Future<void> clearCurrentYear() async {
+    if (state.currentYear != null && hasDatabase) {
+      final year = state.currentYear!.copyWith(isActive: false);
+      await _db!.academicYearRepository.update(year);
+    }
     state = state.copyWith(currentYear: null);
   }
 
   // Vacation periods (on current year)
-  void addVacationPeriod(VacationPeriod period) {
+  Future<void> addVacationPeriod(VacationPeriod period) async {
     final year = state.currentYear;
     if (year == null) return;
     final updated = List<VacationPeriod>.from(year.vacationPeriods)..add(period);
-    state = state.copyWith(
-      currentYear: year.copyWith(vacationPeriods: updated),
-    );
+    final newYear = year.copyWith(vacationPeriods: updated);
+    if (hasDatabase) {
+      await _db!.academicYearRepository.update(newYear);
+    }
+    state = state.copyWith(currentYear: newYear);
   }
 
-  void updateVacationPeriod(VacationPeriod period) {
+  Future<void> updateVacationPeriod(VacationPeriod period) async {
     final year = state.currentYear;
     if (year == null) return;
     final updated = year.vacationPeriods
         .map((p) => p.id == period.id ? period : p)
         .toList();
-    state = state.copyWith(
-      currentYear: year.copyWith(vacationPeriods: updated),
-    );
+    final newYear = year.copyWith(vacationPeriods: updated);
+    if (hasDatabase) {
+      await _db!.academicYearRepository.update(newYear);
+    }
+    state = state.copyWith(currentYear: newYear);
   }
 
-  void removeVacationPeriod(String id) {
+  Future<void> removeVacationPeriod(String id) async {
     final year = state.currentYear;
     if (year == null) return;
     final updated = year.vacationPeriods.where((p) => p.id != id).toList();
-    state = state.copyWith(
-      currentYear: year.copyWith(vacationPeriods: updated),
-    );
+    final newYear = year.copyWith(vacationPeriods: updated);
+    if (hasDatabase) {
+      await _db!.academicYearRepository.update(newYear);
+    }
+    state = state.copyWith(currentYear: newYear);
   }
 
   // Recurring holidays
-  void addRecurringHoliday(RecurringHoliday holiday) {
+  Future<void> addRecurringHoliday(RecurringHoliday holiday) async {
+    if (hasDatabase) {
+      await _db!.recurringHolidayRepository.insert(holiday);
+    }
     state = state.copyWith(
       recurringHolidays: [...state.recurringHolidays, holiday],
     );
   }
 
-  void updateRecurringHoliday(RecurringHoliday holiday) {
+  Future<void> updateRecurringHoliday(RecurringHoliday holiday) async {
+    if (hasDatabase) {
+      await _db!.recurringHolidayRepository.update(holiday);
+    }
     state = state.copyWith(
       recurringHolidays: state.recurringHolidays
           .map((h) => h.id == holiday.id ? holiday : h)
@@ -137,41 +218,62 @@ class AppStateNotifier extends StateNotifier<AppState> {
     );
   }
 
-  void removeRecurringHoliday(String id) {
+  Future<void> removeRecurringHoliday(String id) async {
+    if (hasDatabase) {
+      await _db!.recurringHolidayRepository.delete(id);
+    }
     state = state.copyWith(
       recurringHolidays: state.recurringHolidays.where((h) => h.id != id).toList(),
     );
   }
 
   // Groups
-  void addGroup(Group group) {
+  Future<void> addGroup(Group group) async {
+    if (hasDatabase) {
+      await _db!.groupRepository.insert(group);
+    }
     state = state.copyWith(groups: [...state.groups, group]);
   }
 
-  void updateGroup(Group group) {
+  Future<void> updateGroup(Group group) async {
+    if (hasDatabase) {
+      await _db!.groupRepository.update(group);
+    }
     state = state.copyWith(
       groups: state.groups.map((g) => g.id == group.id ? group : g).toList(),
     );
   }
 
-  void removeGroup(String id) {
+  Future<void> removeGroup(String id) async {
+    if (hasDatabase) {
+      await _db!.groupRepository.delete(id);
+    }
     state = state.copyWith(
       groups: state.groups.where((g) => g.id != id).toList(),
     );
   }
 
   // Moduls
-  void addModul(Modul modul) {
+  Future<void> addModul(Modul modul) async {
+    if (hasDatabase) {
+      await _db!.modulRepository.insert(modul);
+    }
     state = state.copyWith(moduls: [...state.moduls, modul]);
   }
 
-  void updateModul(Modul modul) {
+  Future<void> updateModul(Modul modul) async {
+    if (hasDatabase) {
+      await _db!.modulRepository.update(modul);
+    }
     state = state.copyWith(
       moduls: state.moduls.map((m) => m.id == modul.id ? modul : m).toList(),
     );
   }
 
-  void removeModul(String id) {
+  Future<void> removeModul(String id) async {
+    if (hasDatabase) {
+      await _db!.modulRepository.delete(id);
+    }
     state = state.copyWith(
       moduls: state.moduls.where((m) => m.id != id).toList(),
     );
@@ -183,13 +285,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Import a module from curriculum YAML: creates Modul and RAs from UFs.
   /// If the module already exists (by code), accumulates the cicleCode.
-  void importModulFromCurriculum(String cicleCode, CurriculumModul cm) {
+  Future<void> importModulFromCurriculum(String cicleCode, CurriculumModul cm) async {
     // Check if module already exists by code
     final existing = state.moduls.where((m) => m.code == cm.codi).toList();
     if (existing.isNotEmpty) {
       final modul = existing.first;
       if (!modul.cicleCodes.contains(cicleCode)) {
-        updateModul(modul.copyWith(
+        await updateModul(modul.copyWith(
           cicleCodes: [...modul.cicleCodes, cicleCode],
         ));
       }
@@ -197,13 +299,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
 
     // Create new module with RAs from UFs
-    final notifier = this;
     final ras = <RA>[];
     for (var i = 0; i < cm.ufs.length; i++) {
       final uf = cm.ufs[i];
       final raNumber = i + 1;
       ras.add(RA(
-        id: notifier.nextId(),
+        id: nextId(),
         number: raNumber,
         code: uf.codi,
         title: uf.nom,
@@ -212,18 +313,18 @@ class AppStateNotifier extends StateNotifier<AppState> {
       ));
     }
     final modul = Modul(
-      id: notifier.nextId(),
+      id: nextId(),
       code: cm.codi,
       name: cm.nom,
       totalHours: cm.hores,
       ras: ras,
       cicleCodes: [cicleCode],
     );
-    addModul(modul);
+    await addModul(modul);
   }
 
   /// Add or update RA in a module.
-  void setModulRA(String modulId, RA ra) {
+  Future<void> setModulRA(String modulId, RA ra) async {
     final list = state.moduls.where((m) => m.id == modulId).toList();
     if (list.isEmpty) return;
     final modul = list.first;
@@ -231,24 +332,50 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final ras = existing.isEmpty
         ? [...modul.ras, ra]
         : modul.ras.map((r) => r.id == ra.id ? ra : r).toList();
-    updateModul(modul.copyWith(ras: ras));
+    await updateModul(modul.copyWith(ras: ras));
   }
 
-  void removeModulRA(String modulId, String raId) {
+  Future<void> removeModulRA(String modulId, String raId) async {
     final list = state.moduls.where((m) => m.id == modulId).toList();
     if (list.isEmpty) return;
     final modul = list.first;
     final ras = modul.ras.where((r) => r.id != raId).toList();
-    updateModul(modul.copyWith(ras: ras));
+    await updateModul(modul.copyWith(ras: ras));
   }
 
-  void setDailyNote(DailyNote note) {
+  Future<void> setDailyNote(DailyNote note) async {
     final notes = state.dailyNotes.where((n) => !_isSameDailyNote(n, note)).toList();
     if (_isDailyNoteEmpty(note) && !note.completed) {
+      // Delete empty note
+      final existing = state.dailyNotes.where((n) => _isSameDailyNote(n, note)).toList();
+      if (existing.isNotEmpty && hasDatabase) {
+        await _db!.dailyNoteRepository.delete(existing.first.id);
+      }
       state = state.copyWith(dailyNotes: notes);
       return;
     }
-    state = state.copyWith(dailyNotes: [...notes, note]);
+
+    if (hasDatabase) {
+      // Check if this is an update or insert
+      final existingNote = await _db!.dailyNoteRepository.findByGroupRaDate(
+        note.groupId,
+        note.raId,
+        note.date,
+      );
+      if (existingNote != null) {
+        // Update existing note, preserving its ID
+        final updatedNote = note.copyWith(id: existingNote.id);
+        await _db!.dailyNoteRepository.update(updatedNote);
+        state = state.copyWith(dailyNotes: [...notes, updatedNote]);
+      } else {
+        // Insert new note
+        await _db!.dailyNoteRepository.insert(note);
+        state = state.copyWith(dailyNotes: [...notes, note]);
+      }
+    } else {
+      // No database - just update in-memory state
+      state = state.copyWith(dailyNotes: [...notes, note]);
+    }
   }
 
   DailyNote? getDailyNote(String groupId, String raId, DateTime date) {
@@ -269,19 +396,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   // Group-Module relationship methods
-  void addModuleToGroup(String groupId, String modulId) {
+  Future<void> addModuleToGroup(String groupId, String modulId) async {
     final list = state.groups.where((g) => g.id == groupId).toList();
     if (list.isEmpty) return;
     final group = list.first;
     if (group.moduleIds.contains(modulId)) return;
-    updateGroup(group.copyWith(moduleIds: [...group.moduleIds, modulId]));
+    await updateGroup(group.copyWith(moduleIds: [...group.moduleIds, modulId]));
   }
 
-  void removeModuleFromGroup(String groupId, String modulId) {
+  Future<void> removeModuleFromGroup(String groupId, String modulId) async {
     final list = state.groups.where((g) => g.id == groupId).toList();
     if (list.isEmpty) return;
     final group = list.first;
-    updateGroup(group.copyWith(
+    await updateGroup(group.copyWith(
       moduleIds: group.moduleIds.where((id) => id != modulId).toList(),
     ));
   }
@@ -308,5 +435,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 }
 
+/// Provider for app state with database persistence.
 final appStateProvider =
-    StateNotifierProvider<AppStateNotifier, AppState>((ref) => AppStateNotifier());
+    StateNotifierProvider<AppStateNotifier, AppState>((ref) {
+  final db = ref.watch(databaseServiceProvider);  // Can be null
+  return AppStateNotifier(db);
+});

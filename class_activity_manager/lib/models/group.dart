@@ -1,3 +1,7 @@
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
+
 /// Grup d'alumnes (classe): DAW1-A, SMX2-B, etc.
 class Group {
   Group({
@@ -30,4 +34,23 @@ class Group {
       moduleIds: moduleIds ?? this.moduleIds,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'name': name,
+        if (notes != null) 'notes': notes,
+        if (academicYearId != null) 'academicYearId': academicYearId,
+        'moduleIds': moduleIds,
+      };
+
+  factory Group.fromJson(Map<String, dynamic> json) => Group(
+        id: json['_id']?.toString() ?? _uuid.v4(),
+        name: json['name'] as String,
+        notes: json['notes'] as String?,
+        academicYearId: json['academicYearId']?.toString(),
+        moduleIds: (json['moduleIds'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
+      );
 }

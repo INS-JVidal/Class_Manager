@@ -1,3 +1,7 @@
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
+
 /// Període de vacances específic d'un curs acadèmic (Nadal, Setmana Santa).
 class VacationPeriod {
   VacationPeriod({
@@ -28,5 +32,26 @@ class VacationPeriod {
       endDate: endDate ?? this.endDate,
       note: note ?? this.note,
     );
+  }
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'name': name,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        if (note != null) 'note': note,
+      };
+
+  factory VacationPeriod.fromJson(Map<String, dynamic> json) => VacationPeriod(
+        id: json['_id']?.toString() ?? _uuid.v4(),
+        name: json['name'] as String,
+        startDate: _parseDateTime(json['startDate']),
+        endDate: _parseDateTime(json['endDate']),
+        note: json['note'] as String?,
+      );
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value is DateTime) return value;
+    return DateTime.parse(value as String);
   }
 }

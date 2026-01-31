@@ -1,4 +1,8 @@
+import 'package:uuid/uuid.dart';
+
 import 'ra.dart';
+
+const _uuid = Uuid();
 
 /// Mòdul professional (assignatura): MP06, etc.
 class Modul {
@@ -51,4 +55,33 @@ class Modul {
       cicleCodes: cicleCodes ?? this.cicleCodes,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'code': code,
+        'name': name,
+        if (description != null) 'description': description,
+        'totalHours': totalHours,
+        'objectives': objectives,
+        if (officialReference != null) 'officialReference': officialReference,
+        'ras': ras.map((ra) => ra.toJson()).toList(),
+        'cicleCodes': cicleCodes,
+      };
+
+  factory Modul.fromJson(Map<String, dynamic> json) => Modul(
+        id: json['_id']?.toString() ?? _uuid.v4(),
+        code: json['code'] as String,
+        name: json['name'] as String,
+        description: json['description'] as String?,
+        totalHours: json['totalHours'] as int,
+        objectives:
+            (json['objectives'] as List<dynamic>?)?.cast<String>() ?? [],
+        officialReference: json['officialReference'] as String?,
+        ras: (json['ras'] as List<dynamic>?)
+                ?.map((e) => RA.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        cicleCodes:
+            (json['cicleCodes'] as List<dynamic>?)?.cast<String>() ?? [],
+      );
 }

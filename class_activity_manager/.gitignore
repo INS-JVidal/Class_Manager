@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# MongoDB Docker environment (contains credentials)
+docker/.env
+docker/.env.local
+docker/.env.*.local
+
+# MongoDB data (if using bind mount instead of volume)
+docker/data/
+
+# Flutter app environment (contains credentials)
+lib/.env
+lib/.env.local
