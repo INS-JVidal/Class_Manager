@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/models.dart';
 import '../../state/app_state.dart';
@@ -20,25 +21,26 @@ class ModulsListPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Mòduls', style: Theme.of(context).textTheme.headlineMedium),
-              FilledButton.tonalIcon(
-                onPressed: () => context.go('/moduls/new'),
-                icon: const Icon(Icons.add),
-                label: const Text('Afegir mòdul'),
+              OutlinedButton.icon(
+                onPressed: () => context.go('/setup-curriculum'),
+                icon: const Icon(Icons.menu_book),
+                label: const Text('Configuració currículum'),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Expanded(
             child: moduls.isEmpty
-                ? const Center(child: Text('Cap mòdul. Afegiu-ne un.'))
+                ? const Center(child: Text('Cap mòdul.'))
                 : ListView.builder(
                     itemCount: moduls.length,
                     itemBuilder: (context, index) {
                       final m = moduls[index];
+                      final cycleInfo = m.cicleCodes.isNotEmpty ? ' · ${m.cicleCodes.join(", ")}' : '';
                       return Card(
                         child: ListTile(
                           title: Text('${m.code} — ${m.name}'),
-                          subtitle: Text('${m.totalHours} h'),
+                          subtitle: Text('${m.totalHours} h$cycleInfo'),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => context.go('/moduls/${m.id}'),
                         ),
@@ -196,6 +198,8 @@ class ModulDetailPage extends ConsumerWidget {
 
   final String modulId;
 
+  static final _dateFormat = DateFormat('dd/MM/yyyy');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final moduls = ref.watch(appStateProvider).moduls;
@@ -211,24 +215,34 @@ class ModulDetailPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${modul.code} — ${modul.name}', style: Theme.of(context).textTheme.headlineMedium),
-                  if (modul.description != null) Text(modul.description!, style: Theme.of(context).textTheme.bodyMedium),
-                  Text('Total: ${modul.totalHours} h', style: Theme.of(context).textTheme.titleSmall),
-                ],
+              // Back button
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Tornar a Mòduls',
+                onPressed: () => context.go('/moduls'),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${modul.code} — ${modul.name}', style: Theme.of(context).textTheme.headlineMedium),
+                    if (modul.description != null) Text(modul.description!, style: Theme.of(context).textTheme.bodyMedium),
+                    Text('Total: ${modul.totalHours} h', style: Theme.of(context).textTheme.titleSmall),
+                  ],
+                ),
               ),
               Row(
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit),
+                    tooltip: 'Editar mòdul',
                     onPressed: () => context.go('/moduls/edit/$modulId'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete),
+                    tooltip: 'Eliminar mòdul',
                     onPressed: () => _confirmDelete(context, ref, modul),
                   ),
                 ],
@@ -245,6 +259,12 @@ class ModulDetailPage extends ConsumerWidget {
                 icon: const Icon(Icons.add),
                 label: const Text('Afegir RA'),
               ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () => context.go('/moduls/$modulId/ra-config'),
+                icon: const Icon(Icons.date_range),
+                label: const Text('Configurar dates'),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -255,10 +275,11 @@ class ModulDetailPage extends ConsumerWidget {
                     itemCount: ras.length,
                     itemBuilder: (context, index) {
                       final ra = ras[index];
+                      final dateInfo = _buildDateInfo(ra);
                       return Card(
                         child: ListTile(
                           title: Text('${ra.code} — ${ra.title}'),
-                          subtitle: Text('${ra.durationHours} h'),
+                          subtitle: Text('${ra.durationHours} h$dateInfo'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -274,6 +295,18 @@ class ModulDetailPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _buildDateInfo(RA ra) {
+    final parts = <String>[];
+    if (ra.startDate != null) {
+      parts.add('Inici: ${_dateFormat.format(ra.startDate!)}');
+    }
+    if (ra.endDate != null) {
+      parts.add('Fi: ${_dateFormat.format(ra.endDate!)}');
+    }
+    if (parts.isEmpty) return '';
+    return ' · ${parts.join(' · ')}';
   }
 
   static void _confirmDelete(BuildContext context, WidgetRef ref, Modul modul) {

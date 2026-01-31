@@ -1,0 +1,31 @@
+# Class Activity Manager
+
+## Project Issues Document - Delta 0.0.2
+
+**Version:** 0.0.2
+**Date:** January 2026
+**Time:** 06:23
+**Author:** @jvidal86
+**Project Type:** Cross-platform Desktop Application
+
+---
+
+## 1. Executive Summary
+
+After version 0.0.1 prototype, we have identified issues to improve. This next release v0.0.2 will address software architecture and UI dessing problems.
+
+
+## Issues identified in v0.0.1
+
+- Daily notes view is too simple. It need to show more accurate information to:
+    - Show the RA name and date.
+    - show the planned content for the day.
+    - track the actual content delivered for the day.
+    - once done, mark the day as completed and prevent editing.
+    - show date: day of week, week number.
+
+- Daily notes route "/daily-notes" in the navigation diagram is issolated. it should depend on the  Appshell, since it is placed in the left navigation bar.
+- Groups should be configured with the "mòduls" taught in the group.
+    - Different groups might have the same "mòdul" taught, have same RAs taught, but different "daily notes" to track the progress of the group.
+    - The "mòduls" taught in the group should be configured in the group form page.
+- When selecting the "mòduls" I teach, they should also show the study they are taught in. For example, I can teach "M03" in DAM and DAW.

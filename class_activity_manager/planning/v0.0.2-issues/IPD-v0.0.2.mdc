@@ -1,0 +1,141 @@
+# Class Activity Manager
+
+## Implementation Plan Document - Delta 0.0.2
+
+**Version:** 0.0.2
+**Date:** January 2026
+**Author:** @jvidal86
+**Project Type:** Cross-platform Desktop Application
+
+---
+
+## 1. Overview
+
+This document describes the implementation plan for fixing issues identified in PID-v0.0.2.mdc.
+
+---
+
+## 2. Issues Addressed
+
+| Issue | Description | Solution |
+|-------|-------------|----------|
+| Daily notes too simple | Missing RA name, date details, planned/actual content | Enhanced UI with group selector, content fields, date info |
+| Route isolation | `/daily-notes` appeared isolated | Verified: already inside ShellRoute (no changes needed) |
+| Groups without modules | No way to assign modules to groups | Added `moduleIds` to Group model + selection UI |
+| Modules without study context | Couldn't see which cycles a module is taught in | Changed `cicleCode` to `cicleCodes` list |
+
+---
+
+## 3. Model Changes
+
+### 3.1 DailyNote (`lib/models/daily_note.dart`)
+
+**New fields:**
+- `groupId` (required String) - Links note to specific group
+- `plannedContent` (String?) - Planned session content
+- `actualContent` (String?) - Actually delivered content
+
+### 3.2 Group (`lib/models/group.dart`)
+
+**New field:**
+- `moduleIds` (List<String>) - IDs of modules taught in this group
+
+### 3.3 Modul (`lib/models/modul.dart`)
+
+**Changed field:**
+- `cicleCode` (String?) → `cicleCodes` (List<String>)
+
+---
+
+## 4. State Management Changes
+
+### 4.1 AppStateNotifier (`lib/state/app_state.dart`)
+
+**DailyNote methods updated:**
+- `setDailyNote()` - Match by (raId, date, groupId)
+- `getDailyNote(groupId, raId, date)` - Added groupId parameter
+- `getDailyNotesForGroupRa(groupId, raId)` - New method
+- `_isSameDailyNote()` - Include groupId in comparison
+
+**New Group-Module methods:**
+- `addModuleToGroup(groupId, modulId)`
+- `removeModuleFromGroup(groupId, modulId)`
+- `getGroupsForModule(modulId)`
+
+**Curriculum import updated:**
+- `importModulFromCurriculum()` - Accumulates cycle codes for existing modules
+
+---
+
+## 5. UI Changes
+
+### 5.1 DailyNotesPage (`lib/presentation/pages/daily_notes_page.dart`)
+
+1. **Group selector dropdown** - First selector, filters available modules
+2. **RA info header card** - Shows module code + RA title
+3. **Enhanced date display** - Day of week (Catalan) + week number
+4. **Planned content field** - "Contingut planificat"
+5. **Actual content field** - "Contingut impartit"
+6. **Read-only mode** - When `completed = true`, all fields are read-only
+7. **Completion chip** - "Marcar com a fet" / "Completat"
+
+### 5.2 GroupFormPage (`lib/presentation/pages/grups_page.dart`)
+
+1. **Module selection section** - Checkboxes for each module
+2. **Module info display** - Code, name, cycle codes
+3. **Save moduleIds** - Included in group creation/update
+
+### 5.3 GrupsListPage (`lib/presentation/pages/grups_page.dart`)
+
+- Subtitle shows module count: "X mòduls assignats"
+
+### 5.4 ModulsListPage (`lib/presentation/pages/moduls_page.dart`)
+
+- Subtitle shows cycle codes: "66 h · DAM, DAW"
+
+---
+
+## 6. Implementation Order
+
+### Phase 1: Models
+1. Update DailyNote model
+2. Update Group model
+3. Update Modul model
+
+### Phase 2: State Management
+4. Update AppStateNotifier
+
+### Phase 3: Group UI
+5. Update GroupFormPage
+6. Update GrupsListPage
+
+### Phase 4: Module UI
+7. Update ModulsListPage
+
+### Phase 5: Daily Notes UI
+8. Update DailyNotesPage
+
+---
+
+## 7. Verification
+
+1. `flutter analyze` - No errors
+2. Test flow: Create group → Assign modules → Create daily notes
+3. Verify completed notes are read-only
+4. Verify week number and day of week display (Catalan)
+5. Verify curriculum import accumulates cycles
+6. `flutter run -d linux` - App runs correctly
+
+---
+
+## 8. Files Modified
+
+| File | Changes |
+|------|---------|
+| `lib/models/daily_note.dart` | +groupId, +plannedContent, +actualContent |
+| `lib/models/group.dart` | +moduleIds |
+| `lib/models/modul.dart` | cicleCode → cicleCodes |
+| `lib/state/app_state.dart` | Updated methods for all model changes |
+| `lib/presentation/pages/daily_notes_page.dart` | Major UI enhancement |
+| `lib/presentation/pages/grups_page.dart` | +module selection |
+| `lib/presentation/pages/moduls_page.dart` | +cycle codes display |

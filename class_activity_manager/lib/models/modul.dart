@@ -11,6 +11,7 @@ class Modul {
     this.objectives = const [],
     this.officialReference,
     this.ras = const [],
+    this.cicleCodes = const [],
   });
 
   final String id;
@@ -21,6 +22,11 @@ class Modul {
   final List<String> objectives;
   final String? officialReference;
   final List<RA> ras;
+  /// Codis dels cicles on s'imparteix el mòdul (e.g. ICC0, ICB0).
+  final List<String> cicleCodes;
+
+  /// Display string for cycle codes (e.g., "DAM, DAW").
+  String get cicleCodesDisplay => cicleCodes.join(', ');
 
   Modul copyWith({
     String? id,
@@ -31,6 +37,7 @@ class Modul {
     List<String>? objectives,
     String? officialReference,
     List<RA>? ras,
+    List<String>? cicleCodes,
   }) {
     return Modul(
       id: id ?? this.id,
@@ -41,6 +48,7 @@ class Modul {
       objectives: objectives ?? this.objectives,
       officialReference: officialReference ?? this.officialReference,
       ras: ras ?? this.ras,
+      cicleCodes: cicleCodes ?? this.cicleCodes,
     );
   }
 }
