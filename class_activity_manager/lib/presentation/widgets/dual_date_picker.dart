@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../models/recurring_holiday.dart';
+import '../../state/app_state.dart';
+
 /// Widget showing two calendars side-by-side for selecting a date range.
-class DualDatePicker extends StatefulWidget {
+class DualDatePicker extends ConsumerStatefulWidget {
   const DualDatePicker({
     super.key,
     this.initialStart,
@@ -41,10 +45,10 @@ class DualDatePicker extends StatefulWidget {
   }
 
   @override
-  State<DualDatePicker> createState() => _DualDatePickerState();
+  ConsumerState<DualDatePicker> createState() => _DualDatePickerState();
 }
 
-class _DualDatePickerState extends State<DualDatePicker> {
+class _DualDatePickerState extends ConsumerState<DualDatePicker> {
   late DateTime _startMonth;
   late DateTime _endMonth;
   DateTime? _startDate;
@@ -52,6 +56,21 @@ class _DualDatePickerState extends State<DualDatePicker> {
   String? _error;
 
   static final _dateFormat = DateFormat('dd/MM/yyyy');
+
+  bool _isWeekend(DateTime date) {
+    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+  }
+
+  bool _isHoliday(DateTime date, List<RecurringHoliday> holidays) {
+    for (final holiday in holidays) {
+      if (holiday.isEnabled &&
+          holiday.month == date.month &&
+          holiday.day == date.day) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -77,6 +96,8 @@ class _DualDatePickerState extends State<DualDatePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(appStateProvider);
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -100,6 +121,9 @@ class _DualDatePickerState extends State<DualDatePicker> {
                     selectedDate: _startDate,
                     firstDate: _firstDate,
                     lastDate: _lastDate,
+                    recurringHolidays: state.recurringHolidays,
+                    isWeekend: _isWeekend,
+                    isHoliday: _isHoliday,
                     onMonthChanged: (m) => setState(() => _startMonth = m),
                     onDateSelected: (d) {
                       setState(() {
@@ -118,6 +142,9 @@ class _DualDatePickerState extends State<DualDatePicker> {
                     selectedDate: _endDate,
                     firstDate: _firstDate,
                     lastDate: _lastDate,
+                    recurringHolidays: state.recurringHolidays,
+                    isWeekend: _isWeekend,
+                    isHoliday: _isHoliday,
                     onMonthChanged: (m) => setState(() => _endMonth = m),
                     onDateSelected: (d) {
                       setState(() {
@@ -176,6 +203,9 @@ class _CalendarPanel extends StatelessWidget {
     required this.selectedDate,
     required this.firstDate,
     required this.lastDate,
+    required this.recurringHolidays,
+    required this.isWeekend,
+    required this.isHoliday,
     required this.onMonthChanged,
     required this.onDateSelected,
   });
@@ -185,6 +215,9 @@ class _CalendarPanel extends StatelessWidget {
   final DateTime? selectedDate;
   final DateTime firstDate;
   final DateTime lastDate;
+  final List<RecurringHoliday> recurringHolidays;
+  final bool Function(DateTime) isWeekend;
+  final bool Function(DateTime, List<RecurringHoliday>) isHoliday;
   final ValueChanged<DateTime> onMonthChanged;
   final ValueChanged<DateTime> onDateSelected;
 
@@ -264,6 +297,10 @@ class _CalendarPanel extends StatelessWidget {
     // Monday = 1, so we adjust for Monday-first week
     final startWeekday = (firstDayOfMonth.weekday - 1) % 7;
 
+    // Day-off colors
+    const weekendColor = Color(0xFF616161); // Dark grey
+    const holidayColor = Color(0xFF1B3D1B); // Very dark forest green
+
     final days = <Widget>[];
 
     // Empty cells before first day
@@ -285,28 +322,39 @@ class _CalendarPanel extends StatelessWidget {
           DateTime.now().day == date.day;
       final isInRange = !date.isBefore(firstDate) && !date.isAfter(lastDate);
 
+      // Check if day is off (weekend or holiday)
+      final isWeekendDay = isWeekend(date);
+      final isHolidayDay = isHoliday(date, recurringHolidays);
+      final isDayOff = isWeekendDay || isHolidayDay;
+
       days.add(
         GestureDetector(
-          onTap: isInRange ? () => onDateSelected(date) : null,
+          onTap: isInRange && !isDayOff ? () => onDateSelected(date) : null,
           child: Container(
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : isToday
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
+              color: isHolidayDay
+                  ? holidayColor
+                  : isWeekendDay
+                      ? weekendColor
+                      : isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : isToday
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : null,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 '$day',
                 style: TextStyle(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : isInRange
-                      ? null
-                      : Theme.of(context).colorScheme.outline,
+                  color: isDayOff
+                      ? Colors.white70
+                      : isSelected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : isInRange
+                              ? null
+                              : Theme.of(context).colorScheme.outline,
                   fontWeight: isToday ? FontWeight.bold : null,
                 ),
               ),

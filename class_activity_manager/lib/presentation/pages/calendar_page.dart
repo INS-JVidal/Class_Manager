@@ -21,6 +21,31 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   static final _monthFormat = DateFormat('MMMM yyyy', 'ca');
   static final _dateFormat = DateFormat('EEEE, d MMMM yyyy', 'ca');
 
+  bool _isWeekend(DateTime date) {
+    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+  }
+
+  bool _isHoliday(DateTime date, AppState state) {
+    // Check recurring holidays (enabled only)
+    for (final holiday in state.recurringHolidays) {
+      if (holiday.isEnabled &&
+          holiday.month == date.month &&
+          holiday.day == date.day) {
+        return true;
+      }
+    }
+
+    // Check vacation periods in current academic year
+    final vacations = state.currentYear?.vacationPeriods ?? [];
+    for (final vp in vacations) {
+      if (!date.isBefore(vp.startDate) && !date.isAfter(vp.endDate)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -185,7 +210,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     ),
                     const SizedBox(height: 8),
                     // Calendar grid
-                    Expanded(child: _buildCalendarGrid(context, rasByDate)),
+                    Expanded(child: _buildCalendarGrid(context, rasByDate, state)),
                   ],
                 ),
               ),
@@ -334,6 +359,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   Widget _buildCalendarGrid(
     BuildContext context,
     Map<DateTime, List<_RaInfo>> rasByDate,
+    AppState state,
   ) {
     final firstDayOfMonth = DateTime(
       _currentMonth.year,
@@ -358,6 +384,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
 
+    // Day-off colors
+    const weekendColor = Color(0xFF616161); // Dark grey
+    const holidayColor = Color(0xFF1B3D1B); // Very dark forest green
+
     // Days of month
     for (var day = 1; day <= lastDayOfMonth.day; day++) {
       final date = DateTime(_currentMonth.year, _currentMonth.month, day);
@@ -369,6 +399,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           _selectedDate!.day == date.day;
       final ras = rasByDate[date] ?? [];
 
+      // Check if day is off (weekend or holiday)
+      final isWeekend = _isWeekend(date);
+      final isHoliday = _isHoliday(date, state);
+      final isDayOff = isWeekend || isHoliday;
+
       // Get unique colors from RAs on this day
       final colors = ras
           .where((info) => info.group.color != null)
@@ -378,28 +413,30 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
       days.add(
         InkWell(
-          onTap: () {
-            setState(() => _selectedDate = date);
-          },
+          onTap: isDayOff ? null : () => setState(() => _selectedDate = date),
           borderRadius: BorderRadius.circular(8),
           child: Container(
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
+              color: isHoliday
+                  ? holidayColor
+                  : isWeekend
+                      ? weekendColor
+                      : isSelected
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : null,
               borderRadius: BorderRadius.circular(8),
-              border: isToday
+              border: isToday && !isDayOff
                   ? Border.all(
                       color: Theme.of(context).colorScheme.primary,
                       width: 2,
                     )
-                  : isSelected
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1,
-                    )
-                  : null,
+                  : isSelected && !isDayOff
+                      ? Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1,
+                        )
+                      : null,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -408,9 +445,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   '$day',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: isToday || isSelected ? FontWeight.bold : null,
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : null,
+                    color: isDayOff
+                        ? Colors.white70
+                        : isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
                   ),
                 ),
                 if (colors.isNotEmpty)
