@@ -11,6 +11,8 @@ class RA {
     required this.durationHours,
     this.order = 0,
     this.criterisAvaluacio = const [],
+    this.startDate,
+    this.endDate,
   });
 
   final String id;
@@ -21,6 +23,8 @@ class RA {
   final int durationHours;
   final int order;
   final List<CriteriAvaluacio> criterisAvaluacio;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   RA copyWith({
     String? id,
@@ -31,6 +35,8 @@ class RA {
     int? durationHours,
     int? order,
     List<CriteriAvaluacio>? criterisAvaluacio,
+    DateTime? startDate,
+    DateTime? endDate,
   }) {
     return RA(
       id: id ?? this.id,
@@ -41,6 +47,8 @@ class RA {
       durationHours: durationHours ?? this.durationHours,
       order: order ?? this.order,
       criterisAvaluacio: criterisAvaluacio ?? this.criterisAvaluacio,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
     );
   }
 }

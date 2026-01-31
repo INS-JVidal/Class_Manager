@@ -6,6 +6,7 @@ final navDestinations = [
   (route: '/', label: 'Dashboard', icon: Icons.dashboard),
   (route: '/calendar', label: 'Calendar', icon: Icons.calendar_month),
   (route: '/moduls', label: 'Mòduls', icon: Icons.school),
+  (route: '/daily-notes', label: 'Notes diàries', icon: Icons.note),
   (route: '/grups', label: 'Grups', icon: Icons.groups),
   (route: '/tasques', label: 'Tasques', icon: Icons.assignment),
   (route: '/informes', label: 'Informes', icon: Icons.assessment),

@@ -3,9 +3,12 @@ import 'package:go_router/go_router.dart';
 
 import '../presentation/pages/configuracio_page.dart';
 import '../presentation/pages/dashboard_page.dart';
+import '../presentation/pages/daily_notes_page.dart';
 import '../presentation/pages/grups_page.dart';
 import '../presentation/pages/moduls_page.dart';
 import '../presentation/pages/placeholder_page.dart';
+import '../presentation/pages/ra_config_page.dart';
+import '../presentation/pages/setup_curriculum_page.dart';
 import '../presentation/shell/app_shell.dart';
 
 GoRouter createAppRouter() {
@@ -39,12 +42,6 @@ GoRouter createAppRouter() {
             ),
             routes: [
               GoRoute(
-                path: 'new',
-                pageBuilder: (_, __) => const MaterialPage(
-                  child: ModulFormPage(),
-                ),
-              ),
-              GoRoute(
                 path: 'edit/:id',
                 pageBuilder: (_, state) {
                   final id = state.pathParameters['id']!;
@@ -62,6 +59,15 @@ GoRouter createAppRouter() {
                   );
                 },
                 routes: [
+                  GoRoute(
+                    path: 'ra-config',
+                    pageBuilder: (_, state) {
+                      final id = state.pathParameters['id']!;
+                      return MaterialPage(
+                        child: RaConfigPage(modulId: id),
+                      );
+                    },
+                  ),
                   GoRoute(
                     path: 'ra/new',
                     pageBuilder: (_, state) {
@@ -130,6 +136,18 @@ GoRouter createAppRouter() {
             path: '/configuracio',
             pageBuilder: (_, __) => const MaterialPage(
               child: ConfiguracioPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/setup-curriculum',
+            pageBuilder: (_, __) => const MaterialPage(
+              child: SetupCurriculumPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/daily-notes',
+            pageBuilder: (_, __) => const MaterialPage(
+              child: DailyNotesPage(),
             ),
           ),
         ],
