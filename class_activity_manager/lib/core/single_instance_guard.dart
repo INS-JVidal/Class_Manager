@@ -71,7 +71,9 @@ class SingleInstanceGuard {
       ).child('ClassActivityManager');
     }
 
-    return Directory(_joinPath(home, _joinPath('.cache', 'class_activity_manager')));
+    return Directory(
+      _joinPath(home, _joinPath('.cache', 'class_activity_manager')),
+    );
   }
 
   static String _joinPath(String base, String child) {
@@ -84,5 +86,6 @@ class SingleInstanceGuard {
 }
 
 extension on Directory {
-  Directory child(String name) => Directory(SingleInstanceGuard._joinPath(path, name));
+  Directory child(String name) =>
+      Directory(SingleInstanceGuard._joinPath(path, name));
 }

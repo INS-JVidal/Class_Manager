@@ -21,10 +21,13 @@ class DailyNote {
   final String modulId;
   final String groupId;
   final DateTime date;
+
   /// Contingut planificat per a la sessió.
   final String? plannedContent;
+
   /// Contingut realment impartit.
   final String? actualContent;
+
   /// Observacions addicionals.
   final String? notes;
   final bool completed;
@@ -54,28 +57,28 @@ class DailyNote {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'raId': raId,
-        'modulId': modulId,
-        'groupId': groupId,
-        'date': DateTime(date.year, date.month, date.day).toIso8601String(),
-        if (plannedContent != null) 'plannedContent': plannedContent,
-        if (actualContent != null) 'actualContent': actualContent,
-        if (notes != null) 'notes': notes,
-        'completed': completed,
-      };
+    '_id': id,
+    'raId': raId,
+    'modulId': modulId,
+    'groupId': groupId,
+    'date': DateTime(date.year, date.month, date.day).toIso8601String(),
+    if (plannedContent != null) 'plannedContent': plannedContent,
+    if (actualContent != null) 'actualContent': actualContent,
+    if (notes != null) 'notes': notes,
+    'completed': completed,
+  };
 
   factory DailyNote.fromJson(Map<String, dynamic> json) => DailyNote(
-        id: json['_id']?.toString() ?? _uuid.v4(),
-        raId: json['raId'] as String,
-        modulId: json['modulId'] as String,
-        groupId: json['groupId'] as String,
-        date: _parseDateTime(json['date']),
-        plannedContent: json['plannedContent'] as String?,
-        actualContent: json['actualContent'] as String?,
-        notes: json['notes'] as String?,
-        completed: json['completed'] as bool? ?? false,
-      );
+    id: json['_id']?.toString() ?? _uuid.v4(),
+    raId: json['raId'] as String,
+    modulId: json['modulId'] as String,
+    groupId: json['groupId'] as String,
+    date: _parseDateTime(json['date']),
+    plannedContent: json['plannedContent'] as String?,
+    actualContent: json['actualContent'] as String?,
+    notes: json['notes'] as String?,
+    completed: json['completed'] as bool? ?? false,
+  );
 
   static DateTime _parseDateTime(dynamic value) {
     if (value is DateTime) return value;

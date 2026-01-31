@@ -20,8 +20,12 @@ class CurriculumModul {
 
   factory CurriculumModul.fromJson(Map<dynamic, dynamic> json) {
     final ufsList = json['ufs'] as List<dynamic>?;
-    final ufs = ufsList
-            ?.map((e) => CurriculumUF.fromJson(Map<dynamic, dynamic>.from(e as Map)))
+    final ufs =
+        ufsList
+            ?.map(
+              (e) =>
+                  CurriculumUF.fromJson(Map<dynamic, dynamic>.from(e as Map)),
+            )
             .toList() ??
         [];
     return CurriculumModul(

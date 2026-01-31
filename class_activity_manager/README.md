@@ -1,6 +1,16 @@
 # class_activity_manager
 
-A new Flutter project.
+A Flutter application for managing class activities (Formació Professional, Catalunya).
+
+## Code Quality
+
+Run the code quality analysis tool to check analyze, format, tests, coverage, and dependencies:
+
+```bash
+./scripts/code-quality.sh
+```
+
+This displays a summary of metrics in the terminal.
 
 ## Getting Started
 

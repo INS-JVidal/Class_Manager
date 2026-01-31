@@ -27,10 +27,7 @@ class RecurringHolidayRepository {
   }
 
   Future<RecurringHoliday> update(RecurringHoliday holiday) async {
-    await _collection.replaceOne(
-      where.eq('_id', holiday.id),
-      holiday.toJson(),
-    );
+    await _collection.replaceOne(where.eq('_id', holiday.id), holiday.toJson());
     return holiday;
   }
 
@@ -39,8 +36,7 @@ class RecurringHolidayRepository {
   }
 
   Future<List<RecurringHoliday>> findEnabled() async {
-    final docs =
-        await _collection.find(where.eq('isEnabled', true)).toList();
+    final docs = await _collection.find(where.eq('isEnabled', true)).toList();
     return docs.map((doc) => RecurringHoliday.fromJson(doc)).toList();
   }
 }

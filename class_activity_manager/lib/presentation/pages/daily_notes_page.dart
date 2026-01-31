@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../widgets/markdown_text_field.dart';
 
 /// Catalan day names for display.
 const _catalanDayNames = [
@@ -83,7 +84,9 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
 
     // Filter modules by selected group's moduleIds
     final moduls = selectedGroup != null
-        ? allModuls.where((m) => selectedGroup.moduleIds.contains(m.id)).toList()
+        ? allModuls
+              .where((m) => selectedGroup.moduleIds.contains(m.id))
+              .toList()
         : <Modul>[];
 
     // Auto-select if only one module
@@ -94,7 +97,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
     }
 
     // Reset modulId if not in filtered list
-    if (_selectedModulId != null && !moduls.any((m) => m.id == _selectedModulId)) {
+    if (_selectedModulId != null &&
+        !moduls.any((m) => m.id == _selectedModulId)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -118,12 +122,21 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
 
     final raList = ras.where((r) => r.id == _selectedRaId).toList();
     final ra = raList.isEmpty ? null : raList.first;
-    final isSelectedRaValid = _selectedRaId != null && ras.any((r) => r.id == _selectedRaId);
+    final isSelectedRaValid =
+        _selectedRaId != null && ras.any((r) => r.id == _selectedRaId);
 
     List<DateTime> days = [];
     if (ra != null && ra.startDate != null && ra.endDate != null) {
-      var d = DateTime(ra.startDate!.year, ra.startDate!.month, ra.startDate!.day);
-      final end = DateTime(ra.endDate!.year, ra.endDate!.month, ra.endDate!.day);
+      var d = DateTime(
+        ra.startDate!.year,
+        ra.startDate!.month,
+        ra.startDate!.day,
+      );
+      final end = DateTime(
+        ra.endDate!.year,
+        ra.endDate!.month,
+        ra.endDate!.day,
+      );
       while (!d.isAfter(end)) {
         days.add(d);
         d = d.add(const Duration(days: 1));
@@ -131,7 +144,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
     }
     final today = DateTime.now();
     final todayIndex = days.indexWhere(
-      (d) => d.year == today.year && d.month == today.month && d.day == today.day,
+      (d) =>
+          d.year == today.year && d.month == today.month && d.day == today.day,
     );
     final focusToken = ra == null || _selectedGroupId == null
         ? null
@@ -141,11 +155,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
     // Filter daily notes by group and RA
     final allDailyNotes = appState.dailyNotes;
     final dailyNotes = (ra != null && _selectedGroupId != null)
-        ? allDailyNotes.where((n) => n.raId == ra.id && n.groupId == _selectedGroupId).toList()
+        ? allDailyNotes
+              .where((n) => n.raId == ra.id && n.groupId == _selectedGroupId)
+              .toList()
         : <DailyNote>[];
     DailyNote? noteFor(DateTime date) {
-      final list = dailyNotes.where((n) =>
-          n.date.year == date.year && n.date.month == date.month && n.date.day == date.day).toList();
+      final list = dailyNotes
+          .where(
+            (n) =>
+                n.date.year == date.year &&
+                n.date.month == date.month &&
+                n.date.day == date.day,
+          )
+          .toList();
       return list.isEmpty ? null : list.first;
     }
 
@@ -154,7 +176,10 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Notes diàries', style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            'Notes diàries',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 8),
           Text(
             'Seleccioneu grup, mòdul i RA per veure la seqüència de dies i afegir notes.',
@@ -172,14 +197,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                     SizedBox(
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
-                        value: _selectedGroupId,
+                        initialValue: _selectedGroupId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Grup',
                           border: OutlineInputBorder(),
                         ),
                         items: groups
-                            .map((g) => DropdownMenuItem(value: g.id, child: Text(g.name)))
+                            .map(
+                              (g) => DropdownMenuItem(
+                                value: g.id,
+                                child: Text(g.name),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() {
                           _selectedGroupId = v;
@@ -194,21 +224,26 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
                         key: ValueKey('modul-$_selectedGroupId'),
-                        value: _selectedModulId,
+                        initialValue: _selectedModulId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Mòdul',
                           border: OutlineInputBorder(),
                         ),
                         items: moduls
-                            .map((m) => DropdownMenuItem(value: m.id, child: Text('${m.code} — ${m.name}')))
+                            .map(
+                              (m) => DropdownMenuItem(
+                                value: m.id,
+                                child: Text('${m.code} — ${m.name}'),
+                              ),
+                            )
                             .toList(),
                         onChanged: moduls.isEmpty
                             ? null
                             : (v) => setState(() {
-                                  _selectedModulId = v;
-                                  _selectedRaId = null;
-                                }),
+                                _selectedModulId = v;
+                                _selectedRaId = null;
+                              }),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -217,14 +252,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
                         key: ValueKey('ra-$_selectedModulId'),
-                        value: isSelectedRaValid ? _selectedRaId : null,
+                        initialValue: isSelectedRaValid ? _selectedRaId : null,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'RA',
                           border: OutlineInputBorder(),
                         ),
                         items: ras
-                            .map((r) => DropdownMenuItem(value: r.id, child: Text('${r.code} — ${r.title}')))
+                            .map(
+                              (r) => DropdownMenuItem(
+                                value: r.id,
+                                child: Text('${r.code} — ${r.title}'),
+                              ),
+                            )
                             .toList(),
                         onChanged: ras.isEmpty
                             ? null
@@ -240,14 +280,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   // Group selector
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedGroupId,
+                      initialValue: _selectedGroupId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Grup',
                         border: OutlineInputBorder(),
                       ),
                       items: groups
-                          .map((g) => DropdownMenuItem(value: g.id, child: Text(g.name)))
+                          .map(
+                            (g) => DropdownMenuItem(
+                              value: g.id,
+                              child: Text(g.name),
+                            ),
+                          )
                           .toList(),
                       onChanged: (v) => setState(() {
                         _selectedGroupId = v;
@@ -261,21 +306,26 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       key: ValueKey('modul-$_selectedGroupId'),
-                      value: _selectedModulId,
+                      initialValue: _selectedModulId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Mòdul',
                         border: OutlineInputBorder(),
                       ),
                       items: moduls
-                          .map((m) => DropdownMenuItem(value: m.id, child: Text('${m.code} — ${m.name}')))
+                          .map(
+                            (m) => DropdownMenuItem(
+                              value: m.id,
+                              child: Text('${m.code} — ${m.name}'),
+                            ),
+                          )
                           .toList(),
                       onChanged: moduls.isEmpty
                           ? null
                           : (v) => setState(() {
-                                _selectedModulId = v;
-                                _selectedRaId = null;
-                              }),
+                              _selectedModulId = v;
+                              _selectedRaId = null;
+                            }),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -283,14 +333,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       key: ValueKey('ra-$_selectedModulId'),
-                      value: isSelectedRaValid ? _selectedRaId : null,
+                      initialValue: isSelectedRaValid ? _selectedRaId : null,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'RA',
                         border: OutlineInputBorder(),
                       ),
                       items: ras
-                          .map((r) => DropdownMenuItem(value: r.id, child: Text('${r.code} — ${r.title}')))
+                          .map(
+                            (r) => DropdownMenuItem(
+                              value: r.id,
+                              child: Text('${r.code} — ${r.title}'),
+                            ),
+                          )
                           .toList(),
                       onChanged: ras.isEmpty
                           ? null
@@ -310,7 +365,10 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    Icon(Icons.school, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    Icon(
+                      Icons.school,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -318,15 +376,21 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                         children: [
                           Text(
                             '${selectedGroup.name} — ${modul.code}',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
                                 ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${ra.code}: ${ra.title}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
                                 ),
                           ),
                         ],
@@ -347,9 +411,16 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                        Icon(
+                          Icons.info_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 12),
-                        const Expanded(child: Text('No hi ha grups configurats. Creeu un grup i assigneu-li mòduls.')),
+                        const Expanded(
+                          child: Text(
+                            'No hi ha grups configurats. Creeu un grup i assigneu-li mòduls.',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -363,7 +434,12 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
               ),
             )
           else if (_selectedGroupId == null)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Seleccioneu un grup.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Seleccioneu un grup.'),
+              ),
+            )
           else if (selectedGroup != null && selectedGroup.moduleIds.isEmpty)
             Card(
               child: Padding(
@@ -373,14 +449,22 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                        Icon(
+                          Icons.info_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: Text('El grup ${selectedGroup.name} no té mòduls assignats.')),
+                        Expanded(
+                          child: Text(
+                            'El grup ${selectedGroup.name} no té mòduls assignats.',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: () => context.go('/grups/edit/${selectedGroup.id}'),
+                      onPressed: () =>
+                          context.go('/grups/edit/${selectedGroup.id}'),
                       icon: const Icon(Icons.settings),
                       label: const Text('Configurar mòduls del grup'),
                     ),
@@ -389,11 +473,26 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
               ),
             )
           else if (_selectedModulId == null)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Seleccioneu un mòdul.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Seleccioneu un mòdul.'),
+              ),
+            )
           else if (ra == null && ras.isEmpty)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Aquest mòdul no té RAs.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Aquest mòdul no té RAs.'),
+              ),
+            )
           else if (ra == null)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Seleccioneu un RA.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Seleccioneu un RA.'),
+              ),
+            )
           else if (ra.startDate == null || ra.endDate == null)
             Card(
               child: Padding(
@@ -403,14 +502,22 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                        Icon(
+                          Icons.info_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: Text('Configureu les dates del RA "${ra.code}" per veure els dies.')),
+                        Expanded(
+                          child: Text(
+                            'Configureu les dates del RA "${ra.code}" per veure els dies.',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: () => context.go('/moduls/${modul?.id}/ra-config'),
+                      onPressed: () =>
+                          context.go('/moduls/${modul?.id}/ra-config'),
                       icon: const Icon(Icons.date_range),
                       label: const Text('Configurar dates'),
                     ),
@@ -419,7 +526,12 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
               ),
             )
           else if (days.isEmpty)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Cap dia en el rang.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Cap dia en el rang.'),
+              ),
+            )
           else
             Expanded(
               child: ListView.builder(
@@ -482,8 +594,12 @@ class _DayNoteCardState extends State<_DayNoteCard> {
   @override
   void initState() {
     super.initState();
-    _plannedController = TextEditingController(text: widget.note?.plannedContent ?? '');
-    _actualController = TextEditingController(text: widget.note?.actualContent ?? '');
+    _plannedController = TextEditingController(
+      text: widget.note?.plannedContent ?? '',
+    );
+    _actualController = TextEditingController(
+      text: widget.note?.actualContent ?? '',
+    );
     _notesController = TextEditingController(text: widget.note?.notes ?? '');
     _completed = widget.note?.completed ?? false;
   }
@@ -515,17 +631,25 @@ class _DayNoteCardState extends State<_DayNoteCard> {
 
   void _save() {
     final id = widget.note?.id ?? widget.notifier.nextId();
-    widget.notifier.setDailyNote(DailyNote(
-      id: id,
-      raId: widget.raId,
-      modulId: widget.modulId,
-      groupId: widget.groupId,
-      date: widget.date,
-      plannedContent: _plannedController.text.trim().isEmpty ? null : _plannedController.text.trim(),
-      actualContent: _actualController.text.trim().isEmpty ? null : _actualController.text.trim(),
-      notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-      completed: _completed,
-    ));
+    widget.notifier.setDailyNote(
+      DailyNote(
+        id: id,
+        raId: widget.raId,
+        modulId: widget.modulId,
+        groupId: widget.groupId,
+        date: widget.date,
+        plannedContent: _plannedController.text.trim().isEmpty
+            ? null
+            : _plannedController.text.trim(),
+        actualContent: _actualController.text.trim().isEmpty
+            ? null
+            : _actualController.text.trim(),
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+        completed: _completed,
+      ),
+    );
   }
 
   void _markComplete() {
@@ -575,44 +699,53 @@ class _DayNoteCardState extends State<_DayNoteCard> {
             ),
             const SizedBox(height: 16),
             // Planned content
-            TextField(
-              controller: _plannedController,
+            MarkdownTextField(
+              initialValue: _plannedController.text,
+              readOnly: isReadOnly,
               decoration: const InputDecoration(
                 labelText: 'Contingut planificat',
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
                 hintText: 'Què es preveu treballar avui?',
               ),
-              maxLines: 2,
-              readOnly: isReadOnly,
-              onChanged: (_) => _save(),
+              maxLines: 4,
+              onChanged: (v) {
+                _plannedController.text = v;
+                _save();
+              },
             ),
             const SizedBox(height: 12),
             // Actual content
-            TextField(
-              controller: _actualController,
+            MarkdownTextField(
+              initialValue: _actualController.text,
+              readOnly: isReadOnly,
               decoration: const InputDecoration(
                 labelText: 'Contingut impartit',
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
                 hintText: "Què s'ha treballat realment?",
               ),
-              maxLines: 2,
-              readOnly: isReadOnly,
-              onChanged: (_) => _save(),
+              maxLines: 4,
+              onChanged: (v) {
+                _actualController.text = v;
+                _save();
+              },
             ),
             const SizedBox(height: 12),
             // Additional notes
-            TextField(
-              controller: _notesController,
+            MarkdownTextField(
+              initialValue: _notesController.text,
+              readOnly: isReadOnly,
               decoration: const InputDecoration(
                 labelText: 'Observacions',
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
-              maxLines: 2,
-              readOnly: isReadOnly,
-              onChanged: (_) => _save(),
+              maxLines: 4,
+              onChanged: (v) {
+                _notesController.text = v;
+                _save();
+              },
             ),
           ],
         ),

@@ -9,7 +9,8 @@ class SetupCurriculumPage extends ConsumerStatefulWidget {
   const SetupCurriculumPage({super.key});
 
   @override
-  ConsumerState<SetupCurriculumPage> createState() => _SetupCurriculumPageState();
+  ConsumerState<SetupCurriculumPage> createState() =>
+      _SetupCurriculumPageState();
 }
 
 class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
@@ -63,7 +64,10 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pas 1: Cicles que imparteix', style: Theme.of(context).textTheme.titleLarge),
+                        Text(
+                          'Pas 1: Cicles que imparteix',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                         const SizedBox(height: 8),
                         Card(
                           child: Padding(
@@ -71,23 +75,35 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                             child: Column(
                               children: cicles.map((c) {
                                 final code = c.codi;
-                                final isSelected = _selectedCicleCodes.contains(code) ||
+                                final isSelected =
+                                    _selectedCicleCodes.contains(code) ||
                                     appState.selectedCicleIds.contains(code);
                                 return CheckboxListTile(
-                                  title: Text('${c.acronim ?? code} — ${c.nom}'),
+                                  title: Text(
+                                    '${c.acronim ?? code} — ${c.nom}',
+                                  ),
                                   subtitle: Text('${c.moduls.length} mòduls'),
                                   value: isSelected,
                                   onChanged: (v) {
                                     setState(() {
                                       if (v == true) {
                                         _selectedCicleCodes.add(code);
-                                        ref.read(appStateProvider.notifier).setSelectedCicles(
-                                              [...{...appState.selectedCicleIds, code}],
-                                            );
+                                        ref
+                                            .read(appStateProvider.notifier)
+                                            .setSelectedCicles([
+                                              ...{
+                                                ...appState.selectedCicleIds,
+                                                code,
+                                              },
+                                            ]);
                                       } else {
                                         _selectedCicleCodes.remove(code);
-                                        ref.read(appStateProvider.notifier).setSelectedCicles(
-                                              appState.selectedCicleIds.where((id) => id != code).toList(),
+                                        ref
+                                            .read(appStateProvider.notifier)
+                                            .setSelectedCicles(
+                                              appState.selectedCicleIds
+                                                  .where((id) => id != code)
+                                                  .toList(),
                                             );
                                       }
                                     });
@@ -98,41 +114,63 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Text('Pas 2: Mòduls a importar', style: Theme.of(context).textTheme.titleLarge),
+                        Text(
+                          'Pas 2: Mòduls a importar',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                         const SizedBox(height: 8),
-                        ...cicles.where((c) => _selectedCicleCodes.contains(c.codi) || appState.selectedCicleIds.contains(c.codi)).map((cicle) {
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: ExpansionTile(
-                              title: Text('${cicle.acronim ?? cicle.codi} — ${cicle.nom}'),
-                              subtitle: Text('${cicle.moduls.length} mòduls'),
-                              children: cicle.moduls.map((modul) {
-                                final key = '${cicle.codi}|${modul.codi}';
-                                final alreadyImported = appState.moduls.any(
-                                  (m) => m.cicleCodes.contains(cicle.codi) && m.code == modul.codi,
-                                );
-                                final isSelected = _selectedModuleKeys.contains(key);
-                                return CheckboxListTile(
-                                  title: Text('${modul.codi} — ${modul.nom}'),
-                                  subtitle: Text('${modul.hores} h · ${modul.ufs.length} RAs'),
-                                  value: isSelected || alreadyImported,
-                                  tristate: true,
-                                  onChanged: alreadyImported
-                                      ? null
-                                      : (v) {
-                                          setState(() {
-                                            if (v == true) {
-                                              _selectedModuleKeys.add(key);
-                                            } else {
-                                              _selectedModuleKeys.remove(key);
-                                            }
-                                          });
-                                        },
-                                );
-                              }).toList(),
-                            ),
-                          );
-                        }),
+                        ...cicles
+                            .where(
+                              (c) =>
+                                  _selectedCicleCodes.contains(c.codi) ||
+                                  appState.selectedCicleIds.contains(c.codi),
+                            )
+                            .map((cicle) {
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: ExpansionTile(
+                                  title: Text(
+                                    '${cicle.acronim ?? cicle.codi} — ${cicle.nom}',
+                                  ),
+                                  subtitle: Text(
+                                    '${cicle.moduls.length} mòduls',
+                                  ),
+                                  children: cicle.moduls.map((modul) {
+                                    final key = '${cicle.codi}|${modul.codi}';
+                                    final alreadyImported = appState.moduls.any(
+                                      (m) =>
+                                          m.cicleCodes.contains(cicle.codi) &&
+                                          m.code == modul.codi,
+                                    );
+                                    final isSelected = _selectedModuleKeys
+                                        .contains(key);
+                                    return CheckboxListTile(
+                                      title: Text(
+                                        '${modul.codi} — ${modul.nom}',
+                                      ),
+                                      subtitle: Text(
+                                        '${modul.hores} h · ${modul.ufs.length} RAs',
+                                      ),
+                                      value: isSelected || alreadyImported,
+                                      tristate: true,
+                                      onChanged: alreadyImported
+                                          ? null
+                                          : (v) {
+                                              setState(() {
+                                                if (v == true) {
+                                                  _selectedModuleKeys.add(key);
+                                                } else {
+                                                  _selectedModuleKeys.remove(
+                                                    key,
+                                                  );
+                                                }
+                                              });
+                                            },
+                                    );
+                                  }).toList(),
+                                ),
+                              );
+                            }),
                         const SizedBox(height: 24),
                         Row(
                           children: [
@@ -140,22 +178,37 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                               onPressed: _selectedModuleKeys.isEmpty
                                   ? null
                                   : () {
-                                      final notifier = ref.read(appStateProvider.notifier);
+                                      final notifier = ref.read(
+                                        appStateProvider.notifier,
+                                      );
                                       for (final key in _selectedModuleKeys) {
                                         final parts = key.split('|');
                                         if (parts.length != 2) continue;
                                         final cicleCode = parts[0];
                                         final modulCode = parts[1];
-                                        final cicle = cicles.where((c) => c.codi == cicleCode).firstOrNull;
+                                        final cicle = cicles
+                                            .where((c) => c.codi == cicleCode)
+                                            .firstOrNull;
                                         if (cicle == null) continue;
-                                        final modul = cicle.moduls.where((m) => m.codi == modulCode).firstOrNull;
+                                        final modul = cicle.moduls
+                                            .where((m) => m.codi == modulCode)
+                                            .firstOrNull;
                                         if (modul == null) continue;
-                                        notifier.importModulFromCurriculum(cicleCode, modul);
+                                        notifier.importModulFromCurriculum(
+                                          cicleCode,
+                                          modul,
+                                        );
                                       }
-                                      setState(() => _selectedModuleKeys.clear());
-                                      if (context.mounted) context.go('/moduls');
+                                      setState(
+                                        () => _selectedModuleKeys.clear(),
+                                      );
+                                      if (context.mounted) {
+                                        context.go('/moduls');
+                                      }
                                     },
-                              child: const Text('Importa els mòduls seleccionats'),
+                              child: const Text(
+                                'Importa els mòduls seleccionats',
+                              ),
                             ),
                             const SizedBox(width: 12),
                             TextButton(

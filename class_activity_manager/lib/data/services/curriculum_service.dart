@@ -21,7 +21,9 @@ class CurriculumService {
     final ciclesList = doc['cicles'] as List<dynamic>?;
     if (ciclesList == null) return [];
     _cached = ciclesList
-        .map((e) => CurriculumCicle.fromJson(Map<dynamic, dynamic>.from(e as Map)))
+        .map(
+          (e) => CurriculumCicle.fromJson(Map<dynamic, dynamic>.from(e as Map)),
+        )
         .toList();
     return _cached!;
   }
@@ -32,9 +34,13 @@ class CurriculumService {
   }
 }
 
-final curriculumServiceProvider = Provider<CurriculumService>((ref) => CurriculumService());
+final curriculumServiceProvider = Provider<CurriculumService>(
+  (ref) => CurriculumService(),
+);
 
-final curriculumCiclesProvider = FutureProvider<List<CurriculumCicle>>((ref) async {
+final curriculumCiclesProvider = FutureProvider<List<CurriculumCicle>>((
+  ref,
+) async {
   final service = ref.watch(curriculumServiceProvider);
   return service.loadCicles();
 });

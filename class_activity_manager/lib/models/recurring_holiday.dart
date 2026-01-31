@@ -15,7 +15,7 @@ class RecurringHoliday {
   final String id;
   final String name;
   final int month; // 1-12
-  final int day;   // 1-31
+  final int day; // 1-31
   final bool isEnabled;
 
   RecurringHoliday copyWith({
@@ -35,12 +35,12 @@ class RecurringHoliday {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'name': name,
-        'month': month,
-        'day': day,
-        'isEnabled': isEnabled,
-      };
+    '_id': id,
+    'name': name,
+    'month': month,
+    'day': day,
+    'isEnabled': isEnabled,
+  };
 
   factory RecurringHoliday.fromJson(Map<String, dynamic> json) =>
       RecurringHoliday(

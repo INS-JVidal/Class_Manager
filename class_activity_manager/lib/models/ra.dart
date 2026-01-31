@@ -57,37 +57,36 @@ class RA {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'number': number,
-        'code': code,
-        'title': title,
-        if (description != null) 'description': description,
-        'durationHours': durationHours,
-        'order': order,
-        'criterisAvaluacio': criterisAvaluacio.map((ca) => ca.toJson()).toList(),
-        if (startDate != null) 'startDate': startDate!.toIso8601String(),
-        if (endDate != null) 'endDate': endDate!.toIso8601String(),
-      };
+    '_id': id,
+    'number': number,
+    'code': code,
+    'title': title,
+    if (description != null) 'description': description,
+    'durationHours': durationHours,
+    'order': order,
+    'criterisAvaluacio': criterisAvaluacio.map((ca) => ca.toJson()).toList(),
+    if (startDate != null) 'startDate': startDate!.toIso8601String(),
+    if (endDate != null) 'endDate': endDate!.toIso8601String(),
+  };
 
   factory RA.fromJson(Map<String, dynamic> json) => RA(
-        id: json['_id']?.toString() ?? _uuid.v4(),
-        number: json['number'] as int,
-        code: json['code'] as String,
-        title: json['title'] as String,
-        description: json['description'] as String?,
-        durationHours: json['durationHours'] as int,
-        order: json['order'] as int? ?? 0,
-        criterisAvaluacio: (json['criterisAvaluacio'] as List<dynamic>?)
-                ?.map((e) => CriteriAvaluacio.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        startDate: json['startDate'] != null
-            ? _parseDateTime(json['startDate'])
-            : null,
-        endDate: json['endDate'] != null
-            ? _parseDateTime(json['endDate'])
-            : null,
-      );
+    id: json['_id']?.toString() ?? _uuid.v4(),
+    number: json['number'] as int,
+    code: json['code'] as String,
+    title: json['title'] as String,
+    description: json['description'] as String?,
+    durationHours: json['durationHours'] as int,
+    order: json['order'] as int? ?? 0,
+    criterisAvaluacio:
+        (json['criterisAvaluacio'] as List<dynamic>?)
+            ?.map((e) => CriteriAvaluacio.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [],
+    startDate: json['startDate'] != null
+        ? _parseDateTime(json['startDate'])
+        : null,
+    endDate: json['endDate'] != null ? _parseDateTime(json['endDate']) : null,
+  );
 
   static DateTime _parseDateTime(dynamic value) {
     if (value is DateTime) return value;

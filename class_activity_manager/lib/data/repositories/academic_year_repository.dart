@@ -27,10 +27,7 @@ class AcademicYearRepository {
   }
 
   Future<AcademicYear> update(AcademicYear year) async {
-    await _collection.replaceOne(
-      where.eq('_id', year.id),
-      year.toJson(),
-    );
+    await _collection.replaceOne(where.eq('_id', year.id), year.toJson());
     return year;
   }
 

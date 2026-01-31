@@ -22,8 +22,13 @@ class CurriculumCicle {
 
   factory CurriculumCicle.fromJson(Map<dynamic, dynamic> json) {
     final modulsList = json['moduls'] as List<dynamic>?;
-    final moduls = modulsList
-            ?.map((e) => CurriculumModul.fromJson(Map<dynamic, dynamic>.from(e as Map)))
+    final moduls =
+        modulsList
+            ?.map(
+              (e) => CurriculumModul.fromJson(
+                Map<dynamic, dynamic>.from(e as Map),
+              ),
+            )
             .toList() ??
         [];
     return CurriculumCicle(

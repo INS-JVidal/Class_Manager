@@ -18,7 +18,9 @@ Future<void> main() async {
 
   _instanceGuard = await SingleInstanceGuard.tryAcquire();
   if (SingleInstanceGuard.isSupported && _instanceGuard == null) {
-    stderr.writeln('Another instance of Class Activity Manager is already running.');
+    stderr.writeln(
+      'Another instance of Class Activity Manager is already running.',
+    );
     exit(0);
   }
 
@@ -39,9 +41,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        databaseServiceProvider.overrideWithValue(databaseService),
-      ],
+      overrides: [databaseServiceProvider.overrideWithValue(databaseService)],
       child: const _AppWithDatabaseInit(),
     ),
   );
@@ -52,7 +52,8 @@ class _AppWithDatabaseInit extends ConsumerStatefulWidget {
   const _AppWithDatabaseInit();
 
   @override
-  ConsumerState<_AppWithDatabaseInit> createState() => _AppWithDatabaseInitState();
+  ConsumerState<_AppWithDatabaseInit> createState() =>
+      _AppWithDatabaseInitState();
 }
 
 class _AppWithDatabaseInitState extends ConsumerState<_AppWithDatabaseInit> {

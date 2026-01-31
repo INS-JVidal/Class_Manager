@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../presentation/pages/calendar_page.dart';
 import '../presentation/pages/configuracio_page.dart';
 import '../presentation/pages/dashboard_page.dart';
 import '../presentation/pages/daily_notes_page.dart';
@@ -16,36 +17,31 @@ GoRouter createAppRouter() {
     initialLocation: '/',
     routes: [
       ShellRoute(
-        builder: (context, state, child) {
-          return AppShell(
-            currentRoute: state.uri.path,
-            child: child,
-          );
+        builder: (_, state, child) {
+          return AppShell(currentRoute: state.uri.path, child: child);
         },
         routes: [
           GoRoute(
             path: '/',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: DashboardPage(),
-            ),
+            pageBuilder: (_, state) =>
+                MaterialPage(key: state.pageKey, child: const DashboardPage()),
           ),
           GoRoute(
             path: '/calendar',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: PlaceholderPage(title: 'Calendar'),
-            ),
+            pageBuilder: (_, state) =>
+                MaterialPage(key: state.pageKey, child: const CalendarPage()),
           ),
           GoRoute(
             path: '/moduls',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: ModulsListPage(),
-            ),
+            pageBuilder: (_, state) =>
+                MaterialPage(key: state.pageKey, child: const ModulsListPage()),
             routes: [
               GoRoute(
                 path: 'edit/:id',
                 pageBuilder: (_, state) {
                   final id = state.pathParameters['id']!;
                   return MaterialPage(
+                    key: state.pageKey,
                     child: ModulFormPage(modulId: id),
                   );
                 },
@@ -55,6 +51,7 @@ GoRouter createAppRouter() {
                 pageBuilder: (_, state) {
                   final id = state.pathParameters['id']!;
                   return MaterialPage(
+                    key: state.pageKey,
                     child: ModulDetailPage(modulId: id),
                   );
                 },
@@ -64,6 +61,7 @@ GoRouter createAppRouter() {
                     pageBuilder: (_, state) {
                       final id = state.pathParameters['id']!;
                       return MaterialPage(
+                        key: state.pageKey,
                         child: RaConfigPage(modulId: id),
                       );
                     },
@@ -73,6 +71,7 @@ GoRouter createAppRouter() {
                     pageBuilder: (_, state) {
                       final modulId = state.pathParameters['id']!;
                       return MaterialPage(
+                        key: state.pageKey,
                         child: RAFormPage(modulId: modulId),
                       );
                     },
@@ -83,6 +82,7 @@ GoRouter createAppRouter() {
                       final modulId = state.pathParameters['id']!;
                       final raId = state.pathParameters['raId']!;
                       return MaterialPage(
+                        key: state.pageKey,
                         child: RAFormPage(modulId: modulId, raId: raId),
                       );
                     },
@@ -93,14 +93,14 @@ GoRouter createAppRouter() {
           ),
           GoRoute(
             path: '/grups',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: GrupsListPage(),
-            ),
+            pageBuilder: (_, state) =>
+                MaterialPage(key: state.pageKey, child: const GrupsListPage()),
             routes: [
               GoRoute(
                 path: 'new',
-                pageBuilder: (_, __) => const MaterialPage(
-                  child: GroupFormPage(),
+                pageBuilder: (_, state) => MaterialPage(
+                  key: state.pageKey,
+                  child: const GroupFormPage(),
                 ),
               ),
               GoRoute(
@@ -108,6 +108,7 @@ GoRouter createAppRouter() {
                 pageBuilder: (_, state) {
                   final id = state.pathParameters['id']!;
                   return MaterialPage(
+                    key: state.pageKey,
                     child: GroupFormPage(groupId: id),
                   );
                 },
@@ -116,39 +117,43 @@ GoRouter createAppRouter() {
           ),
           GoRoute(
             path: '/tasques',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: PlaceholderPage(title: 'Tasques'),
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              child: const PlaceholderPage(title: 'Tasques'),
             ),
           ),
           GoRoute(
             path: '/informes',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: PlaceholderPage(title: 'Informes'),
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              child: const PlaceholderPage(title: 'Informes'),
             ),
           ),
           GoRoute(
             path: '/arxiu',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: PlaceholderPage(title: 'Arxiu'),
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              child: const PlaceholderPage(title: 'Arxiu'),
             ),
           ),
           GoRoute(
             path: '/configuracio',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: ConfiguracioPage(),
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              child: const ConfiguracioPage(),
             ),
           ),
           GoRoute(
             path: '/setup-curriculum',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: SetupCurriculumPage(),
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              child: const SetupCurriculumPage(),
             ),
           ),
           GoRoute(
             path: '/daily-notes',
-            pageBuilder: (_, __) => const MaterialPage(
-              child: DailyNotesPage(),
-            ),
+            pageBuilder: (_, state) =>
+                MaterialPage(key: state.pageKey, child: const DailyNotesPage()),
           ),
         ],
       ),

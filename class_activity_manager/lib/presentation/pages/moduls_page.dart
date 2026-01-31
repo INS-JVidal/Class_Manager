@@ -36,7 +36,9 @@ class ModulsListPage extends ConsumerWidget {
                     itemCount: moduls.length,
                     itemBuilder: (context, index) {
                       final m = moduls[index];
-                      final cycleInfo = m.cicleCodes.isNotEmpty ? ' · ${m.cicleCodes.join(", ")}' : '';
+                      final cycleInfo = m.cicleCodes.isNotEmpty
+                          ? ' · ${m.cicleCodes.join(", ")}'
+                          : '';
                       return Card(
                         child: ListTile(
                           title: Text('${m.code} — ${m.name}'),
@@ -93,7 +95,11 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
 
   Modul? get _existingModul {
     if (widget.modulId == null) return null;
-    final list = ref.read(appStateProvider).moduls.where((m) => m.id == widget.modulId).toList();
+    final list = ref
+        .read(appStateProvider)
+        .moduls
+        .where((m) => m.id == widget.modulId)
+        .toList();
     return list.isEmpty ? null : list.first;
   }
 
@@ -115,34 +121,52 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isEdit ? 'Editar mòdul' : 'Nou mòdul', style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            isEdit ? 'Editar mòdul' : 'Nou mòdul',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 24),
           TextField(
             controller: _codeController,
-            decoration: const InputDecoration(labelText: 'Codi (p.ex. MP06)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Codi (p.ex. MP06)',
+              border: OutlineInputBorder(),
+            ),
             textCapitalization: TextCapitalization.characters,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Nom',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descController,
-            decoration: const InputDecoration(labelText: 'Descripció (opcional)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Descripció (opcional)',
+              border: OutlineInputBorder(),
+            ),
             maxLines: 2,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _hoursController,
-            decoration: const InputDecoration(labelText: 'Total hores', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Total hores',
+              border: OutlineInputBorder(),
+            ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _objectivesController,
-            decoration: const InputDecoration(labelText: 'Objectius (un per línia)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Objectius (un per línia)',
+              border: OutlineInputBorder(),
+            ),
             maxLines: 4,
           ),
           const SizedBox(height: 24),
@@ -153,24 +177,39 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                   final code = _codeController.text.trim();
                   final name = _nameController.text.trim();
                   final hours = int.tryParse(_hoursController.text.trim());
-                  if (code.isEmpty || name.isEmpty || hours == null || hours <= 0) return;
-                  final objectives = _objectivesController.text.trim().split('\n').where((s) => s.trim().isNotEmpty).toList();
+                  if (code.isEmpty ||
+                      name.isEmpty ||
+                      hours == null ||
+                      hours <= 0) {
+                    return;
+                  }
+                  final objectives = _objectivesController.text
+                      .trim()
+                      .split('\n')
+                      .where((s) => s.trim().isNotEmpty)
+                      .toList();
                   final notifier = ref.read(appStateProvider.notifier);
                   if (isEdit && _existingModul != null) {
-                    notifier.updateModul(_existingModul!.copyWith(
-                          code: code,
-                          name: name,
-                          description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-                          totalHours: hours,
-                          objectives: objectives,
-                        ));
+                    notifier.updateModul(
+                      _existingModul!.copyWith(
+                        code: code,
+                        name: name,
+                        description: _descController.text.trim().isEmpty
+                            ? null
+                            : _descController.text.trim(),
+                        totalHours: hours,
+                        objectives: objectives,
+                      ),
+                    );
                     context.go('/moduls/${_existingModul!.id}');
                   } else {
                     final modul = Modul(
                       id: notifier.nextId(),
                       code: code,
                       name: name,
-                      description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+                      description: _descController.text.trim().isEmpty
+                          ? null
+                          : _descController.text.trim(),
                       totalHours: hours,
                       objectives: objectives,
                     );
@@ -227,9 +266,19 @@ class ModulDetailPage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${modul.code} — ${modul.name}', style: Theme.of(context).textTheme.headlineMedium),
-                    if (modul.description != null) Text(modul.description!, style: Theme.of(context).textTheme.bodyMedium),
-                    Text('Total: ${modul.totalHours} h', style: Theme.of(context).textTheme.titleSmall),
+                    Text(
+                      '${modul.code} — ${modul.name}',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    if (modul.description != null)
+                      Text(
+                        modul.description!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    Text(
+                      'Total: ${modul.totalHours} h',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                   ],
                 ),
               ),
@@ -283,8 +332,17 @@ class ModulDetailPage extends ConsumerWidget {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(icon: const Icon(Icons.edit), onPressed: () => context.go('/moduls/$modulId/ra/edit/${ra.id}')),
-                              IconButton(icon: const Icon(Icons.delete), onPressed: () => _confirmDeleteRA(context, ref, modul, ra)),
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => context.go(
+                                  '/moduls/$modulId/ra/edit/${ra.id}',
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () =>
+                                    _confirmDeleteRA(context, ref, modul, ra),
+                              ),
                             ],
                           ),
                         ),
@@ -316,8 +374,14 @@ class ModulDetailPage extends ConsumerWidget {
         title: const Text('Eliminar mòdul'),
         content: Text('Esteu segur que voleu eliminar "${modul.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel·la')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Elimina')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel·la'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Elimina'),
+          ),
         ],
       ),
     ).then((ok) {
@@ -328,15 +392,26 @@ class ModulDetailPage extends ConsumerWidget {
     });
   }
 
-  static void _confirmDeleteRA(BuildContext context, WidgetRef ref, Modul modul, RA ra) {
+  static void _confirmDeleteRA(
+    BuildContext context,
+    WidgetRef ref,
+    Modul modul,
+    RA ra,
+  ) {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar RA'),
         content: Text('Esteu segur que voleu eliminar "${ra.title}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel·la')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Elimina')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel·la'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Elimina'),
+          ),
         ],
       ),
     ).then((ok) {
@@ -392,7 +467,9 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
     final moduls = ref.read(appStateProvider).moduls;
     final modulList = moduls.where((m) => m.id == widget.modulId).toList();
     if (modulList.isEmpty || widget.raId == null) return null;
-    final raList = modulList.first.ras.where((r) => r.id == widget.raId).toList();
+    final raList = modulList.first.ras
+        .where((r) => r.id == widget.raId)
+        .toList();
     return raList.isEmpty ? null : raList.first;
   }
 
@@ -414,33 +491,51 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isEdit ? 'Editar RA' : 'Nou RA', style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            isEdit ? 'Editar RA' : 'Nou RA',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 24),
           TextField(
             controller: _numberController,
-            decoration: const InputDecoration(labelText: 'Número (1, 2, 3...)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Número (1, 2, 3...)',
+              border: OutlineInputBorder(),
+            ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _codeController,
-            decoration: const InputDecoration(labelText: 'Codi (p.ex. RA1)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Codi (p.ex. RA1)',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(labelText: 'Títol', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Títol',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descController,
-            decoration: const InputDecoration(labelText: 'Descripció (opcional)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Descripció (opcional)',
+              border: OutlineInputBorder(),
+            ),
             maxLines: 2,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _hoursController,
-            decoration: const InputDecoration(labelText: 'Durada (hores)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Durada (hores)',
+              border: OutlineInputBorder(),
+            ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 24),
@@ -452,14 +547,23 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                   final code = _codeController.text.trim();
                   final title = _titleController.text.trim();
                   final hours = int.tryParse(_hoursController.text.trim());
-                  if (number == null || number < 1 || code.isEmpty || title.isEmpty || hours == null || hours <= 0) return;
+                  if (number == null ||
+                      number < 1 ||
+                      code.isEmpty ||
+                      title.isEmpty ||
+                      hours == null ||
+                      hours <= 0) {
+                    return;
+                  }
                   final notifier = ref.read(appStateProvider.notifier);
                   if (isEdit && _existingRA != null) {
                     final ra = _existingRA!.copyWith(
                       number: number,
                       code: code,
                       title: title,
-                      description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+                      description: _descController.text.trim().isEmpty
+                          ? null
+                          : _descController.text.trim(),
                       durationHours: hours,
                     );
                     notifier.setModulRA(widget.modulId, ra);
@@ -470,7 +574,9 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                       number: number,
                       code: code,
                       title: title,
-                      description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+                      description: _descController.text.trim().isEmpty
+                          ? null
+                          : _descController.text.trim(),
                       durationHours: hours,
                       order: 0,
                     );

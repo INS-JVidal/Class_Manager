@@ -32,10 +32,7 @@ class ModulRepository {
   }
 
   Future<Modul> update(Modul modul) async {
-    await _collection.replaceOne(
-      where.eq('_id', modul.id),
-      modul.toJson(),
-    );
+    await _collection.replaceOne(where.eq('_id', modul.id), modul.toJson());
     return modul;
   }
 

@@ -35,20 +35,20 @@ class VacationPeriod {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'name': name,
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-        if (note != null) 'note': note,
-      };
+    '_id': id,
+    'name': name,
+    'startDate': startDate.toIso8601String(),
+    'endDate': endDate.toIso8601String(),
+    if (note != null) 'note': note,
+  };
 
   factory VacationPeriod.fromJson(Map<String, dynamic> json) => VacationPeriod(
-        id: json['_id']?.toString() ?? _uuid.v4(),
-        name: json['name'] as String,
-        startDate: _parseDateTime(json['startDate']),
-        endDate: _parseDateTime(json['endDate']),
-        note: json['note'] as String?,
-      );
+    id: json['_id']?.toString() ?? _uuid.v4(),
+    name: json['name'] as String,
+    startDate: _parseDateTime(json['startDate']),
+    endDate: _parseDateTime(json['endDate']),
+    note: json['note'] as String?,
+  );
 
   static DateTime _parseDateTime(dynamic value) {
     if (value is DateTime) return value;

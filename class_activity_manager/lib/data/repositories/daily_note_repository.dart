@@ -27,10 +27,7 @@ class DailyNoteRepository {
   }
 
   Future<DailyNote> update(DailyNote note) async {
-    await _collection.replaceOne(
-      where.eq('_id', note.id),
-      note.toJson(),
-    );
+    await _collection.replaceOne(where.eq('_id', note.id), note.toJson());
     return note;
   }
 
@@ -39,7 +36,9 @@ class DailyNoteRepository {
   }
 
   Future<List<DailyNote>> findByGroupAndModule(
-      String groupId, String modulId) async {
+    String groupId,
+    String modulId,
+  ) async {
     final docs = await _collection
         .find(where.eq('groupId', groupId).eq('modulId', modulId))
         .toList();
@@ -52,9 +51,11 @@ class DailyNoteRepository {
   }
 
   Future<DailyNote?> findByGroupRaDate(
-      String groupId, String raId, DateTime date) async {
-    final dateStr =
-        DateTime(date.year, date.month, date.day).toIso8601String();
+    String groupId,
+    String raId,
+    DateTime date,
+  ) async {
+    final dateStr = DateTime(date.year, date.month, date.day).toIso8601String();
     final doc = await _collection.findOne(
       where.eq('groupId', groupId).eq('raId', raId).eq('date', dateStr),
     );

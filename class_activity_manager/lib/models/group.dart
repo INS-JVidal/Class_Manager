@@ -10,14 +10,19 @@ class Group {
     this.notes,
     this.academicYearId,
     this.moduleIds = const [],
+    this.color,
   });
 
   final String id;
   final String name;
   final String? notes;
   final String? academicYearId;
+
   /// IDs dels mòduls que s'imparteixen en aquest grup.
   final List<String> moduleIds;
+
+  /// Color del grup en format hexadecimal (p.ex. "#4CAF50").
+  final String? color;
 
   Group copyWith({
     String? id,
@@ -25,6 +30,7 @@ class Group {
     String? notes,
     String? academicYearId,
     List<String>? moduleIds,
+    String? color,
   }) {
     return Group(
       id: id ?? this.id,
@@ -32,25 +38,29 @@ class Group {
       notes: notes ?? this.notes,
       academicYearId: academicYearId ?? this.academicYearId,
       moduleIds: moduleIds ?? this.moduleIds,
+      color: color ?? this.color,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'name': name,
-        if (notes != null) 'notes': notes,
-        if (academicYearId != null) 'academicYearId': academicYearId,
-        'moduleIds': moduleIds,
-      };
+    '_id': id,
+    'name': name,
+    if (notes != null) 'notes': notes,
+    if (academicYearId != null) 'academicYearId': academicYearId,
+    'moduleIds': moduleIds,
+    if (color != null) 'color': color,
+  };
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
-        id: json['_id']?.toString() ?? _uuid.v4(),
-        name: json['name'] as String,
-        notes: json['notes'] as String?,
-        academicYearId: json['academicYearId']?.toString(),
-        moduleIds: (json['moduleIds'] as List<dynamic>?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            [],
-      );
+    id: json['_id']?.toString() ?? _uuid.v4(),
+    name: json['name'] as String,
+    notes: json['notes'] as String?,
+    academicYearId: json['academicYearId']?.toString(),
+    moduleIds:
+        (json['moduleIds'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [],
+    color: json['color'] as String?,
+  );
 }

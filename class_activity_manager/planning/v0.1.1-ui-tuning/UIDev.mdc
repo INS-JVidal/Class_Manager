@@ -1,0 +1,185 @@
+---
+alwaysApply: true
+---
+
+# UI Development Plan - v0.1.1
+
+**Version:** 0.1.1
+**Date:** February 1, 2026
+**Author:** @jvidal86
+**Project Type:** Cross-platform Desktop Application (Flutter)
+**Status:** IMPLEMENTED
+
+---
+
+## 1. Overview
+
+This document describes the UI enhancements for the v0.1.1 release, focusing on improved daily notes workflow, RA date management, calendar views, and a teacher dashboard.
+
+---
+
+## 2. Issues Addressed
+
+| Issue | Description | Solution |
+|-------|-------------|----------|
+| Daily notes too simple | Missing RA name, date details, planned/actual content | Enhanced UI with group selector, content fields, date info |
+| Route isolation | `/daily-notes` appeared isolated | Verified: already inside ShellRoute (no changes needed) |
+| Groups without modules | No way to assign modules to groups | Added `moduleIds` to Group model + selection UI |
+| Modules without study context | Couldn't see which cycles a module is taught in | Changed `cicleCode` to `cicleCodes` list |
+
+---
+
+## 3. UI Changes
+
+### 3.1 DailyNotesPage (`lib/presentation/pages/daily_notes_page.dart`)
+
+1. **Group selector dropdown** - First selector, filters available modules
+2. **RA info header card** - Shows module code + RA title
+3. **Enhanced date display** - Day of week (Catalan) + week number
+4. **Planned content field** - "Contingut planificat"
+5. **Actual content field** - "Contingut impartit"
+6. **Read-only mode** - When `completed = true`, all fields are read-only
+7. **Completion chip** - "Marcar com a fet" / "Completat"
+
+### 3.2 RA Date Range Picker
+
+**IMPLEMENTED:** Dual-calendar popup for selecting RA start and end dates:
+
+1. **Dual calendar widget** (`lib/presentation/widgets/dual_date_picker.dart`) - Left calendar for start date, right calendar for end date
+2. **Validation** - Error message if end date is before start date, confirm button disabled
+3. **Catalan day headers** - Dl, Dt, Dc, Dj, Dv, Ds, Dg
+4. **Display in RA config** - Card with date range icon, opens dual picker dialog
+5. **Persist to model** - Saves `startDate` and `endDate` to the RA model
+
+### 3.3 Main Calendar View (Calendar Page)
+
+**IMPLEMENTED:** Full calendar page accessible from main menu (second option):
+
+> **Note:** Originally planned for sidebar, moved to dedicated Calendar page for better UX with larger display area.
+
+1. **Monthly calendar grid** - Full-width calendar with day selection
+2. **Color coding by Group** - Color dots on days with scheduled RAs using group colors
+3. **Day selection panel** - Right sidebar shows RAs scheduled for selected day
+4. **Navigation** - Month navigation + "Avui" button to jump to today
+5. **Click-through** - Click any RA to navigate to daily notes
+6. **Catalan day names** - Full names (Dilluns, Dimarts, etc.)
+
+### 3.4 Group Color Picker
+
+**IMPLEMENTED:** Color selection for groups:
+
+1. **8 preset colors** - Green, Blue, Orange, Purple, Red, Cyan, Brown, Blue Grey
+2. **Visual selection** - Circle buttons with check mark on selected
+3. **Preview in list** - Color dot shown in groups list view
+4. **Clear option** - "Treure color" button to remove color
+
+### 3.5 Teacher Dashboard (Home Page)
+
+**IMPLEMENTED:** Dashboard for quick access to daily teaching activities:
+
+1. **Today's classes section** - Cards for RAs scheduled today with:
+   - Group name with color indicator
+   - Module code badge
+   - RA code and title
+   - Days remaining
+2. **Active RAs grid** - Responsive grid (1-4 columns) with compact cards showing:
+   - Group name
+   - Module code
+   - RA code
+   - Progress bar with percentage
+   - Date range (dd/MM format)
+   - Color indicator from group
+3. **Progress calculation** - `(elapsed days / total days) * 100%`
+4. **Empty states** - Helpful messages when no sessions scheduled
+
+---
+
+## 4. Model Changes
+
+### 4.1 Group Model
+- **IMPLEMENTED:** Added `color` field (optional hex string like "#4CAF50")
+- Updated `copyWith`, `toJson`, `fromJson`
+
+### 4.2 RA Model
+- `startDate` and `endDate` already existed - now properly used in UI
+
+### 4.3 GroupModuleColor
+- **NOT NEEDED:** Color is stored per Group, not per Group-Module combination
+
+---
+
+## 5. Database Schema Updates
+
+### 5.1 MongoDB Collections
+
+**groups collection** - Added field:
+```javascript
+{
+  // existing fields...
+  color: String  // Optional hex color code, e.g., "#4CAF50"
+}
+```
+
+**Indexes** - No new indexes required for this release.
+
+---
+
+## 6. Files Modified/Created
+
+| File | Action | Changes |
+|------|--------|---------|
+| `lib/models/group.dart` | Modified | Added `color` field with serialization |
+| `lib/presentation/pages/grups_page.dart` | Modified | Added color picker UI + color indicator in list |
+| `lib/presentation/widgets/dual_date_picker.dart` | **Created** | Dual calendar widget for date range selection |
+| `lib/presentation/pages/ra_config_page.dart` | Modified | Replaced separate pickers with dual calendar |
+| `lib/presentation/pages/calendar_page.dart` | **Created** | Full calendar view with day selection |
+| `lib/presentation/pages/dashboard_page.dart` | Modified | Implemented full dashboard with active RAs grid |
+| `lib/router/app_router.dart` | Modified | Updated /calendar route to use CalendarPage |
+
+### Files NOT Modified (as originally planned)
+| File | Reason |
+|------|--------|
+| `lib/presentation/shell/app_shell.dart` | Calendar moved to dedicated page instead of sidebar |
+| `lib/data/repositories/group_repository.dart` | No changes needed - toJson/fromJson handle color field automatically |
+
+---
+
+## 7. Verification Steps
+
+1. **Daily Notes** (from previous implementation)
+   - [x] Group selector filters modules correctly
+   - [x] Date shows day of week in Catalan
+   - [x] Planned/actual content fields save correctly
+   - [x] Completed notes are read-only
+
+2. **Group Color**
+   - [x] Create group with color → persists after restart
+   - [x] Edit group color → updates correctly
+   - [x] Color shows in group list
+
+3. **RA Date Picker**
+   - [x] Opens with two calendars side-by-side
+   - [x] Cannot select end before start (validation error)
+   - [x] Saves dates to RA
+
+4. **Calendar View**
+   - [x] Shows current month with navigation
+   - [x] Days with RAs have color indicators
+   - [x] Click day → shows RAs in side panel
+   - [x] Click RA → navigates to daily notes
+
+5. **Dashboard**
+   - [x] Shows today's scheduled classes
+   - [x] Active RAs grid displays correctly
+   - [x] Progress percentage is accurate
+   - [x] Quick links navigate correctly
+
+---
+
+## 8. UI/UX Guidelines
+
+- **Language**: All UI text in Catalan
+- **Colors**: Use Material 3 color system, primary green (#1B5E20)
+- **Group Colors**: 8 preset colors for easy selection
+- **Accessibility**: Ensure sufficient color contrast
+- **Responsiveness**: Support window resize on desktop (responsive grid in dashboard)

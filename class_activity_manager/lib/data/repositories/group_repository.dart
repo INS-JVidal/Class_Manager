@@ -27,10 +27,7 @@ class GroupRepository {
   }
 
   Future<Group> update(Group group) async {
-    await _collection.replaceOne(
-      where.eq('_id', group.id),
-      group.toJson(),
-    );
+    await _collection.replaceOne(where.eq('_id', group.id), group.toJson());
     return group;
   }
 

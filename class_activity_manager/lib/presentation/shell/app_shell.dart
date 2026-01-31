@@ -15,11 +15,7 @@ final navDestinations = [
 ];
 
 class AppShell extends StatelessWidget {
-  const AppShell({
-    super.key,
-    required this.child,
-    required this.currentRoute,
-  });
+  const AppShell({super.key, required this.child, required this.currentRoute});
 
   final Widget child;
   final String currentRoute;
@@ -44,9 +40,7 @@ class AppShell extends StatelessWidget {
                 )
                 .toList(),
           ),
-          Expanded(
-            child: child,
-          ),
+          Expanded(child: child),
         ],
       ),
     );

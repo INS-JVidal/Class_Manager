@@ -35,7 +35,9 @@ class ConfiguracioPage extends ConsumerWidget {
             onAdd: () => _showAddRecurringHoliday(context, ref),
             onEdit: (h) => _showEditRecurringHoliday(context, ref, h),
             onRemove: (h) => _confirmRemoveRecurringHoliday(context, ref, h),
-            onToggle: (h) => ref.read(appStateProvider.notifier).updateRecurringHoliday(h.copyWith(isEnabled: !h.isEnabled)),
+            onToggle: (h) => ref
+                .read(appStateProvider.notifier)
+                .updateRecurringHoliday(h.copyWith(isEnabled: !h.isEnabled)),
           ),
         ],
       ),
@@ -48,20 +50,26 @@ class ConfiguracioPage extends ConsumerWidget {
       builder: (ctx) => _VacationPeriodFormDialog(
         onSave: (name, start, end, note) {
           final notifier = ref.read(appStateProvider.notifier);
-          notifier.addVacationPeriod(VacationPeriod(
-            id: notifier.nextId(),
-            name: name,
-            startDate: start,
-            endDate: end,
-            note: note.isEmpty ? null : note,
-          ));
+          notifier.addVacationPeriod(
+            VacationPeriod(
+              id: notifier.nextId(),
+              name: name,
+              startDate: start,
+              endDate: end,
+              note: note.isEmpty ? null : note,
+            ),
+          );
           Navigator.of(ctx).pop();
         },
       ),
     );
   }
 
-  static void _showEditVacationPeriod(BuildContext context, WidgetRef ref, VacationPeriod p) {
+  static void _showEditVacationPeriod(
+    BuildContext context,
+    WidgetRef ref,
+    VacationPeriod p,
+  ) {
     showDialog<void>(
       context: context,
       builder: (ctx) => _VacationPeriodFormDialog(
@@ -70,26 +78,37 @@ class ConfiguracioPage extends ConsumerWidget {
         initialEnd: p.endDate,
         initialNote: p.note ?? '',
         onSave: (name, start, end, note) {
-          ref.read(appStateProvider.notifier).updateVacationPeriod(p.copyWith(
-                name: name,
-                startDate: start,
-                endDate: end,
-                note: note.isEmpty ? null : note,
-              ));
+          ref
+              .read(appStateProvider.notifier)
+              .updateVacationPeriod(
+                p.copyWith(
+                  name: name,
+                  startDate: start,
+                  endDate: end,
+                  note: note.isEmpty ? null : note,
+                ),
+              );
           Navigator.of(ctx).pop();
         },
       ),
     );
   }
 
-  static void _confirmRemoveVacationPeriod(BuildContext context, WidgetRef ref, VacationPeriod p) {
+  static void _confirmRemoveVacationPeriod(
+    BuildContext context,
+    WidgetRef ref,
+    VacationPeriod p,
+  ) {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar període'),
         content: Text('Esteu segur que voleu eliminar "${p.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel·la')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel·la'),
+          ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Elimina'),
@@ -97,7 +116,9 @@ class ConfiguracioPage extends ConsumerWidget {
         ],
       ),
     ).then((ok) {
-      if (ok == true) ref.read(appStateProvider.notifier).removeVacationPeriod(p.id);
+      if (ok == true) {
+        ref.read(appStateProvider.notifier).removeVacationPeriod(p.id);
+      }
     });
   }
 
@@ -107,20 +128,26 @@ class ConfiguracioPage extends ConsumerWidget {
       builder: (ctx) => _RecurringHolidayFormDialog(
         onSave: (name, month, day, enabled) {
           final notifier = ref.read(appStateProvider.notifier);
-          notifier.addRecurringHoliday(RecurringHoliday(
-            id: notifier.nextId(),
-            name: name,
-            month: month,
-            day: day,
-            isEnabled: enabled,
-          ));
+          notifier.addRecurringHoliday(
+            RecurringHoliday(
+              id: notifier.nextId(),
+              name: name,
+              month: month,
+              day: day,
+              isEnabled: enabled,
+            ),
+          );
           Navigator.of(ctx).pop();
         },
       ),
     );
   }
 
-  static void _showEditRecurringHoliday(BuildContext context, WidgetRef ref, RecurringHoliday h) {
+  static void _showEditRecurringHoliday(
+    BuildContext context,
+    WidgetRef ref,
+    RecurringHoliday h,
+  ) {
     showDialog<void>(
       context: context,
       builder: (ctx) => _RecurringHolidayFormDialog(
@@ -129,31 +156,47 @@ class ConfiguracioPage extends ConsumerWidget {
         initialDay: h.day,
         initialEnabled: h.isEnabled,
         onSave: (name, month, day, enabled) {
-          ref.read(appStateProvider.notifier).updateRecurringHoliday(h.copyWith(
-                name: name,
-                month: month,
-                day: day,
-                isEnabled: enabled,
-              ));
+          ref
+              .read(appStateProvider.notifier)
+              .updateRecurringHoliday(
+                h.copyWith(
+                  name: name,
+                  month: month,
+                  day: day,
+                  isEnabled: enabled,
+                ),
+              );
           Navigator.of(ctx).pop();
         },
       ),
     );
   }
 
-  static void _confirmRemoveRecurringHoliday(BuildContext context, WidgetRef ref, RecurringHoliday h) {
+  static void _confirmRemoveRecurringHoliday(
+    BuildContext context,
+    WidgetRef ref,
+    RecurringHoliday h,
+  ) {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar festiu'),
         content: Text('Esteu segur que voleu eliminar "${h.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel·la')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Elimina')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel·la'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Elimina'),
+          ),
         ],
       ),
     ).then((ok) {
-      if (ok == true) ref.read(appStateProvider.notifier).removeRecurringHoliday(h.id);
+      if (ok == true) {
+        ref.read(appStateProvider.notifier).removeRecurringHoliday(h.id);
+      }
     });
   }
 }
@@ -164,7 +207,8 @@ class _AcademicYearSection extends ConsumerStatefulWidget {
   final AcademicYear? currentYear;
 
   @override
-  ConsumerState<_AcademicYearSection> createState() => _AcademicYearSectionState();
+  ConsumerState<_AcademicYearSection> createState() =>
+      _AcademicYearSectionState();
 }
 
 class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
@@ -185,7 +229,8 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
   @override
   void didUpdateWidget(covariant _AcademicYearSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentYear != oldWidget.currentYear && widget.currentYear != null) {
+    if (widget.currentYear != oldWidget.currentYear &&
+        widget.currentYear != null) {
       _nameController.text = widget.currentYear!.name;
       _startDate = widget.currentYear!.startDate;
       _endDate = widget.currentYear!.endDate;
@@ -208,7 +253,10 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Curs acadèmic', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Curs acadèmic',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             if (widget.currentYear == null) ...[
               const SizedBox(height: 12),
               const Text('Encara no hi ha cap curs acadèmic. Creeu-ne un.'),
@@ -222,7 +270,11 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
               ),
               const SizedBox(height: 12),
               ListTile(
-                title: Text(_startDate != null ? _dateFormat.format(_startDate!) : 'Data d\'inici'),
+                title: Text(
+                  _startDate != null
+                      ? _dateFormat.format(_startDate!)
+                      : 'Data d\'inici',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final d = await showDatePicker(
@@ -235,7 +287,11 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
                 },
               ),
               ListTile(
-                title: Text(_endDate != null ? _dateFormat.format(_endDate!) : 'Data de fi'),
+                title: Text(
+                  _endDate != null
+                      ? _dateFormat.format(_endDate!)
+                      : 'Data de fi',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final d = await showDatePicker(
@@ -251,19 +307,27 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
               FilledButton(
                 onPressed: () {
                   final name = _nameController.text.trim();
-                  if (name.isEmpty || _startDate == null || _endDate == null) return;
-                  ref.read(appStateProvider.notifier).setCurrentYear(AcademicYear(
-                        id: ref.read(appStateProvider.notifier).nextId(),
-                        name: name,
-                        startDate: _startDate!,
-                        endDate: _endDate!,
-                      ));
+                  if (name.isEmpty || _startDate == null || _endDate == null) {
+                    return;
+                  }
+                  ref
+                      .read(appStateProvider.notifier)
+                      .setCurrentYear(
+                        AcademicYear(
+                          id: ref.read(appStateProvider.notifier).nextId(),
+                          name: name,
+                          startDate: _startDate!,
+                          endDate: _endDate!,
+                        ),
+                      );
                 },
                 child: const Text('Crea curs acadèmic'),
               ),
             ] else ...[
               const SizedBox(height: 8),
-              Text('${widget.currentYear!.name} — ${_dateFormat.format(widget.currentYear!.startDate)} – ${_dateFormat.format(widget.currentYear!.endDate)}'),
+              Text(
+                '${widget.currentYear!.name} — ${_dateFormat.format(widget.currentYear!.startDate)} – ${_dateFormat.format(widget.currentYear!.endDate)}',
+              ),
               const SizedBox(height: 8),
               OutlinedButton(
                 onPressed: () {
@@ -272,11 +336,15 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
                     builder: (ctx) => _EditAcademicYearDialog(
                       currentYear: widget.currentYear!,
                       onSave: (name, start, end) {
-                        ref.read(appStateProvider.notifier).updateCurrentYear(widget.currentYear!.copyWith(
-                              name: name,
-                              startDate: start,
-                              endDate: end,
-                            ));
+                        ref
+                            .read(appStateProvider.notifier)
+                            .updateCurrentYear(
+                              widget.currentYear!.copyWith(
+                                name: name,
+                                startDate: start,
+                                endDate: end,
+                              ),
+                            );
                         Navigator.of(ctx).pop();
                       },
                     ),
@@ -318,25 +386,42 @@ class _VacationPeriodsSection extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Períodes de vacances', style: Theme.of(context).textTheme.titleLarge),
-                FilledButton.tonalIcon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Afegir període')),
+                Text(
+                  'Períodes de vacances',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Afegir període'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             if (periods.isEmpty)
               const Text('Cap període definit.')
             else
-              ...periods.map((p) => ListTile(
-                    title: Text(p.name),
-                    subtitle: Text('${_dateFormat.format(p.startDate)} – ${_dateFormat.format(p.endDate)}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(icon: const Icon(Icons.edit), onPressed: () => onEdit(p)),
-                        IconButton(icon: const Icon(Icons.delete), onPressed: () => onRemove(p)),
-                      ],
-                    ),
-                  )),
+              ...periods.map(
+                (p) => ListTile(
+                  title: Text(p.name),
+                  subtitle: Text(
+                    '${_dateFormat.format(p.startDate)} – ${_dateFormat.format(p.endDate)}',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => onEdit(p),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => onRemove(p),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -370,29 +455,46 @@ class _RecurringHolidaysSection extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Festius recurrents', style: Theme.of(context).textTheme.titleLarge),
-                FilledButton.tonalIcon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Afegir festiu')),
+                Text(
+                  'Festius recurrents',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Afegir festiu'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             if (holidays.isEmpty)
               const Text('Cap festiu definit.')
             else
-              ...holidays.map((h) => ListTile(
-                    title: Text(h.name),
-                    subtitle: Text('${h.day.toString().padLeft(2, '0')}/${h.month.toString().padLeft(2, '0')}'),
-                    leading: Switch(
-                      value: h.isEnabled,
-                      onChanged: (_) => onToggle(h),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(icon: const Icon(Icons.edit), onPressed: () => onEdit(h)),
-                        IconButton(icon: const Icon(Icons.delete), onPressed: () => onRemove(h)),
-                      ],
-                    ),
-                  )),
+              ...holidays.map(
+                (h) => ListTile(
+                  title: Text(h.name),
+                  subtitle: Text(
+                    '${h.day.toString().padLeft(2, '0')}/${h.month.toString().padLeft(2, '0')}',
+                  ),
+                  leading: Switch(
+                    value: h.isEnabled,
+                    onChanged: (_) => onToggle(h),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => onEdit(h),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => onRemove(h),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -410,7 +512,8 @@ class _EditAcademicYearDialog extends StatefulWidget {
   final void Function(String name, DateTime start, DateTime end) onSave;
 
   @override
-  State<_EditAcademicYearDialog> createState() => _EditAcademicYearDialogState();
+  State<_EditAcademicYearDialog> createState() =>
+      _EditAcademicYearDialogState();
 }
 
 class _EditAcademicYearDialogState extends State<_EditAcademicYearDialog> {
@@ -444,7 +547,10 @@ class _EditAcademicYearDialogState extends State<_EditAcademicYearDialog> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 8),
             ListTile(
@@ -477,7 +583,10 @@ class _EditAcademicYearDialogState extends State<_EditAcademicYearDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel·la')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel·la'),
+        ),
         FilledButton(
           onPressed: () {
             final name = _nameController.text.trim();
@@ -498,17 +607,19 @@ class _VacationPeriodFormDialog extends StatefulWidget {
     DateTime? initialEnd,
     this.initialNote = '',
     required this.onSave,
-  })  : initialStart = initialStart ?? DateTime(2024, 9, 1),
-        initialEnd = initialEnd ?? DateTime(2025, 6, 30);
+  }) : initialStart = initialStart ?? DateTime(2024, 9, 1),
+       initialEnd = initialEnd ?? DateTime(2025, 6, 30);
 
   final String initialName;
   final DateTime initialStart;
   final DateTime initialEnd;
   final String initialNote;
-  final void Function(String name, DateTime start, DateTime end, String note) onSave;
+  final void Function(String name, DateTime start, DateTime end, String note)
+  onSave;
 
   @override
-  State<_VacationPeriodFormDialog> createState() => _VacationPeriodFormDialogState();
+  State<_VacationPeriodFormDialog> createState() =>
+      _VacationPeriodFormDialogState();
 }
 
 class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
@@ -545,14 +656,22 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             ListTile(
               title: Text(_dateFormat.format(_start)),
               subtitle: const Text('Data d\'inici'),
               onTap: () async {
-                final d = await showDatePicker(context: context, initialDate: _start, firstDate: DateTime(2020), lastDate: DateTime(2030));
+                final d = await showDatePicker(
+                  context: context,
+                  initialDate: _start,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
                 if (d != null) setState(() => _start = d);
               },
             ),
@@ -560,21 +679,32 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
               title: Text(_dateFormat.format(_end)),
               subtitle: const Text('Data de fi'),
               onTap: () async {
-                final d = await showDatePicker(context: context, initialDate: _end, firstDate: DateTime(2020), lastDate: DateTime(2030));
+                final d = await showDatePicker(
+                  context: context,
+                  initialDate: _end,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
                 if (d != null) setState(() => _end = d);
               },
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _noteController,
-              decoration: const InputDecoration(labelText: 'Nota (opcional)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                labelText: 'Nota (opcional)',
+                border: OutlineInputBorder(),
+              ),
               maxLines: 2,
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel·la')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel·la'),
+        ),
         FilledButton(
           onPressed: () {
             final name = _nameController.text.trim();
@@ -604,10 +734,12 @@ class _RecurringHolidayFormDialog extends StatefulWidget {
   final void Function(String name, int month, int day, bool enabled) onSave;
 
   @override
-  State<_RecurringHolidayFormDialog> createState() => _RecurringHolidayFormDialogState();
+  State<_RecurringHolidayFormDialog> createState() =>
+      _RecurringHolidayFormDialogState();
 }
 
-class _RecurringHolidayFormDialogState extends State<_RecurringHolidayFormDialog> {
+class _RecurringHolidayFormDialogState
+    extends State<_RecurringHolidayFormDialog> {
   late final TextEditingController _nameController;
   late int _month;
   late int _day;
@@ -638,25 +770,48 @@ class _RecurringHolidayFormDialogState extends State<_RecurringHolidayFormDialog
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: _month,
-                    decoration: const InputDecoration(labelText: 'Mes', border: OutlineInputBorder()),
-                    items: List.generate(12, (i) => i + 1).map((m) => DropdownMenuItem(value: m, child: Text(m.toString()))).toList(),
+                    initialValue: _month,
+                    decoration: const InputDecoration(
+                      labelText: 'Mes',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: List.generate(12, (i) => i + 1)
+                        .map(
+                          (m) => DropdownMenuItem(
+                            value: m,
+                            child: Text(m.toString()),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (v) => setState(() => _month = v ?? 1),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: _day.clamp(1, 31),
-                    decoration: const InputDecoration(labelText: 'Dia', border: OutlineInputBorder()),
-                    items: List.generate(31, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text(d.toString()))).toList(),
+                    initialValue: _day.clamp(1, 31),
+                    decoration: const InputDecoration(
+                      labelText: 'Dia',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: List.generate(31, (i) => i + 1)
+                        .map(
+                          (d) => DropdownMenuItem(
+                            value: d,
+                            child: Text(d.toString()),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (v) => setState(() => _day = v ?? 1),
                   ),
                 ),
@@ -672,7 +827,10 @@ class _RecurringHolidayFormDialogState extends State<_RecurringHolidayFormDialog
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel·la')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel·la'),
+        ),
         FilledButton(
           onPressed: () {
             final name = _nameController.text.trim();

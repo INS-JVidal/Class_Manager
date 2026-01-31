@@ -6,19 +6,19 @@ class AppTheme {
 
   static ThemeData get light {
     const forestGreen = Color(0xFF1B5E20);
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: forestGreen,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: forestGreen,
-      surface: const Color(0xFFF1F4F1),
-      background: const Color(0xFFF1F4F1),
-      surfaceVariant: const Color(0xFFE1E7E1),
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: forestGreen,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: forestGreen,
+          surface: const Color(0xFFF1F4F1),
+          surfaceContainerHighest: const Color(0xFFE1E7E1),
+        );
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.surface,
       fontFamily: null,
     );
   }

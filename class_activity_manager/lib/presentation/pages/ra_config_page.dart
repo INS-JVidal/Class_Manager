@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../widgets/dual_date_picker.dart';
 
 class RaConfigPage extends ConsumerWidget {
   const RaConfigPage({super.key, required this.modulId});
@@ -32,8 +33,14 @@ class RaConfigPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Configurar dates i hores — ${modul.code}', style: Theme.of(context).textTheme.headlineMedium),
-                  Text(modul.name, style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    'Configurar dates i hores — ${modul.code}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  Text(
+                    modul.name,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ],
               ),
               TextButton.icon(
@@ -45,7 +52,14 @@ class RaConfigPage extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           if (ras.isEmpty)
-            const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('Cap RA. Importeu mòduls des de Configuració del currículum.')))
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Cap RA. Importeu mòduls des de Configuració del currículum.',
+                ),
+              ),
+            )
           else
             Expanded(
               child: ListView.builder(
@@ -63,7 +77,8 @@ class RaConfigPage extends ConsumerWidget {
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () => _showEditRaDialog(context, ref, modul, ra),
+                        onPressed: () =>
+                            _showEditRaDialog(context, ref, modul, ra),
                       ),
                     ),
                   );
@@ -75,8 +90,15 @@ class RaConfigPage extends ConsumerWidget {
     );
   }
 
-  static void _showEditRaDialog(BuildContext context, WidgetRef ref, Modul modul, RA ra) {
-    final hoursController = TextEditingController(text: ra.durationHours.toString());
+  static void _showEditRaDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Modul modul,
+    RA ra,
+  ) {
+    final hoursController = TextEditingController(
+      text: ra.durationHours.toString(),
+    );
     DateTime? start = ra.startDate;
     DateTime? end = ra.endDate;
 
@@ -92,50 +114,65 @@ class RaConfigPage extends ConsumerWidget {
                 children: [
                   TextField(
                     controller: hoursController,
-                    decoration: const InputDecoration(labelText: 'Hores', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                      labelText: 'Hores',
+                      border: OutlineInputBorder(),
+                    ),
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 12),
-                  ListTile(
-                    title: Text(start != null ? _dateFormat.format(start!) : 'Data d\'inici'),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final initial = start ?? DateTime.now();
-                      final d = await showDatePicker(
-                        context: context,
-                        initialDate: initial,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
-                      );
-                      if (d != null) setDialogState(() => start = d);
-                    },
-                  ),
-                  ListTile(
-                    title: Text(end != null ? _dateFormat.format(end!) : 'Data de fi'),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final initial = end ?? start ?? DateTime.now();
-                      final d = await showDatePicker(
-                        context: context,
-                        initialDate: initial,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
-                      );
-                      if (d != null) setDialogState(() => end = d);
-                    },
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.date_range),
+                      title: Text(
+                        start != null && end != null
+                            ? '${_dateFormat.format(start!)} → ${_dateFormat.format(end!)}'
+                            : start != null
+                            ? 'Inici: ${_dateFormat.format(start!)}'
+                            : 'Seleccionar dates',
+                      ),
+                      subtitle: start == null && end == null
+                          ? const Text('Prem per seleccionar rang de dates')
+                          : null,
+                      trailing: const Icon(Icons.edit_calendar),
+                      onTap: () async {
+                        final range = await DualDatePicker.show(
+                          context,
+                          initialStart: start,
+                          initialEnd: end,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2030),
+                        );
+                        if (range != null) {
+                          setDialogState(() {
+                            start = range.start;
+                            end = range.end;
+                          });
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel·la')),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel·la'),
+              ),
               FilledButton(
                 onPressed: () {
                   final h = int.tryParse(hoursController.text.trim());
                   if (h != null && h > 0) {
-                    ref.read(appStateProvider.notifier).setModulRA(
+                    ref
+                        .read(appStateProvider.notifier)
+                        .setModulRA(
                           modul.id,
-                          ra.copyWith(durationHours: h, startDate: start, endDate: end),
+                          ra.copyWith(
+                            durationHours: h,
+                            startDate: start,
+                            endDate: end,
+                          ),
                         );
                   }
                   Navigator.of(ctx).pop();
