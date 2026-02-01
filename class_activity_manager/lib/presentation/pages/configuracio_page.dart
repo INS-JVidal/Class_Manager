@@ -31,6 +31,7 @@ class ConfiguracioPage extends ConsumerWidget {
           const SizedBox(height: 32),
           _VacationPeriodsSection(
             periods: state.currentYear?.vacationPeriods ?? [],
+            hasAcademicYear: state.currentYear != null,
             onAdd: () => _showAddVacationPeriod(context, ref),
             onEdit: (p) => _showEditVacationPeriod(context, ref, p),
             onRemove: (p) => _confirmRemoveVacationPeriod(context, ref, p),
@@ -51,12 +52,16 @@ class ConfiguracioPage extends ConsumerWidget {
   }
 
   static void _showAddVacationPeriod(BuildContext context, WidgetRef ref) {
+    final year = ref.read(appStateProvider).currentYear;
+    if (year == null) return;
     showDialog<void>(
       context: context,
       builder: (ctx) => _VacationPeriodFormDialog(
-        onSave: (name, start, end, note) {
+        academicYearStart: year.startDate,
+        academicYearEnd: year.endDate,
+        onSave: (name, start, end, note) async {
           final notifier = ref.read(appStateProvider.notifier);
-          notifier.addVacationPeriod(
+          await notifier.addVacationPeriod(
             VacationPeriod(
               id: notifier.nextId(),
               name: name,
@@ -65,7 +70,7 @@ class ConfiguracioPage extends ConsumerWidget {
               note: note.isEmpty ? null : note,
             ),
           );
-          Navigator.of(ctx).pop();
+          if (ctx.mounted) Navigator.of(ctx).pop();
         },
       ),
     );
@@ -76,6 +81,8 @@ class ConfiguracioPage extends ConsumerWidget {
     WidgetRef ref,
     VacationPeriod p,
   ) {
+    final year = ref.read(appStateProvider).currentYear;
+    if (year == null) return;
     showDialog<void>(
       context: context,
       builder: (ctx) => _VacationPeriodFormDialog(
@@ -83,8 +90,10 @@ class ConfiguracioPage extends ConsumerWidget {
         initialStart: p.startDate,
         initialEnd: p.endDate,
         initialNote: p.note ?? '',
-        onSave: (name, start, end, note) {
-          ref
+        academicYearStart: year.startDate,
+        academicYearEnd: year.endDate,
+        onSave: (name, start, end, note) async {
+          await ref
               .read(appStateProvider.notifier)
               .updateVacationPeriod(
                 p.copyWith(
@@ -94,7 +103,7 @@ class ConfiguracioPage extends ConsumerWidget {
                   note: note.isEmpty ? null : note,
                 ),
               );
-          Navigator.of(ctx).pop();
+          if (ctx.mounted) Navigator.of(ctx).pop();
         },
       ),
     );
@@ -132,9 +141,9 @@ class ConfiguracioPage extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => _RecurringHolidayFormDialog(
-        onSave: (name, month, day, enabled) {
+        onSave: (name, month, day, enabled) async {
           final notifier = ref.read(appStateProvider.notifier);
-          notifier.addRecurringHoliday(
+          await notifier.addRecurringHoliday(
             RecurringHoliday(
               id: notifier.nextId(),
               name: name,
@@ -143,7 +152,7 @@ class ConfiguracioPage extends ConsumerWidget {
               isEnabled: enabled,
             ),
           );
-          Navigator.of(ctx).pop();
+          if (ctx.mounted) Navigator.of(ctx).pop();
         },
       ),
     );
@@ -161,8 +170,8 @@ class ConfiguracioPage extends ConsumerWidget {
         initialMonth: h.month,
         initialDay: h.day,
         initialEnabled: h.isEnabled,
-        onSave: (name, month, day, enabled) {
-          ref
+        onSave: (name, month, day, enabled) async {
+          await ref
               .read(appStateProvider.notifier)
               .updateRecurringHoliday(
                 h.copyWith(
@@ -172,7 +181,7 @@ class ConfiguracioPage extends ConsumerWidget {
                   isEnabled: enabled,
                 ),
               );
-          Navigator.of(ctx).pop();
+          if (ctx.mounted) Navigator.of(ctx).pop();
         },
       ),
     );
@@ -445,12 +454,14 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
 class _VacationPeriodsSection extends StatelessWidget {
   const _VacationPeriodsSection({
     required this.periods,
+    required this.hasAcademicYear,
     required this.onAdd,
     required this.onEdit,
     required this.onRemove,
   });
 
   final List<VacationPeriod> periods;
+  final bool hasAcademicYear;
   final VoidCallback onAdd;
   final void Function(VacationPeriod) onEdit;
   final void Function(VacationPeriod) onRemove;
@@ -473,14 +484,19 @@ class _VacationPeriodsSection extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 FilledButton.tonalIcon(
-                  onPressed: onAdd,
+                  onPressed: hasAcademicYear ? onAdd : null,
                   icon: const Icon(Icons.add),
                   label: const Text('Afegir període'),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            if (periods.isEmpty)
+            if (!hasAcademicYear)
+              const Text(
+                'Cal crear un curs acadèmic primer.',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              )
+            else if (periods.isEmpty)
               const Text('Cap període definit.')
             else
               ...periods.map(
@@ -684,15 +700,19 @@ class _VacationPeriodFormDialog extends StatefulWidget {
     DateTime? initialStart,
     DateTime? initialEnd,
     this.initialNote = '',
+    required this.academicYearStart,
+    required this.academicYearEnd,
     required this.onSave,
-  }) : initialStart = initialStart ?? DateTime(2024, 9, 1),
-       initialEnd = initialEnd ?? DateTime(2025, 6, 30);
+  }) : initialStart = initialStart ?? academicYearStart,
+       initialEnd = initialEnd ?? academicYearStart.add(const Duration(days: 7));
 
   final String initialName;
   final DateTime initialStart;
   final DateTime initialEnd;
   final String initialNote;
-  final void Function(String name, DateTime start, DateTime end, String note)
+  final DateTime academicYearStart;
+  final DateTime academicYearEnd;
+  final Future<void> Function(String name, DateTime start, DateTime end, String note)
   onSave;
 
   @override
@@ -751,8 +771,8 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
                   context,
                   initialStart: _start,
                   initialEnd: _end,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
+                  firstDate: widget.academicYearStart,
+                  lastDate: widget.academicYearEnd,
                 );
                 if (range != null) {
                   setState(() {
@@ -780,10 +800,10 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
           child: const Text('Cancel·la'),
         ),
         FilledButton(
-          onPressed: () {
+          onPressed: () async {
             final name = _nameController.text.trim();
             if (name.isEmpty) return;
-            widget.onSave(name, _start, _end, _noteController.text.trim());
+            await widget.onSave(name, _start, _end, _noteController.text.trim());
           },
           child: const Text('Desa'),
         ),
@@ -805,7 +825,7 @@ class _RecurringHolidayFormDialog extends StatefulWidget {
   final int initialMonth;
   final int initialDay;
   final bool initialEnabled;
-  final void Function(String name, int month, int day, bool enabled) onSave;
+  final Future<void> Function(String name, int month, int day, bool enabled) onSave;
 
   @override
   State<_RecurringHolidayFormDialog> createState() =>
@@ -906,10 +926,10 @@ class _RecurringHolidayFormDialogState
           child: const Text('Cancel·la'),
         ),
         FilledButton(
-          onPressed: () {
+          onPressed: () async {
             final name = _nameController.text.trim();
             if (name.isEmpty) return;
-            widget.onSave(name, _month, _day.clamp(1, 31), _enabled);
+            await widget.onSave(name, _month, _day.clamp(1, 31), _enabled);
           },
           child: const Text('Desa'),
         ),

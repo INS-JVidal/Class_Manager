@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:mongo_dart/mongo_dart.dart';
 
+import '../cache/schemas/schemas.dart';
 import '../cache/sync_conflict.dart';
 import '../cache/sync_queue.dart';
 import '../datasources/local_datasource.dart';
@@ -167,7 +168,11 @@ class CacheService {
         break;
 
       case 'update':
-        final localVersion = payload['version'] as int? ?? 1;
+        // Read current version from local cache (not from payload which may be stale)
+        final localVersion =
+            await _getLocalCacheVersion(entityType, entityId) ??
+                payload['version'] as int? ??
+                1;
 
         // Fetch current server document
         final serverDoc = await collection.findOne(where.eq('_id', entityId));
@@ -194,11 +199,15 @@ class CacheService {
         }
 
         // Versions match - safe to update with incremented version
-        payload['version'] = localVersion + 1;
+        final newVersion = localVersion + 1;
+        payload['version'] = newVersion;
         await collection.replaceOne(
           where.eq('_id', entityId),
           payload,
         );
+
+        // Update local cache version to match synced version
+        await _updateLocalCacheVersion(entityType, entityId, newVersion);
         break;
 
       case 'delete':
@@ -245,6 +254,93 @@ class CacheService {
         await _queue.remove(op.id);
       }
     }
+  }
+
+  /// Reads the current version from local Isar cache.
+  ///
+  /// This ensures we use the accurate version even if in-memory state is stale.
+  Future<int?> _getLocalCacheVersion(String entityType, String entityId) async {
+    switch (entityType) {
+      case 'modul':
+        final cache = await _local.db.modulCaches.getById(entityId);
+        return cache?.version;
+      case 'group':
+        final cache = await _local.db.groupCaches.getById(entityId);
+        return cache?.version;
+      case 'dailyNote':
+        final cache = await _local.db.dailyNoteCaches.getById(entityId);
+        return cache?.version;
+      case 'academicYear':
+        final cache = await _local.db.academicYearCaches.getById(entityId);
+        return cache?.version;
+      case 'recurringHoliday':
+        final cache = await _local.db.recurringHolidayCaches.getById(entityId);
+        return cache?.version;
+      case 'userPreferences':
+        final cache = await _local.db.userPreferencesCaches.getById(entityId);
+        return cache?.version;
+      default:
+        return null;
+    }
+  }
+
+  /// Updates the version in local Isar cache after successful sync.
+  ///
+  /// This prevents version mismatch on subsequent edits by keeping
+  /// local cache version in sync with MongoDB.
+  Future<void> _updateLocalCacheVersion(
+    String entityType,
+    String entityId,
+    int newVersion,
+  ) async {
+    await _local.db.writeTxn(() async {
+      switch (entityType) {
+        case 'modul':
+          final cache = await _local.db.modulCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.modulCaches.put(cache);
+          }
+          break;
+        case 'group':
+          final cache = await _local.db.groupCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.groupCaches.put(cache);
+          }
+          break;
+        case 'dailyNote':
+          final cache = await _local.db.dailyNoteCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.dailyNoteCaches.put(cache);
+          }
+          break;
+        case 'academicYear':
+          final cache = await _local.db.academicYearCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.academicYearCaches.put(cache);
+          }
+          break;
+        case 'recurringHoliday':
+          final cache =
+              await _local.db.recurringHolidayCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.recurringHolidayCaches.put(cache);
+          }
+          break;
+        case 'userPreferences':
+          final cache =
+              await _local.db.userPreferencesCaches.getById(entityId);
+          if (cache != null) {
+            cache.version = newVersion;
+            await _local.db.userPreferencesCaches.put(cache);
+          }
+          break;
+      }
+    });
   }
 
   void dispose() {

@@ -223,6 +223,16 @@ class _CalendarPanel extends StatelessWidget {
 
   static final _monthFormat = DateFormat('MMMM yyyy', 'ca');
 
+  bool _canGoToPreviousMonth() {
+    final prev = DateTime(currentMonth.year, currentMonth.month - 1);
+    return !prev.isBefore(DateTime(firstDate.year, firstDate.month));
+  }
+
+  bool _canGoToNextMonth() {
+    final next = DateTime(currentMonth.year, currentMonth.month + 1);
+    return !next.isAfter(DateTime(lastDate.year, lastDate.month));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -236,15 +246,15 @@ class _CalendarPanel extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.chevron_left),
-              onPressed: () {
-                final prev = DateTime(
-                  currentMonth.year,
-                  currentMonth.month - 1,
-                );
-                if (!prev.isBefore(DateTime(firstDate.year, firstDate.month))) {
-                  onMonthChanged(prev);
-                }
-              },
+              onPressed: _canGoToPreviousMonth()
+                  ? () {
+                      final prev = DateTime(
+                        currentMonth.year,
+                        currentMonth.month - 1,
+                      );
+                      onMonthChanged(prev);
+                    }
+                  : null,
             ),
             Text(
               _monthFormat.format(currentMonth),
@@ -252,15 +262,15 @@ class _CalendarPanel extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right),
-              onPressed: () {
-                final next = DateTime(
-                  currentMonth.year,
-                  currentMonth.month + 1,
-                );
-                if (!next.isAfter(DateTime(lastDate.year, lastDate.month))) {
-                  onMonthChanged(next);
-                }
-              },
+              onPressed: _canGoToNextMonth()
+                  ? () {
+                      final next = DateTime(
+                        currentMonth.year,
+                        currentMonth.month + 1,
+                      );
+                      onMonthChanged(next);
+                    }
+                  : null,
             ),
           ],
         ),
