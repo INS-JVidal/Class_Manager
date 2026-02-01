@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../widgets/confirm_dialog.dart';
 
 class GrupsListPage extends ConsumerWidget {
   const GrupsListPage({super.key});
@@ -330,32 +331,19 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                 if (isEdit) ...[
                   const Spacer(),
                   TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text(l10n.deleteGroup),
-                          content: Text(
-                            l10n.deleteGroupConfirm(_nameController.text),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: Text(l10n.cancel),
-                            ),
-                            FilledButton(
-                              onPressed: () {
-                                ref
-                                    .read(appStateProvider.notifier)
-                                    .removeGroup(widget.groupId!);
-                                Navigator.of(ctx).pop();
-                                context.go('/grups');
-                              },
-                              child: Text(l10n.delete),
-                            ),
-                          ],
-                        ),
+                    onPressed: () async {
+                      final confirmed = await showConfirmDialog(
+                        context,
+                        title: l10n.deleteGroup,
+                        content: l10n.deleteGroupConfirm(_nameController.text),
+                        isDestructive: true,
                       );
+                      if (confirmed && context.mounted) {
+                        ref
+                            .read(appStateProvider.notifier)
+                            .removeGroup(widget.groupId!);
+                        context.go('/grups');
+                      }
                     },
                     child: Text(
                       l10n.deleteGroup,

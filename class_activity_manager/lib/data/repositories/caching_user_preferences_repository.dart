@@ -7,6 +7,11 @@ import '../cache/sync_queue.dart';
 import '../datasources/local_datasource.dart';
 
 /// Caching repository for UserPreferences with local-first persistence.
+///
+/// Does not extend [BaseCachingRepository]: single-document semantics
+/// (one active preferences document, findActive vs findAll) and custom
+/// sync behaviour. Other entity repos extend BaseCachingRepository.
+///
 /// Note: There should only be one active preferences document.
 class CachingUserPreferencesRepository {
   CachingUserPreferencesRepository(this._local, this._queue);

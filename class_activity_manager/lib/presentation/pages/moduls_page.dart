@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../widgets/confirm_dialog.dart';
 
 class ModulsListPage extends ConsumerWidget {
   const ModulsListPage({super.key});
@@ -296,7 +297,7 @@ class ModulDetailPage extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     tooltip: l10n.deleteModule,
-                    onPressed: () => _confirmDelete(context, ref, modul),
+                    onPressed: () async => _confirmDelete(context, ref, modul),
                   ),
                 ],
               ),
@@ -344,7 +345,7 @@ class ModulDetailPage extends ConsumerWidget {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
-                                onPressed: () =>
+                                onPressed: () async =>
                                     _confirmDeleteRA(context, ref, modul, ra),
                               ),
                             ],
@@ -371,60 +372,37 @@ class ModulDetailPage extends ConsumerWidget {
     return ' · ${parts.join(' · ')}';
   }
 
-  static void _confirmDelete(BuildContext context, WidgetRef ref, Modul modul) {
+  static Future<void> _confirmDelete(
+      BuildContext context, WidgetRef ref, Modul modul) async {
     final l10n = AppLocalizations.of(context)!;
-    showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteModule),
-        content: Text(l10n.deleteModuleConfirm(modul.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    ).then((ok) {
-      if (ok == true) {
-        ref.read(appStateProvider.notifier).removeModul(modul.id);
-        if (context.mounted) context.go('/moduls');
-      }
-    });
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.deleteModule,
+      content: l10n.deleteModuleConfirm(modul.name),
+      isDestructive: true,
+    );
+    if (confirmed && context.mounted) {
+      ref.read(appStateProvider.notifier).removeModul(modul.id);
+      context.go('/moduls');
+    }
   }
 
-  static void _confirmDeleteRA(
+  static Future<void> _confirmDeleteRA(
     BuildContext context,
     WidgetRef ref,
     Modul modul,
     RA ra,
-  ) {
+  ) async {
     final l10n = AppLocalizations.of(context)!;
-    showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteRa),
-        content: Text(l10n.deleteRaConfirm(ra.code)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    ).then((ok) {
-      if (ok == true) {
-        ref.read(appStateProvider.notifier).removeModulRA(modul.id, ra.id);
-      }
-    });
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.deleteRa,
+      content: l10n.deleteRaConfirm(ra.code),
+      isDestructive: true,
+    );
+    if (confirmed && context.mounted) {
+      ref.read(appStateProvider.notifier).removeModulRA(modul.id, ra.id);
+    }
   }
 }
 
