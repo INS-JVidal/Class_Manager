@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Development font configuration.
 /// Change this value to switch fonts during development.
-/// Options: null (system default), 'AtkinsonHyperlegible'
-const String? kDevFontFamily = 'AtkinsonHyperlegible';
+/// Set to null for system default, or 'AtkinsonHyperlegible' for accessibility font.
+const String kDevFontFamily = 'AtkinsonHyperlegible';
 
 /// Material 3 theme for Class Activity Manager. Català locale; dd/MM/yyyy.
 class AppTheme {
