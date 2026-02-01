@@ -29,6 +29,11 @@ class CachingGroupRepository extends BaseCachingRepository<Group, GroupCache> {
   void setIsarId(GroupCache cache, Id isarId) => cache.isarId = isarId;
 
   @override
+  void preserveVersion(GroupCache cache, GroupCache existing) {
+    cache.version = existing.version;
+  }
+
+  @override
   Map<String, dynamic> toJson(Group entity) => entity.toJson();
 
   @override

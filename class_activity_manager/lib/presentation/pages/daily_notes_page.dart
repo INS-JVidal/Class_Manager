@@ -700,6 +700,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
             const SizedBox(height: 16),
             // Planned content
             MarkdownTextField(
+              key: const ValueKey('planned'),
               initialValue: _plannedController.text,
               readOnly: isReadOnly,
               decoration: const InputDecoration(
@@ -717,6 +718,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
             const SizedBox(height: 12),
             // Actual content
             MarkdownTextField(
+              key: const ValueKey('actual'),
               initialValue: _actualController.text,
               readOnly: isReadOnly,
               decoration: const InputDecoration(
@@ -734,12 +736,14 @@ class _DayNoteCardState extends State<_DayNoteCard> {
             const SizedBox(height: 12),
             // Additional notes
             MarkdownTextField(
+              key: const ValueKey('notes'),
               initialValue: _notesController.text,
               readOnly: isReadOnly,
               decoration: const InputDecoration(
                 labelText: 'Observacions',
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
+                hintText: 'Afegir observacions...',
               ),
               maxLines: 4,
               onChanged: (v) {

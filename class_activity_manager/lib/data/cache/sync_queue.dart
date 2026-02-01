@@ -26,6 +26,17 @@ class SyncQueue {
       ..retryCount = 0;
 
     await _local.db.writeTxn(() async {
+      // Remove any existing pending operation for this entity
+      final existing = await _local.db.syncOperations
+          .filter()
+          .entityTypeEqualTo(entityType)
+          .and()
+          .entityIdEqualTo(entityId)
+          .findAll();
+      for (final old in existing) {
+        await _local.db.syncOperations.delete(old.id);
+      }
+      // Add the new operation with latest data
       await _local.db.syncOperations.put(op);
     });
   }

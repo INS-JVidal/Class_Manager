@@ -33,6 +33,11 @@ class CachingModulRepository
   void setIsarId(ModulCache cache, Id isarId) => cache.isarId = isarId;
 
   @override
+  void preserveVersion(ModulCache cache, ModulCache existing) {
+    cache.version = existing.version;
+  }
+
+  @override
   Map<String, dynamic> toJson(Modul entity) => entity.toJson();
 
   @override

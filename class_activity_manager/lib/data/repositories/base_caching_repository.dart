@@ -119,6 +119,9 @@ abstract class BaseCachingRepository<TEntity, TCache> {
 
     if (existing != null) {
       setIsarId(cache, getIsarId(existing));
+      // Preserve the version from the existing cache to avoid overwriting
+      // a version that was updated during conflict resolution
+      preserveVersion(cache, existing);
     }
 
     await local.db.writeTxn(() async {
@@ -134,6 +137,13 @@ abstract class BaseCachingRepository<TEntity, TCache> {
 
     return entity;
   }
+
+  /// Preserve the version from the existing cache entry.
+  ///
+  /// This prevents overwriting a version that was updated during
+  /// conflict resolution. Subclasses must implement this to copy
+  /// the version field from existing to cache.
+  void preserveVersion(TCache cache, TCache existing);
 
   /// Delete an entity from the local cache and queue for sync.
   Future<void> delete(String id) async {

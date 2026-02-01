@@ -35,6 +35,11 @@ class CachingAcademicYearRepository
   void setIsarId(AcademicYearCache cache, Id isarId) => cache.isarId = isarId;
 
   @override
+  void preserveVersion(AcademicYearCache cache, AcademicYearCache existing) {
+    cache.version = existing.version;
+  }
+
+  @override
   Map<String, dynamic> toJson(AcademicYear entity) => entity.toJson();
 
   @override

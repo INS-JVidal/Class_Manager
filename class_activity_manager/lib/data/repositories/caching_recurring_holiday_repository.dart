@@ -32,6 +32,11 @@ class CachingRecurringHolidayRepository
       cache.isarId = isarId;
 
   @override
+  void preserveVersion(RecurringHolidayCache cache, RecurringHolidayCache existing) {
+    cache.version = existing.version;
+  }
+
+  @override
   Map<String, dynamic> toJson(RecurringHoliday entity) => entity.toJson();
 
   @override

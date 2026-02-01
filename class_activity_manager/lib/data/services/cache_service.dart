@@ -95,8 +95,6 @@ class CacheService {
     if (pending.isEmpty) return;
 
     _isSyncing = true;
-    _updateStatus(CacheStatus.syncing);
-
     try {
       for (final op in pending) {
         try {
@@ -105,6 +103,19 @@ class CacheService {
         } on ConflictException catch (e) {
           // Conflict detected - remove from queue and notify listeners
           await _queue.remove(op.id);
+          
+          // FIX: Update local cache version to match server version
+          // This prevents repeated conflicts on subsequent edits
+          if (e.type == SyncConflictType.versionMismatch &&
+              e.serverDocument != null) {
+            final serverVersion = e.serverDocument!['version'] as int? ?? 1;
+            await _updateLocalCacheVersion(
+              e.entityType,
+              e.entityId,
+              serverVersion,
+            );
+          }
+          
           _conflictController.add(SyncConflict(
             entityType: e.entityType,
             entityId: e.entityId,
@@ -125,6 +136,7 @@ class CacheService {
       }
       _updateStatus(CacheStatus.online);
     } finally {
+      _updateStatus(CacheStatus.online);
       _isSyncing = false;
     }
   }
@@ -164,7 +176,12 @@ class CacheService {
       case 'insert':
         // Insert: ensure version is set to 1
         payload['version'] = payload['version'] ?? 1;
-        await collection.insertOne(payload);
+        _updateStatus(CacheStatus.syncing);
+        try {
+          await collection.insertOne(payload);
+        } finally {
+          _updateStatus(CacheStatus.online);
+        }
         break;
 
       case 'update':
@@ -174,44 +191,56 @@ class CacheService {
                 payload['version'] as int? ??
                 1;
 
-        // Fetch current server document
-        final serverDoc = await collection.findOne(where.eq('_id', entityId));
+        int newVersion;
+        _updateStatus(CacheStatus.syncing);
+        try {
+          // Fetch current server document
+          final serverDoc =
+              await collection.findOne(where.eq('_id', entityId));
 
-        if (serverDoc == null) {
-          // Document was deleted on server - conflict
-          throw ConflictException(
-            type: SyncConflictType.deleted,
-            entityType: entityType,
-            entityId: entityId,
+          if (serverDoc == null) {
+            // Document was deleted on server - conflict
+            throw ConflictException(
+              type: SyncConflictType.deleted,
+              entityType: entityType,
+              entityId: entityId,
+            );
+          }
+
+          final serverVersion = serverDoc['version'] as int? ?? 1;
+
+          if (serverVersion != localVersion) {
+            // Version mismatch - conflict
+            throw ConflictException(
+              type: SyncConflictType.versionMismatch,
+              entityType: entityType,
+              entityId: entityId,
+              serverDocument: serverDoc,
+            );
+          }
+
+          // Versions match - safe to update with incremented version
+          newVersion = localVersion + 1;
+          payload['version'] = newVersion;
+          await collection.replaceOne(
+            where.eq('_id', entityId),
+            payload,
           );
+        } finally {
+          _updateStatus(CacheStatus.online);
         }
 
-        final serverVersion = serverDoc['version'] as int? ?? 1;
-
-        if (serverVersion != localVersion) {
-          // Version mismatch - conflict
-          throw ConflictException(
-            type: SyncConflictType.versionMismatch,
-            entityType: entityType,
-            entityId: entityId,
-            serverDocument: serverDoc,
-          );
-        }
-
-        // Versions match - safe to update with incremented version
-        final newVersion = localVersion + 1;
-        payload['version'] = newVersion;
-        await collection.replaceOne(
-          where.eq('_id', entityId),
-          payload,
-        );
-
-        // Update local cache version to match synced version
+        // Update local cache version to match synced version (local only)
         await _updateLocalCacheVersion(entityType, entityId, newVersion);
         break;
 
       case 'delete':
-        await collection.deleteOne(where.eq('_id', entityId));
+        _updateStatus(CacheStatus.syncing);
+        try {
+          await collection.deleteOne(where.eq('_id', entityId));
+        } finally {
+          _updateStatus(CacheStatus.online);
+        }
         break;
     }
   }

@@ -30,6 +30,11 @@ class CachingDailyNoteRepository
   void setIsarId(DailyNoteCache cache, Id isarId) => cache.isarId = isarId;
 
   @override
+  void preserveVersion(DailyNoteCache cache, DailyNoteCache existing) {
+    cache.version = existing.version;
+  }
+
+  @override
   Map<String, dynamic> toJson(DailyNote entity) => entity.toJson();
 
   @override

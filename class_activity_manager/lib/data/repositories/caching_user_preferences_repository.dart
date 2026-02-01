@@ -56,6 +56,9 @@ class CachingUserPreferencesRepository {
     final cache = _toCache(prefs);
     if (existing != null) {
       cache.isarId = existing.isarId;
+      // Preserve the version from the existing cache to avoid overwriting
+      // a version that was updated during conflict resolution
+      cache.version = existing.version;
     }
 
     await _local.db.writeTxn(() async {

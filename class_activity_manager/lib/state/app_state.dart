@@ -716,7 +716,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         await _dailyNoteRepo.update(updatedNote);
         _audit?.log('DailyNote.save', 'action', {'step': 'triggerSync'},
             traceId: traceId);
-        await _cacheService.triggerSync();
+        _cacheService.triggerSync(); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, updatedNote]);
       } else {
         _audit?.log('DailyNote.save', 'action', {'step': 'insert'},
@@ -724,7 +724,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         await _dailyNoteRepo.insert(note);
         _audit?.log('DailyNote.save', 'action', {'step': 'triggerSync'},
             traceId: traceId);
-        await _cacheService.triggerSync();
+        _cacheService.triggerSync(); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, note]);
       }
       _audit?.log('DailyNote.save', 'completed', {'result': 'ok'},
