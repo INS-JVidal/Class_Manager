@@ -3,7 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/recurring_holiday.dart';
+import '../../models/vacation_period.dart';
 import '../../state/app_state.dart';
+
+/// Shared calendar colors for day-off highlighting.
+/// Used by both DualDatePicker and CalendarPage for consistency.
+class CalendarColors {
+  static const weekendColor = Color(0xFF616161); // Dark grey
+  static const holidayColor = Color(0xFF1B3D1B); // Very dark forest green
+}
 
 /// Widget showing two calendars side-by-side for selecting a date range.
 class DualDatePicker extends ConsumerStatefulWidget {
@@ -61,7 +69,12 @@ class _DualDatePickerState extends ConsumerState<DualDatePicker> {
     return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
   }
 
-  bool _isHoliday(DateTime date, List<RecurringHoliday> holidays) {
+  bool _isHoliday(
+    DateTime date,
+    List<RecurringHoliday> holidays,
+    List<VacationPeriod> vacationPeriods,
+  ) {
+    // Check recurring holidays (enabled only)
     for (final holiday in holidays) {
       if (holiday.isEnabled &&
           holiday.month == date.month &&
@@ -69,6 +82,14 @@ class _DualDatePickerState extends ConsumerState<DualDatePicker> {
         return true;
       }
     }
+
+    // Check vacation periods
+    for (final vp in vacationPeriods) {
+      if (!date.isBefore(vp.startDate) && !date.isAfter(vp.endDate)) {
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -97,6 +118,7 @@ class _DualDatePickerState extends ConsumerState<DualDatePicker> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appStateProvider);
+    final vacationPeriods = state.currentYear?.vacationPeriods ?? [];
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -122,6 +144,7 @@ class _DualDatePickerState extends ConsumerState<DualDatePicker> {
                     firstDate: _firstDate,
                     lastDate: _lastDate,
                     recurringHolidays: state.recurringHolidays,
+                    vacationPeriods: vacationPeriods,
                     isWeekend: _isWeekend,
                     isHoliday: _isHoliday,
                     onMonthChanged: (m) => setState(() => _startMonth = m),
@@ -143,6 +166,7 @@ class _DualDatePickerState extends ConsumerState<DualDatePicker> {
                     firstDate: _firstDate,
                     lastDate: _lastDate,
                     recurringHolidays: state.recurringHolidays,
+                    vacationPeriods: vacationPeriods,
                     isWeekend: _isWeekend,
                     isHoliday: _isHoliday,
                     onMonthChanged: (m) => setState(() => _endMonth = m),
@@ -204,6 +228,7 @@ class _CalendarPanel extends StatelessWidget {
     required this.firstDate,
     required this.lastDate,
     required this.recurringHolidays,
+    required this.vacationPeriods,
     required this.isWeekend,
     required this.isHoliday,
     required this.onMonthChanged,
@@ -216,8 +241,9 @@ class _CalendarPanel extends StatelessWidget {
   final DateTime firstDate;
   final DateTime lastDate;
   final List<RecurringHoliday> recurringHolidays;
+  final List<VacationPeriod> vacationPeriods;
   final bool Function(DateTime) isWeekend;
-  final bool Function(DateTime, List<RecurringHoliday>) isHoliday;
+  final bool Function(DateTime, List<RecurringHoliday>, List<VacationPeriod>) isHoliday;
   final ValueChanged<DateTime> onMonthChanged;
   final ValueChanged<DateTime> onDateSelected;
 
@@ -307,10 +333,6 @@ class _CalendarPanel extends StatelessWidget {
     // Monday = 1, so we adjust for Monday-first week
     final startWeekday = (firstDayOfMonth.weekday - 1) % 7;
 
-    // Day-off colors
-    const weekendColor = Color(0xFF616161); // Dark grey
-    const holidayColor = Color(0xFF1B3D1B); // Very dark forest green
-
     final days = <Widget>[];
 
     // Empty cells before first day
@@ -334,7 +356,7 @@ class _CalendarPanel extends StatelessWidget {
 
       // Check if day is off (weekend or holiday)
       final isWeekendDay = isWeekend(date);
-      final isHolidayDay = isHoliday(date, recurringHolidays);
+      final isHolidayDay = isHoliday(date, recurringHolidays, vacationPeriods);
       final isDayOff = isWeekendDay || isHolidayDay;
 
       days.add(
@@ -344,9 +366,9 @@ class _CalendarPanel extends StatelessWidget {
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: isHolidayDay
-                  ? holidayColor
+                  ? CalendarColors.holidayColor
                   : isWeekendDay
-                      ? weekendColor
+                      ? CalendarColors.weekendColor
                       : isSelected
                           ? Theme.of(context).colorScheme.primary
                           : isToday

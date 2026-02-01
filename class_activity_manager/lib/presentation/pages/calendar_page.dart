@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/models.dart';
 import '../../state/app_state.dart';
+import '../widgets/dual_date_picker.dart';
 
 /// Full calendar view page showing scheduled RAs by date.
 class CalendarPage extends ConsumerStatefulWidget {
@@ -384,10 +385,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
 
-    // Day-off colors
-    const weekendColor = Color(0xFF616161); // Dark grey
-    const holidayColor = Color(0xFF1B3D1B); // Very dark forest green
-
     // Days of month
     for (var day = 1; day <= lastDayOfMonth.day; day++) {
       final date = DateTime(_currentMonth.year, _currentMonth.month, day);
@@ -419,9 +416,9 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: isHoliday
-                  ? holidayColor
+                  ? CalendarColors.holidayColor
                   : isWeekend
-                      ? weekendColor
+                      ? CalendarColors.weekendColor
                       : isSelected
                           ? Theme.of(context).colorScheme.primaryContainer
                           : null,
