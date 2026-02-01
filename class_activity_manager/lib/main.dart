@@ -42,11 +42,18 @@ Future<void> main() async {
   final mongoDatasource = MongoDbDatasource();
   DatabaseService? databaseService;
   try {
-    await mongoDatasource.connect();
+    final connectionInfo = await mongoDatasource.connect();
     databaseService = DatabaseService(mongoDatasource);
-    stderr.writeln('Connected to MongoDB');
+
+    if (connectionInfo.isLocal) {
+      stderr.writeln('MongoDB: Connected locally (localhost)');
+    } else {
+      stderr.writeln('MongoDB: Connected online (Atlas)');
+      stderr.writeln('MongoDB URI: ${connectionInfo.maskedUri}');
+    }
   } catch (e) {
-    stderr.writeln('Starting in offline mode: $e');
+    stderr.writeln('MongoDB: Starting in offline mode');
+    stderr.writeln('  Reason: $e');
   }
 
   // 3. Create sync infrastructure

@@ -5,10 +5,12 @@ This document describes the code quality tools used in the Class Activity Manage
 ## Table of Contents
 
 - [jscpd - Copy/Paste Detector](#jscpd---copypaste-detector)
+- [LOC Analyzer](#loc-analyzer)
 - [Flutter Analyzer](#flutter-analyzer)
 - [Dart Format](#dart-format)
 - [Custom Lint Rules](#custom-lint-rules)
 - [Review-Consistency Skill (Cursor AI)](#review-consistency-skill-cursor-ai)
+- [LOC-Analyze Skill (Claude Code)](#loc-analyze-skill-claude-code)
 
 ---
 
@@ -76,6 +78,86 @@ jscpd outputs a table showing:
 ├────────┼────────────────┼─────────────┼──────────────┼──────────────┼──────────────────┼───────────────────┤
 │ dart   │ 63             │ 10024       │ 79727        │ 23           │ 311 (3.1%)       │ 2677 (3.36%)      │
 └────────┴────────────────┴─────────────┴──────────────┴──────────────┴──────────────────┴───────────────────┘
+```
+
+---
+
+## LOC Analyzer
+
+### What is it?
+
+The LOC (Lines of Code) Analyzer is a custom bash script that measures code metrics with a visual tree output. It counts lines per directory, file, and optionally per function.
+
+### Location
+
+`scripts/loc-analyzer.sh`
+
+### Running LOC Analyzer
+
+```bash
+# Basic usage - analyze current directory
+./scripts/loc-analyzer.sh
+
+# Analyze lib directory
+./scripts/loc-analyzer.sh lib/
+
+# Dart files with function-level analysis
+./scripts/loc-analyzer.sh -e dart -f lib/
+
+# Summary only, limit depth to 2
+./scripts/loc-analyzer.sh -d 2 -s lib/
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-h, --help` | Show help message |
+| `-d, --depth N` | Maximum directory depth (default: unlimited) |
+| `-e, --ext EXT` | Filter by file extension (can be used multiple times) |
+| `-f, --functions` | Show function-level analysis |
+| `-s, --summary` | Show only summary (no tree) |
+| `-c, --no-color` | Disable colored output |
+| `--exclude PATTERN` | Exclude directories matching pattern |
+
+### Supported Languages
+
+Function detection is supported for: Dart, JavaScript/TypeScript, Python, Go, Rust, Java, C/C++, Ruby, PHP.
+
+### Thresholds
+
+Use these thresholds to identify code that may need refactoring:
+
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| File lines | > 500 | Consider splitting into smaller modules |
+| Function lines | > 50 | Consider extraction or decomposition |
+| Directory lines | > 2000 | Note for architectural review |
+
+### Example Output
+
+```
+╭─────────────────────────────────────────────────────────────────────╮
+│  lib/
+│  Lines:   8234  Files:     63  Functions:    312
+╰─────────────────────────────────────────────────────────────────────╯
+
+├── data/                          [2150 lines, 89 funcs]
+│   ├── repositories/              [1200 lines, 45 funcs]
+│   │   ├── base_caching_repository.dart    180 lines
+│   │   └── caching_group_repository.dart   245 lines
+...
+
+╔══════════════════════════════════════════════════════════════════════╗
+║                           SUMMARY                                    ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  Total Files:            63                                          ║
+║  Total Lines:          8234                                          ║
+║  Code Lines:           6890                                          ║
+║  Blank Lines:           892                                          ║
+║  Comment Lines:         452                                          ║
+║  Total Functions:       312                                          ║
+╚══════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
@@ -255,6 +337,29 @@ The project includes a Cursor skill that reviews code for consistency with proje
 **User guide:** [review-consistency-skill-user-guide.md](review-consistency-skill-user-guide.md) — what the skill does and how to use it.
 
 **Skill definition:** `.cursor/skills/review-consistency/SKILL.md`
+
+---
+
+## LOC-Analyze Skill (Claude Code)
+
+The project includes a Claude Code skill that runs the LOC analyzer and interprets results. It is triggered from Claude Code chat using `/loc-analyze`.
+
+### Usage
+
+```
+/loc-analyze                    # Analyze lib/ with defaults
+/loc-analyze lib/presentation   # Specific directory
+/loc-analyze -f                 # Include function analysis
+/loc-analyze -s                 # Summary only
+```
+
+### What It Does
+
+1. Runs `scripts/loc-analyzer.sh` with the requested options
+2. Presents key findings (total lines, largest files, function counts)
+3. Suggests actions when files/functions exceed thresholds
+
+**Skill definition:** `.cursor/skills/loc-analyze/SKILL.md`
 
 ---
 
