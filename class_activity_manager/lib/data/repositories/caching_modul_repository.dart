@@ -5,105 +5,41 @@ import 'package:isar/isar.dart';
 import '../../models/modul.dart';
 import '../../models/ra.dart';
 import '../cache/schemas/modul_cache.dart';
-import '../cache/schemas/sync_operation.dart';
-import '../cache/sync_queue.dart';
-import '../datasources/local_datasource.dart';
+import 'base_caching_repository.dart';
 
 /// Caching repository for Modul with local-first persistence.
-class CachingModulRepository {
-  CachingModulRepository(this._local, this._queue);
+///
+/// Extends [BaseCachingRepository] to inherit common CRUD operations
+/// with automatic sync queue management.
+class CachingModulRepository
+    extends BaseCachingRepository<Modul, ModulCache> {
+  CachingModulRepository(super.local, super.queue);
 
-  final LocalDatasource _local;
-  final SyncQueue _queue;
+  @override
+  String get entityType => 'modul';
 
-  IsarCollection<ModulCache> get _collection => _local.db.modulCaches;
+  @override
+  IsarCollection<ModulCache> get collection => local.db.modulCaches;
 
-  Future<List<Modul>> findAll() async {
-    final cached = await _collection.where().findAll();
-    return cached.map(_toModul).toList();
+  @override
+  Future<ModulCache?> findCacheById(String id) async {
+    return collection.filter().idEqualTo(id).findFirst();
   }
 
-  Future<Modul?> findById(String id) async {
-    final cached = await _collection.filter().idEqualTo(id).findFirst();
-    return cached != null ? _toModul(cached) : null;
-  }
+  @override
+  Id getIsarId(ModulCache cache) => cache.isarId;
 
-  Future<Modul?> findByCode(String code) async {
-    final cached = await _collection.filter().codeEqualTo(code).findFirst();
-    return cached != null ? _toModul(cached) : null;
-  }
+  @override
+  void setIsarId(ModulCache cache, Id isarId) => cache.isarId = isarId;
 
-  Future<Modul> insert(Modul modul) async {
-    await _local.db.writeTxn(() async {
-      await _collection.put(_toCache(modul));
-    });
+  @override
+  Map<String, dynamic> toJson(Modul entity) => entity.toJson();
 
-    await _queue.enqueue(
-      entityType: 'modul',
-      entityId: modul.id,
-      operation: SyncOperationType.insert,
-      payload: modul.toJson(),
-    );
+  @override
+  String getId(Modul entity) => entity.id;
 
-    return modul;
-  }
-
-  Future<Modul> update(Modul modul) async {
-    final existing = await _collection.filter().idEqualTo(modul.id).findFirst();
-    final cache = _toCache(modul);
-    if (existing != null) {
-      cache.isarId = existing.isarId;
-    }
-
-    await _local.db.writeTxn(() async {
-      await _collection.put(cache);
-    });
-
-    await _queue.enqueue(
-      entityType: 'modul',
-      entityId: modul.id,
-      operation: SyncOperationType.update,
-      payload: modul.toJson(),
-    );
-
-    return modul;
-  }
-
-  Future<void> delete(String id) async {
-    final existing = await _collection.filter().idEqualTo(id).findFirst();
-
-    if (existing != null) {
-      await _local.db.writeTxn(() async {
-        await _collection.delete(existing.isarId);
-      });
-    }
-
-    await _queue.enqueue(
-      entityType: 'modul',
-      entityId: id,
-      operation: SyncOperationType.delete,
-      payload: {'_id': id},
-    );
-  }
-
-  Future<List<Modul>> findByCicleCodes(List<String> cicleCodes) async {
-    if (cicleCodes.isEmpty) return [];
-    final all = await findAll();
-    return all
-        .where((m) => m.cicleCodes.any((c) => cicleCodes.contains(c)))
-        .toList();
-  }
-
-  Future<void> syncFromRemote(List<Modul> moduls) async {
-    await _local.db.writeTxn(() async {
-      await _collection.clear();
-      for (final modul in moduls) {
-        await _collection.put(_toCache(modul, pendingSync: false));
-      }
-    });
-  }
-
-  Modul _toModul(ModulCache cache) {
+  @override
+  Modul toEntity(ModulCache cache) {
     return Modul(
       id: cache.id,
       code: cache.code,
@@ -118,7 +54,8 @@ class CachingModulRepository {
     );
   }
 
-  ModulCache _toCache(Modul modul, {bool pendingSync = true}) {
+  @override
+  ModulCache toCache(Modul modul, {bool pendingSync = true}) {
     return ModulCache()
       ..id = modul.id
       ..code = modul.code
@@ -133,6 +70,23 @@ class CachingModulRepository {
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
   }
+
+  // --- Entity-specific queries ---
+
+  Future<Modul?> findByCode(String code) async {
+    final cached = await collection.filter().codeEqualTo(code).findFirst();
+    return cached != null ? toEntity(cached) : null;
+  }
+
+  Future<List<Modul>> findByCicleCodes(List<String> cicleCodes) async {
+    if (cicleCodes.isEmpty) return [];
+    final all = await findAll();
+    return all
+        .where((m) => m.cicleCodes.any((c) => cicleCodes.contains(c)))
+        .toList();
+  }
+
+  // --- Private helpers ---
 
   List<RA> _decodeRas(String json) {
     final list = jsonDecode(json) as List<dynamic>;

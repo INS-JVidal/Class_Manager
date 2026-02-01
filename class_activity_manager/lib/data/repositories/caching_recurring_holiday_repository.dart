@@ -2,101 +2,43 @@ import 'package:isar/isar.dart';
 
 import '../../models/recurring_holiday.dart';
 import '../cache/schemas/recurring_holiday_cache.dart';
-import '../cache/schemas/sync_operation.dart';
-import '../cache/sync_queue.dart';
-import '../datasources/local_datasource.dart';
+import 'base_caching_repository.dart';
 
 /// Caching repository for RecurringHoliday with local-first persistence.
-class CachingRecurringHolidayRepository {
-  CachingRecurringHolidayRepository(this._local, this._queue);
+///
+/// Extends [BaseCachingRepository] to inherit common CRUD operations
+/// with automatic sync queue management.
+class CachingRecurringHolidayRepository
+    extends BaseCachingRepository<RecurringHoliday, RecurringHolidayCache> {
+  CachingRecurringHolidayRepository(super.local, super.queue);
 
-  final LocalDatasource _local;
-  final SyncQueue _queue;
+  @override
+  String get entityType => 'recurringHoliday';
 
-  IsarCollection<RecurringHolidayCache> get _collection =>
-      _local.db.recurringHolidayCaches;
+  @override
+  IsarCollection<RecurringHolidayCache> get collection =>
+      local.db.recurringHolidayCaches;
 
-  Future<List<RecurringHoliday>> findAll() async {
-    final cached = await _collection.where().findAll();
-    return cached.map(_toHoliday).toList();
+  @override
+  Future<RecurringHolidayCache?> findCacheById(String id) async {
+    return collection.filter().idEqualTo(id).findFirst();
   }
 
-  Future<RecurringHoliday?> findById(String id) async {
-    final cached = await _collection.filter().idEqualTo(id).findFirst();
-    return cached != null ? _toHoliday(cached) : null;
-  }
+  @override
+  Id getIsarId(RecurringHolidayCache cache) => cache.isarId;
 
-  Future<RecurringHoliday> insert(RecurringHoliday holiday) async {
-    await _local.db.writeTxn(() async {
-      await _collection.put(_toCache(holiday));
-    });
+  @override
+  void setIsarId(RecurringHolidayCache cache, Id isarId) =>
+      cache.isarId = isarId;
 
-    await _queue.enqueue(
-      entityType: 'recurringHoliday',
-      entityId: holiday.id,
-      operation: SyncOperationType.insert,
-      payload: holiday.toJson(),
-    );
+  @override
+  Map<String, dynamic> toJson(RecurringHoliday entity) => entity.toJson();
 
-    return holiday;
-  }
+  @override
+  String getId(RecurringHoliday entity) => entity.id;
 
-  Future<RecurringHoliday> update(RecurringHoliday holiday) async {
-    final existing = await _collection
-        .filter()
-        .idEqualTo(holiday.id)
-        .findFirst();
-    final cache = _toCache(holiday);
-    if (existing != null) {
-      cache.isarId = existing.isarId;
-    }
-
-    await _local.db.writeTxn(() async {
-      await _collection.put(cache);
-    });
-
-    await _queue.enqueue(
-      entityType: 'recurringHoliday',
-      entityId: holiday.id,
-      operation: SyncOperationType.update,
-      payload: holiday.toJson(),
-    );
-
-    return holiday;
-  }
-
-  Future<void> delete(String id) async {
-    final existing = await _collection.filter().idEqualTo(id).findFirst();
-
-    if (existing != null) {
-      await _local.db.writeTxn(() async {
-        await _collection.delete(existing.isarId);
-      });
-    }
-
-    await _queue.enqueue(
-      entityType: 'recurringHoliday',
-      entityId: id,
-      operation: SyncOperationType.delete,
-      payload: {'_id': id},
-    );
-  }
-
-  Future<List<RecurringHoliday>> findEnabled() async {
-    final cached = await _collection.filter().isEnabledEqualTo(true).findAll();
-    return cached.map(_toHoliday).toList();
-  }
-
-  Future<void> syncFromRemote(List<RecurringHoliday> holidays) async {
-    await _local.db.writeTxn(() async {
-      await _collection.clear();
-      for (final holiday in holidays) {
-        await _collection.put(_toCache(holiday, pendingSync: false));
-      }
-    });
-  }
-
-  RecurringHoliday _toHoliday(RecurringHolidayCache cache) {
+  @override
+  RecurringHoliday toEntity(RecurringHolidayCache cache) {
     return RecurringHoliday(
       id: cache.id,
       name: cache.name,
@@ -107,7 +49,8 @@ class CachingRecurringHolidayRepository {
     );
   }
 
-  RecurringHolidayCache _toCache(
+  @override
+  RecurringHolidayCache toCache(
     RecurringHoliday holiday, {
     bool pendingSync = true,
   }) {
@@ -120,5 +63,12 @@ class CachingRecurringHolidayRepository {
       ..version = holiday.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
+  }
+
+  // --- Entity-specific queries ---
+
+  Future<List<RecurringHoliday>> findEnabled() async {
+    final cached = await collection.filter().isEnabledEqualTo(true).findAll();
+    return cached.map(toEntity).toList();
   }
 }

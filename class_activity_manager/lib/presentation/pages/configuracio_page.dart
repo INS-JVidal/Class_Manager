@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/repositories/caching_user_preferences_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
 import '../../state/providers.dart';
+import '../widgets/dual_date_picker.dart';
 
 class ConfiguracioPage extends ConsumerWidget {
   const ConfiguracioPage({super.key});
@@ -345,36 +346,28 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
               const SizedBox(height: 12),
               ListTile(
                 title: Text(
-                  _startDate != null
-                      ? _dateFormat.format(_startDate!)
-                      : 'Data d\'inici',
+                  _startDate != null && _endDate != null
+                      ? '${_dateFormat.format(_startDate!)} → ${_dateFormat.format(_endDate!)}'
+                      : 'Selecciona les dates del curs',
                 ),
-                trailing: const Icon(Icons.calendar_today),
+                subtitle: _startDate != null && _endDate != null
+                    ? null
+                    : const Text('Data d\'inici i fi'),
+                trailing: const Icon(Icons.date_range),
                 onTap: () async {
-                  final d = await showDatePicker(
-                    context: context,
-                    initialDate: _startDate ?? DateTime.now(),
+                  final range = await DualDatePicker.show(
+                    context,
+                    initialStart: _startDate,
+                    initialEnd: _endDate,
                     firstDate: DateTime(2020),
                     lastDate: DateTime(2030),
                   );
-                  if (d != null) setState(() => _startDate = d);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  _endDate != null
-                      ? _dateFormat.format(_endDate!)
-                      : 'Data de fi',
-                ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final d = await showDatePicker(
-                    context: context,
-                    initialDate: _endDate ?? DateTime.now(),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030),
-                  );
-                  if (d != null) setState(() => _endDate = d);
+                  if (range != null) {
+                    setState(() {
+                      _startDate = range.start;
+                      _endDate = range.end;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 8),
@@ -626,31 +619,27 @@ class _EditAcademicYearDialogState extends State<_EditAcademicYearDialog> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ListTile(
-              title: Text(_dateFormat.format(_startDate)),
-              subtitle: const Text('Data d\'inici'),
+              title: Text(
+                '${_dateFormat.format(_startDate)} → ${_dateFormat.format(_endDate)}',
+              ),
+              subtitle: const Text('Dates del curs'),
+              trailing: const Icon(Icons.date_range),
               onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _startDate,
+                final range = await DualDatePicker.show(
+                  context,
+                  initialStart: _startDate,
+                  initialEnd: _endDate,
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2030),
                 );
-                if (d != null) setState(() => _startDate = d);
-              },
-            ),
-            ListTile(
-              title: Text(_dateFormat.format(_endDate)),
-              subtitle: const Text('Data de fi'),
-              onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _endDate,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
-                );
-                if (d != null) setState(() => _endDate = d);
+                if (range != null) {
+                  setState(() {
+                    _startDate = range.start;
+                    _endDate = range.end;
+                  });
+                }
               },
             ),
           ],
@@ -737,29 +726,25 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
             ),
             const SizedBox(height: 12),
             ListTile(
-              title: Text(_dateFormat.format(_start)),
-              subtitle: const Text('Data d\'inici'),
+              title: Text(
+                '${_dateFormat.format(_start)} → ${_dateFormat.format(_end)}',
+              ),
+              subtitle: const Text('Dates del període'),
+              trailing: const Icon(Icons.date_range),
               onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _start,
+                final range = await DualDatePicker.show(
+                  context,
+                  initialStart: _start,
+                  initialEnd: _end,
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2030),
                 );
-                if (d != null) setState(() => _start = d);
-              },
-            ),
-            ListTile(
-              title: Text(_dateFormat.format(_end)),
-              subtitle: const Text('Data de fi'),
-              onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _end,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
-                );
-                if (d != null) setState(() => _end = d);
+                if (range != null) {
+                  setState(() {
+                    _start = range.start;
+                    _end = range.end;
+                  });
+                }
               },
             ),
             const SizedBox(height: 12),

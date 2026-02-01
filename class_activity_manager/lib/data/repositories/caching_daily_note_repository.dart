@@ -2,140 +2,41 @@ import 'package:isar/isar.dart';
 
 import '../../models/daily_note.dart';
 import '../cache/schemas/daily_note_cache.dart';
-import '../cache/schemas/sync_operation.dart';
-import '../cache/sync_queue.dart';
-import '../datasources/local_datasource.dart';
+import 'base_caching_repository.dart';
 
 /// Caching repository for DailyNote with local-first persistence.
-class CachingDailyNoteRepository {
-  CachingDailyNoteRepository(this._local, this._queue);
+///
+/// Extends [BaseCachingRepository] to inherit common CRUD operations
+/// with automatic sync queue management.
+class CachingDailyNoteRepository
+    extends BaseCachingRepository<DailyNote, DailyNoteCache> {
+  CachingDailyNoteRepository(super.local, super.queue);
 
-  final LocalDatasource _local;
-  final SyncQueue _queue;
+  @override
+  String get entityType => 'dailyNote';
 
-  IsarCollection<DailyNoteCache> get _collection => _local.db.dailyNoteCaches;
+  @override
+  IsarCollection<DailyNoteCache> get collection => local.db.dailyNoteCaches;
 
-  Future<List<DailyNote>> findAll() async {
-    final cached = await _collection.where().findAll();
-    return cached.map(_toNote).toList();
+  @override
+  Future<DailyNoteCache?> findCacheById(String id) async {
+    return collection.filter().idEqualTo(id).findFirst();
   }
 
-  Future<DailyNote?> findById(String id) async {
-    final cached = await _collection.filter().idEqualTo(id).findFirst();
-    return cached != null ? _toNote(cached) : null;
-  }
+  @override
+  Id getIsarId(DailyNoteCache cache) => cache.isarId;
 
-  Future<DailyNote> insert(DailyNote note) async {
-    await _local.db.writeTxn(() async {
-      await _collection.put(_toCache(note));
-    });
+  @override
+  void setIsarId(DailyNoteCache cache, Id isarId) => cache.isarId = isarId;
 
-    await _queue.enqueue(
-      entityType: 'dailyNote',
-      entityId: note.id,
-      operation: SyncOperationType.insert,
-      payload: note.toJson(),
-    );
+  @override
+  Map<String, dynamic> toJson(DailyNote entity) => entity.toJson();
 
-    return note;
-  }
+  @override
+  String getId(DailyNote entity) => entity.id;
 
-  Future<DailyNote> update(DailyNote note) async {
-    final existing = await _collection.filter().idEqualTo(note.id).findFirst();
-    final cache = _toCache(note);
-    if (existing != null) {
-      cache.isarId = existing.isarId;
-    }
-
-    await _local.db.writeTxn(() async {
-      await _collection.put(cache);
-    });
-
-    await _queue.enqueue(
-      entityType: 'dailyNote',
-      entityId: note.id,
-      operation: SyncOperationType.update,
-      payload: note.toJson(),
-    );
-
-    return note;
-  }
-
-  Future<void> delete(String id) async {
-    final existing = await _collection.filter().idEqualTo(id).findFirst();
-
-    if (existing != null) {
-      await _local.db.writeTxn(() async {
-        await _collection.delete(existing.isarId);
-      });
-    }
-
-    await _queue.enqueue(
-      entityType: 'dailyNote',
-      entityId: id,
-      operation: SyncOperationType.delete,
-      payload: {'_id': id},
-    );
-  }
-
-  Future<List<DailyNote>> findByGroupAndModule(
-    String groupId,
-    String modulId,
-  ) async {
-    final cached = await _collection
-        .filter()
-        .groupIdEqualTo(groupId)
-        .and()
-        .modulIdEqualTo(modulId)
-        .findAll();
-    return cached.map(_toNote).toList();
-  }
-
-  Future<List<DailyNote>> findByRaId(String raId) async {
-    final cached = await _collection.filter().raIdEqualTo(raId).findAll();
-    return cached.map(_toNote).toList();
-  }
-
-  Future<DailyNote?> findByGroupRaDate(
-    String groupId,
-    String raId,
-    DateTime date,
-  ) async {
-    final dayStart = DateTime(date.year, date.month, date.day);
-    final dayEnd = dayStart.add(const Duration(days: 1));
-
-    final cached = await _collection
-        .filter()
-        .groupIdEqualTo(groupId)
-        .and()
-        .raIdEqualTo(raId)
-        .and()
-        .dateBetween(dayStart, dayEnd, includeUpper: false)
-        .findFirst();
-
-    return cached != null ? _toNote(cached) : null;
-  }
-
-  Future<List<DailyNote>> findByGroupRa(String groupId, String raId) async {
-    final cached = await _collection
-        .filter()
-        .groupIdEqualTo(groupId)
-        .and()
-        .raIdEqualTo(raId)
-        .findAll();
-    return cached.map(_toNote).toList();
-  }
-
-  Future<void> syncFromRemote(List<DailyNote> notes) async {
-    await _local.db.writeTxn(() async {
-      await _collection.clear();
-      for (final note in notes) {
-        await _collection.put(_toCache(note, pendingSync: false));
-      }
-    });
-  }
-
-  DailyNote _toNote(DailyNoteCache cache) {
+  @override
+  DailyNote toEntity(DailyNoteCache cache) {
     return DailyNote(
       id: cache.id,
       raId: cache.raId,
@@ -150,7 +51,8 @@ class CachingDailyNoteRepository {
     );
   }
 
-  DailyNoteCache _toCache(DailyNote note, {bool pendingSync = true}) {
+  @override
+  DailyNoteCache toCache(DailyNote note, {bool pendingSync = true}) {
     return DailyNoteCache()
       ..id = note.id
       ..raId = note.raId
@@ -164,5 +66,55 @@ class CachingDailyNoteRepository {
       ..version = note.version
       ..lastModified = DateTime.now()
       ..pendingSync = pendingSync;
+  }
+
+  // --- Entity-specific queries ---
+
+  Future<List<DailyNote>> findByGroupAndModule(
+    String groupId,
+    String modulId,
+  ) async {
+    final cached = await collection
+        .filter()
+        .groupIdEqualTo(groupId)
+        .and()
+        .modulIdEqualTo(modulId)
+        .findAll();
+    return cached.map(toEntity).toList();
+  }
+
+  Future<List<DailyNote>> findByRaId(String raId) async {
+    final cached = await collection.filter().raIdEqualTo(raId).findAll();
+    return cached.map(toEntity).toList();
+  }
+
+  Future<DailyNote?> findByGroupRaDate(
+    String groupId,
+    String raId,
+    DateTime date,
+  ) async {
+    final dayStart = DateTime(date.year, date.month, date.day);
+    final dayEnd = dayStart.add(const Duration(days: 1));
+
+    final cached = await collection
+        .filter()
+        .groupIdEqualTo(groupId)
+        .and()
+        .raIdEqualTo(raId)
+        .and()
+        .dateBetween(dayStart, dayEnd, includeUpper: false)
+        .findFirst();
+
+    return cached != null ? toEntity(cached) : null;
+  }
+
+  Future<List<DailyNote>> findByGroupRa(String groupId, String raId) async {
+    final cached = await collection
+        .filter()
+        .groupIdEqualTo(groupId)
+        .and()
+        .raIdEqualTo(raId)
+        .findAll();
+    return cached.map(toEntity).toList();
   }
 }
