@@ -121,9 +121,9 @@ class ConfiguracioPage extends ConsumerWidget {
           ),
         ],
       ),
-    ).then((ok) {
-      if (ok == true) {
-        ref.read(appStateProvider.notifier).removeVacationPeriod(p.id);
+    ).then((ok) async {
+      if (ok == true && context.mounted) {
+        await ref.read(appStateProvider.notifier).removeVacationPeriod(p.id);
       }
     });
   }
@@ -200,9 +200,9 @@ class ConfiguracioPage extends ConsumerWidget {
           ),
         ],
       ),
-    ).then((ok) {
-      if (ok == true) {
-        ref.read(appStateProvider.notifier).removeRecurringHoliday(h.id);
+    ).then((ok) async {
+      if (ok == true && context.mounted) {
+        await ref.read(appStateProvider.notifier).removeRecurringHoliday(h.id);
       }
     });
   }
@@ -253,26 +253,32 @@ class _LanguageSection extends ConsumerWidget {
     // Update the locale provider (triggers UI rebuild)
     ref.read(localeProvider.notifier).state = Locale(languageCode);
 
-    // Persist the preference to local cache
-    final local = ref.read(localDatasourceProvider);
-    final queue = ref.read(syncQueueProvider);
-    final prefsRepo = CachingUserPreferencesRepository(local, queue);
+    try {
+      // Persist the preference to local cache
+      final local = ref.read(localDatasourceProvider);
+      final queue = ref.read(syncQueueProvider);
+      final prefsRepo = CachingUserPreferencesRepository(local, queue);
 
-    var prefs = await prefsRepo.findActive();
-    if (prefs != null) {
-      prefs = prefs.copyWith(
-        languageCode: languageCode,
-        version: prefs.version + 1,
-      );
-      await prefsRepo.update(prefs);
-    } else {
-      prefs = UserPreferences.defaults().copyWith(languageCode: languageCode);
-      await prefsRepo.insert(prefs);
+      var prefs = await prefsRepo.findActive();
+      if (prefs != null) {
+        prefs = prefs.copyWith(
+          languageCode: languageCode,
+          version: prefs.version + 1,
+        );
+        await prefsRepo.update(prefs);
+      } else {
+        prefs = UserPreferences.defaults().copyWith(languageCode: languageCode);
+        await prefsRepo.insert(prefs);
+      }
+
+      // Trigger sync to push to MongoDB
+      final cacheService = ref.read(cacheServiceProvider);
+      await cacheService.triggerSync();
+    } catch (e) {
+      // Locale UI already updated; persistence failure is non-critical
+      // The preference will be re-persisted on next successful sync
+      debugPrint('Failed to persist language preference: $e');
     }
-
-    // Trigger sync to push to MongoDB
-    final cacheService = ref.read(cacheServiceProvider);
-    await cacheService.triggerSync();
   }
 }
 
@@ -372,12 +378,21 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
               ),
               const SizedBox(height: 8),
               FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   final name = _nameController.text.trim();
                   if (name.isEmpty || _startDate == null || _endDate == null) {
                     return;
                   }
-                  ref
+                  // Validate date range
+                  if (!_startDate!.isBefore(_endDate!)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('La data d\'inici ha de ser anterior a la data de fi'),
+                      ),
+                    );
+                    return;
+                  }
+                  await ref
                       .read(appStateProvider.notifier)
                       .setCurrentYear(
                         AcademicYear(

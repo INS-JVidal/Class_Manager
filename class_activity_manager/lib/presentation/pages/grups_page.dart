@@ -91,9 +91,18 @@ const _presetColors = [
 ];
 
 Color _hexToColor(String hex) {
+  // Validate hex format: #RRGGBB or #AARRGGBB
+  final cleaned = hex.replaceFirst('#', '');
+  if (cleaned.length != 6 && cleaned.length != 8) {
+    return Colors.grey; // Fallback for invalid format
+  }
+  // Validate all characters are valid hex digits
+  if (!RegExp(r'^[0-9A-Fa-f]+$').hasMatch(cleaned)) {
+    return Colors.grey; // Fallback for invalid characters
+  }
   final buffer = StringBuffer();
-  if (hex.length == 7) buffer.write('FF');
-  buffer.write(hex.replaceFirst('#', ''));
+  if (cleaned.length == 6) buffer.write('FF');
+  buffer.write(cleaned);
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
@@ -290,7 +299,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
             Row(
               children: [
                 FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final name = _nameController.text.trim();
                     if (name.isEmpty) return;
                     final notifier = ref.read(appStateProvider.notifier);
@@ -299,7 +308,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                         ? null
                         : _notesController.text.trim();
                     if (isEdit && _existingGroup != null) {
-                      notifier.updateGroup(
+                      await notifier.updateGroup(
                         _existingGroup!.copyWith(
                           name: name,
                           notes: notes,
@@ -307,9 +316,9 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                           color: _selectedColor,
                         ),
                       );
-                      context.go('/grups');
+                      if (context.mounted) context.go('/grups');
                     } else {
-                      notifier.addGroup(
+                      await notifier.addGroup(
                         Group(
                           id: notifier.nextId(),
                           name: name,
@@ -318,7 +327,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                           color: _selectedColor,
                         ),
                       );
-                      context.go('/grups');
+                      if (context.mounted) context.go('/grups');
                     }
                   },
                   child: Text(l10n.save),
@@ -339,10 +348,10 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                         isDestructive: true,
                       );
                       if (confirmed && context.mounted) {
-                        ref
+                        await ref
                             .read(appStateProvider.notifier)
                             .removeGroup(widget.groupId!);
-                        context.go('/grups');
+                        if (context.mounted) context.go('/grups');
                       }
                     },
                     child: Text(

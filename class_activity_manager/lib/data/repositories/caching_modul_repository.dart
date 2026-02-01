@@ -89,7 +89,17 @@ class CachingModulRepository
   // --- Private helpers ---
 
   List<RA> _decodeRas(String json) {
-    final list = jsonDecode(json) as List<dynamic>;
-    return list.map((r) => RA.fromJson(r as Map<String, dynamic>)).toList();
+    if (json.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(json);
+      if (decoded is! List<dynamic>) return [];
+      return decoded
+          .whereType<Map<String, dynamic>>()
+          .map((r) => RA.fromJson(r))
+          .toList();
+    } on FormatException {
+      // Corrupted cache data - return empty list rather than crash
+      return [];
+    }
   }
 }

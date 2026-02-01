@@ -177,7 +177,7 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
           Row(
             children: [
               FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   final code = _codeController.text.trim();
                   final name = _nameController.text.trim();
                   final hours = int.tryParse(_hoursController.text.trim());
@@ -194,7 +194,7 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                       .toList();
                   final notifier = ref.read(appStateProvider.notifier);
                   if (isEdit && _existingModul != null) {
-                    notifier.updateModul(
+                    await notifier.updateModul(
                       _existingModul!.copyWith(
                         code: code,
                         name: name,
@@ -205,7 +205,7 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                         objectives: objectives,
                       ),
                     );
-                    context.go('/moduls/${_existingModul!.id}');
+                    if (context.mounted) context.go('/moduls/${_existingModul!.id}');
                   } else {
                     final modul = Modul(
                       id: notifier.nextId(),
@@ -217,8 +217,8 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                       totalHours: hours,
                       objectives: objectives,
                     );
-                    notifier.addModul(modul);
-                    context.go('/moduls/${modul.id}');
+                    await notifier.addModul(modul);
+                    if (context.mounted) context.go('/moduls/${modul.id}');
                   }
                 },
                 child: Text(l10n.save),
@@ -382,8 +382,8 @@ class ModulDetailPage extends ConsumerWidget {
       isDestructive: true,
     );
     if (confirmed && context.mounted) {
-      ref.read(appStateProvider.notifier).removeModul(modul.id);
-      context.go('/moduls');
+      await ref.read(appStateProvider.notifier).removeModul(modul.id);
+      if (context.mounted) context.go('/moduls');
     }
   }
 
@@ -401,7 +401,7 @@ class ModulDetailPage extends ConsumerWidget {
       isDestructive: true,
     );
     if (confirmed && context.mounted) {
-      ref.read(appStateProvider.notifier).removeModulRA(modul.id, ra.id);
+      await ref.read(appStateProvider.notifier).removeModulRA(modul.id, ra.id);
     }
   }
 }
@@ -527,7 +527,7 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
           Row(
             children: [
               FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   final number = int.tryParse(_numberController.text.trim());
                   final code = _codeController.text.trim();
                   final title = _titleController.text.trim();
@@ -551,8 +551,8 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                           : _descController.text.trim(),
                       durationHours: hours,
                     );
-                    notifier.setModulRA(widget.modulId, ra);
-                    context.go('/moduls/${widget.modulId}');
+                    await notifier.setModulRA(widget.modulId, ra);
+                    if (context.mounted) context.go('/moduls/${widget.modulId}');
                   } else {
                     final ra = RA(
                       id: notifier.nextId(),
@@ -565,8 +565,8 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                       durationHours: hours,
                       order: 0,
                     );
-                    notifier.setModulRA(widget.modulId, ra);
-                    context.go('/moduls/${widget.modulId}');
+                    await notifier.setModulRA(widget.modulId, ra);
+                    if (context.mounted) context.go('/moduls/${widget.modulId}');
                   }
                 },
                 child: Text(l10n.save),

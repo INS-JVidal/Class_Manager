@@ -161,10 +161,19 @@ class RaConfigPage extends ConsumerWidget {
                 child: const Text('Cancel·la'),
               ),
               FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   final h = int.tryParse(hoursController.text.trim());
                   if (h != null && h > 0) {
-                    ref
+                    // Validate date range if both dates are set
+                    if (start != null && end != null && !start!.isBefore(end!)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('La data d\'inici ha de ser anterior a la data de fi'),
+                        ),
+                      );
+                      return;
+                    }
+                    await ref
                         .read(appStateProvider.notifier)
                         .setModulRA(
                           modul.id,
@@ -175,7 +184,7 @@ class RaConfigPage extends ConsumerWidget {
                           ),
                         );
                   }
-                  Navigator.of(ctx).pop();
+                  if (ctx.mounted) Navigator.of(ctx).pop();
                 },
                 child: const Text('Desa'),
               ),

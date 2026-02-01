@@ -129,14 +129,37 @@ class CacheService {
   }
 
   Future<void> _syncOperation(dynamic op) async {
-    final payload = jsonDecode(op.payload as String) as Map<String, dynamic>;
-    final collection = _remote.collection(
-      _collectionName(op.entityType as String),
-    );
-    final entityId = op.entityId as String;
-    final entityType = op.entityType as String;
+    // Validate required fields before casting
+    final payloadRaw = op.payload;
+    final entityTypeRaw = op.entityType;
+    final entityIdRaw = op.entityId;
+    final operationTypeRaw = op.operationType;
 
-    switch (op.operationType as String) {
+    if (payloadRaw is! String ||
+        entityTypeRaw is! String ||
+        entityIdRaw is! String ||
+        operationTypeRaw is! String) {
+      throw FormatException(
+        'Invalid sync operation format: missing or invalid fields',
+      );
+    }
+
+    final Map<String, dynamic> payload;
+    try {
+      final decoded = jsonDecode(payloadRaw);
+      if (decoded is! Map<String, dynamic>) {
+        throw FormatException('Payload is not a valid JSON object');
+      }
+      payload = decoded;
+    } on FormatException {
+      rethrow;
+    }
+
+    final entityType = entityTypeRaw;
+    final entityId = entityIdRaw;
+    final collection = _remote.collection(_collectionName(entityType));
+
+    switch (operationTypeRaw) {
       case 'insert':
         // Insert: ensure version is set to 1
         payload['version'] = payload['version'] ?? 1;

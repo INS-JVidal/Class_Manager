@@ -108,9 +108,17 @@ class CachingAcademicYearRepository
   // --- Private helpers ---
 
   List<VacationPeriod> _decodeVacationPeriods(String json) {
-    final list = jsonDecode(json) as List<dynamic>;
-    return list
-        .map((vp) => VacationPeriod.fromJson(vp as Map<String, dynamic>))
-        .toList();
+    if (json.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(json);
+      if (decoded is! List<dynamic>) return [];
+      return decoded
+          .whereType<Map<String, dynamic>>()
+          .map((vp) => VacationPeriod.fromJson(vp))
+          .toList();
+    } on FormatException {
+      // Corrupted cache data - return empty list rather than crash
+      return [];
+    }
   }
 }

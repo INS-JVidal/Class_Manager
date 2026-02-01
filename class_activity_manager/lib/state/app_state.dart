@@ -149,8 +149,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
       // On error, fall back to local cache or defaults
       try {
         await _loadFromLocalCache();
-      } catch (_) {
-        // If local cache also fails, use defaults
+      } catch (cacheError) {
+        // If local cache also fails, log and use defaults
+        _audit?.log('AppState.loadFromDatabase', 'failed', {
+          'step': 'localCacheFallback',
+          'error': cacheError.toString(),
+        }, traceId: traceId);
         state = state.copyWith(recurringHolidays: _defaultRecurringHolidays());
       }
       state = state.copyWith(isLoading: false, isInitialized: true);

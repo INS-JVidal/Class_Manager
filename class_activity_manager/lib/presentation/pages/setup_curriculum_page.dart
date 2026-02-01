@@ -177,10 +177,11 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                             FilledButton(
                               onPressed: _selectedModuleKeys.isEmpty
                                   ? null
-                                  : () {
+                                  : () async {
                                       final notifier = ref.read(
                                         appStateProvider.notifier,
                                       );
+                                      var importedCount = 0;
                                       for (final key in _selectedModuleKeys) {
                                         final parts = key.split('|');
                                         if (parts.length != 2) continue;
@@ -194,15 +195,28 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                                             .where((m) => m.codi == modulCode)
                                             .firstOrNull;
                                         if (modul == null) continue;
-                                        notifier.importModulFromCurriculum(
-                                          cicleCode,
-                                          modul,
-                                        );
+                                        try {
+                                          await notifier.importModulFromCurriculum(
+                                            cicleCode,
+                                            modul,
+                                          );
+                                          importedCount++;
+                                        } catch (e) {
+                                          // Log but continue with remaining imports
+                                          debugPrint('Failed to import ${modul.codi}: $e');
+                                        }
                                       }
                                       setState(
                                         () => _selectedModuleKeys.clear(),
                                       );
                                       if (context.mounted) {
+                                        if (importedCount > 0) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('$importedCount mòduls importats'),
+                                            ),
+                                          );
+                                        }
                                         context.go('/moduls');
                                       }
                                     },
