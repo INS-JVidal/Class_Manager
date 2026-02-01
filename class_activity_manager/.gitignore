@@ -55,3 +55,16 @@ docker/data/
 # Flutter app environment (contains credentials)
 lib/.env
 lib/.env.local
+
+# Local database (Isar)
+*.isar
+*.isar.lock
+libisar.so
+
+# Node modules (jscpd tool)
+node_modules/
+package.json
+package-lock.json
+
+# Cursor IDE
+.cursor/
