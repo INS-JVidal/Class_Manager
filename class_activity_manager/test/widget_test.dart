@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
@@ -87,6 +88,7 @@ void main() {
           localDatasourceProvider.overrideWithValue(localDatasource),
           syncQueueProvider.overrideWithValue(syncQueue),
           cacheServiceProvider.overrideWithValue(cacheService),
+          localeProvider.overrideWith((ref) => const Locale('en')),
         ],
         child: const ClassActivityManagerApp(),
       ),

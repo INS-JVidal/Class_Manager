@@ -32,7 +32,10 @@ class CachingRecurringHolidayRepository
       cache.isarId = isarId;
 
   @override
-  void preserveVersion(RecurringHolidayCache cache, RecurringHolidayCache existing) {
+  void preserveVersion(
+    RecurringHolidayCache cache,
+    RecurringHolidayCache existing,
+  ) {
     cache.version = existing.version;
   }
 

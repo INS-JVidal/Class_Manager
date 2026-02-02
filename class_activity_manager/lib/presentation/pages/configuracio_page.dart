@@ -53,6 +53,7 @@ class ConfiguracioPage extends ConsumerWidget {
 
   static void _showAddVacationPeriod(BuildContext context, WidgetRef ref) {
     final year = ref.read(appStateProvider).currentYear;
+
     if (year == null) return;
     showDialog<void>(
       context: context,
@@ -82,7 +83,9 @@ class ConfiguracioPage extends ConsumerWidget {
     VacationPeriod p,
   ) {
     final year = ref.read(appStateProvider).currentYear;
+
     if (year == null) return;
+
     showDialog<void>(
       context: context,
       builder: (ctx) => _VacationPeriodFormDialog(
@@ -231,21 +234,12 @@ class _LanguageSection extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.language,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(l10n.language, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             SegmentedButton<String>(
               segments: [
-                ButtonSegment<String>(
-                  value: 'ca',
-                  label: Text(l10n.catalan),
-                ),
-                ButtonSegment<String>(
-                  value: 'en',
-                  label: Text(l10n.english),
-                ),
+                ButtonSegment<String>(value: 'ca', label: Text(l10n.catalan)),
+                ButtonSegment<String>(value: 'en', label: Text(l10n.english)),
               ],
               selected: {currentLocale.languageCode},
               onSelectionChanged: (Set<String> selection) {
@@ -319,6 +313,7 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
   @override
   void didUpdateWidget(covariant _AcademicYearSection oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (widget.currentYear != oldWidget.currentYear &&
         widget.currentYear != null) {
       _nameController.text = widget.currentYear!.name;
@@ -396,7 +391,9 @@ class _AcademicYearSectionState extends ConsumerState<_AcademicYearSection> {
                   if (!_startDate!.isBefore(_endDate!)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('La data d\'inici ha de ser anterior a la data de fi'),
+                        content: Text(
+                          'La data d\'inici ha de ser anterior a la data de fi',
+                        ),
                       ),
                     );
                     return;
@@ -704,7 +701,8 @@ class _VacationPeriodFormDialog extends StatefulWidget {
     required this.academicYearEnd,
     required this.onSave,
   }) : initialStart = initialStart ?? academicYearStart,
-       initialEnd = initialEnd ?? academicYearStart.add(const Duration(days: 7));
+       initialEnd =
+           initialEnd ?? academicYearStart.add(const Duration(days: 7));
 
   final String initialName;
   final DateTime initialStart;
@@ -712,7 +710,12 @@ class _VacationPeriodFormDialog extends StatefulWidget {
   final String initialNote;
   final DateTime academicYearStart;
   final DateTime academicYearEnd;
-  final Future<void> Function(String name, DateTime start, DateTime end, String note)
+  final Future<void> Function(
+    String name,
+    DateTime start,
+    DateTime end,
+    String note,
+  )
   onSave;
 
   @override
@@ -803,7 +806,12 @@ class _VacationPeriodFormDialogState extends State<_VacationPeriodFormDialog> {
           onPressed: () async {
             final name = _nameController.text.trim();
             if (name.isEmpty) return;
-            await widget.onSave(name, _start, _end, _noteController.text.trim());
+            await widget.onSave(
+              name,
+              _start,
+              _end,
+              _noteController.text.trim(),
+            );
           },
           child: const Text('Desa'),
         ),
@@ -825,7 +833,8 @@ class _RecurringHolidayFormDialog extends StatefulWidget {
   final int initialMonth;
   final int initialDay;
   final bool initialEnabled;
-  final Future<void> Function(String name, int month, int day, bool enabled) onSave;
+  final Future<void> Function(String name, int month, int day, bool enabled)
+  onSave;
 
   @override
   State<_RecurringHolidayFormDialog> createState() =>

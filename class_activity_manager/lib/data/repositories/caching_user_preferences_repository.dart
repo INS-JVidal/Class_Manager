@@ -49,10 +49,7 @@ class CachingUserPreferencesRepository {
   }
 
   Future<UserPreferences> update(UserPreferences prefs) async {
-    final existing = await _collection
-        .filter()
-        .idEqualTo(prefs.id)
-        .findFirst();
+    final existing = await _collection.filter().idEqualTo(prefs.id).findFirst();
     final cache = _toCache(prefs);
     if (existing != null) {
       cache.isarId = existing.isarId;

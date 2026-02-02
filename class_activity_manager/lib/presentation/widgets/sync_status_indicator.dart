@@ -42,18 +42,12 @@ class SyncStatusIndicator extends ConsumerWidget {
             Container(
               width: _dotSize,
               height: _dotSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color),
             ),
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -82,10 +76,7 @@ class SyncStatusIndicator extends ConsumerWidget {
             const SizedBox(width: 6),
             Text(
               l10n.connectionError,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
             ),
           ],
         ),

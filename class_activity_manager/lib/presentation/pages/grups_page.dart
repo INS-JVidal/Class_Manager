@@ -22,7 +22,10 @@ class GrupsListPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.groups, style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                l10n.groups,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               FilledButton.tonalIcon(
                 onPressed: () => context.go('/grups/new'),
                 icon: const Icon(Icons.add),
@@ -123,6 +126,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
   void _loadGroup() {
     final groups = ref.read(appStateProvider).groups;
     final list = groups.where((g) => g.id == widget.groupId).toList();
+
     if (list.isEmpty) return;
     final g = list.first;
     _nameController.text = g.name;
@@ -263,9 +267,7 @@ class _GroupFormPageState extends ConsumerState<GroupFormPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(l10n.noModules),
-                      ),
+                      Expanded(child: Text(l10n.noModules)),
                     ],
                   ),
                 ),

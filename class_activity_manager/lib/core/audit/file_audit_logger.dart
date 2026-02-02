@@ -11,8 +11,7 @@ String? resolveAuditLogDirectory() {
   if (!Platform.isLinux) return null;
   final home = Platform.environment['HOME'];
   if (home == null || home.isEmpty) return null;
-  final base =
-      Platform.environment['XDG_STATE_HOME'] ?? '$home/.local/state';
+  final base = Platform.environment['XDG_STATE_HOME'] ?? '$home/.local/state';
   return '$base/class_activity_manager';
 }
 
@@ -22,6 +21,7 @@ class FileAuditLogger implements AuditLogger {
   FileAuditLogger(String logDirectory) {
     try {
       final dir = Directory(logDirectory);
+
       if (!dir.existsSync()) {
         dir.createSync(recursive: true);
       }
@@ -43,11 +43,14 @@ class FileAuditLogger implements AuditLogger {
     String? traceId,
   }) {
     final sink = _sink;
+
     if (sink == null) return;
+
     try {
       final timestamp = DateTime.now().toUtc().toIso8601String();
       final payloadStr = jsonEncode(payload);
-      final line = '$timestamp\t$operation\t$phase\t$payloadStr\t${traceId ?? ''}\n';
+      final line =
+          '$timestamp\t$operation\t$phase\t$payloadStr\t${traceId ?? ''}\n';
       sink.write(line);
       // Don't call flush() - OS buffers writes, flushes on close
     } catch (e) {

@@ -211,7 +211,9 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     ),
                     const SizedBox(height: 8),
                     // Calendar grid
-                    Expanded(child: _buildCalendarGrid(context, rasByDate, state)),
+                    Expanded(
+                      child: _buildCalendarGrid(context, rasByDate, state),
+                    ),
                   ],
                 ),
               ),
@@ -418,10 +420,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               color: isHoliday
                   ? CalendarColors.holidayColor
                   : isWeekend
-                      ? CalendarColors.weekendColor
-                      : isSelected
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : null,
+                  ? CalendarColors.weekendColor
+                  : isSelected
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
               borderRadius: BorderRadius.circular(8),
               border: isToday && !isDayOff
                   ? Border.all(
@@ -429,11 +431,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                       width: 2,
                     )
                   : isSelected && !isDayOff
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1,
-                        )
-                      : null,
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1,
+                    )
+                  : null,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -445,8 +447,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     color: isDayOff
                         ? Colors.white70
                         : isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
+                        ? Theme.of(context).colorScheme.primary
+                        : null,
                   ),
                 ),
                 if (colors.isNotEmpty)

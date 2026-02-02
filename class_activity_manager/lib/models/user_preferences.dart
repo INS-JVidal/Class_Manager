@@ -19,11 +19,7 @@ class UserPreferences {
   /// Version for optimistic locking (incremented on each update).
   final int version;
 
-  UserPreferences copyWith({
-    String? id,
-    String? languageCode,
-    int? version,
-  }) {
+  UserPreferences copyWith({String? id, String? languageCode, int? version}) {
     return UserPreferences(
       id: id ?? this.id,
       languageCode: languageCode ?? this.languageCode,
@@ -45,8 +41,6 @@ class UserPreferences {
       );
 
   /// Create default preferences with a new ID.
-  factory UserPreferences.defaults() => UserPreferences(
-    id: _uuid.v4(),
-    languageCode: 'ca',
-  );
+  factory UserPreferences.defaults() =>
+      UserPreferences(id: _uuid.v4(), languageCode: 'ca');
 }

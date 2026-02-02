@@ -47,6 +47,5 @@ class ConflictException implements Exception {
   final Map<String, dynamic>? serverDocument;
 
   @override
-  String toString() =>
-      'ConflictException: $type for $entityType/$entityId';
+  String toString() => 'ConflictException: $type for $entityType/$entityId';
 }

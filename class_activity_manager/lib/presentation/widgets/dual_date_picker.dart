@@ -243,7 +243,8 @@ class _CalendarPanel extends StatelessWidget {
   final List<RecurringHoliday> recurringHolidays;
   final List<VacationPeriod> vacationPeriods;
   final bool Function(DateTime) isWeekend;
-  final bool Function(DateTime, List<RecurringHoliday>, List<VacationPeriod>) isHoliday;
+  final bool Function(DateTime, List<RecurringHoliday>, List<VacationPeriod>)
+  isHoliday;
   final ValueChanged<DateTime> onMonthChanged;
   final ValueChanged<DateTime> onDateSelected;
 
@@ -368,12 +369,12 @@ class _CalendarPanel extends StatelessWidget {
               color: isHolidayDay
                   ? CalendarColors.holidayColor
                   : isWeekendDay
-                      ? CalendarColors.weekendColor
-                      : isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : isToday
-                              ? Theme.of(context).colorScheme.primaryContainer
-                              : null,
+                  ? CalendarColors.weekendColor
+                  : isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : isToday
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -383,10 +384,10 @@ class _CalendarPanel extends StatelessWidget {
                   color: isDayOff
                       ? Colors.white70
                       : isSelected
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : isInRange
-                              ? null
-                              : Theme.of(context).colorScheme.outline,
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : isInRange
+                      ? null
+                      : Theme.of(context).colorScheme.outline,
                   fontWeight: isToday ? FontWeight.bold : null,
                 ),
               ),

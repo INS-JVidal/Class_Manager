@@ -102,9 +102,7 @@ class DashboardPage extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.outline,
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(l10n.noSessionsToday),
-                      ),
+                      Expanded(child: Text(l10n.noSessionsToday)),
                     ],
                   ),
                 ),
@@ -151,9 +149,7 @@ class DashboardPage extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.outline,
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(l10n.noRas),
-                      ),
+                      Expanded(child: Text(l10n.noRas)),
                     ],
                   ),
                 ),

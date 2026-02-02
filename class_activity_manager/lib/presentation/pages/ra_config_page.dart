@@ -18,6 +18,7 @@ class RaConfigPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final moduls = ref.watch(appStateProvider).moduls;
     final modulList = moduls.where((m) => m.id == modulId).toList();
+
     if (modulList.isEmpty) return const Center(child: Text('Mòdul no trobat'));
     final modul = modulList.first;
     final ras = modul.ras;
@@ -165,10 +166,14 @@ class RaConfigPage extends ConsumerWidget {
                   final h = int.tryParse(hoursController.text.trim());
                   if (h != null && h > 0) {
                     // Validate date range if both dates are set
-                    if (start != null && end != null && !start!.isBefore(end!)) {
+                    if (start != null &&
+                        end != null &&
+                        !start!.isBefore(end!)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('La data d\'inici ha de ser anterior a la data de fi'),
+                          content: Text(
+                            'La data d\'inici ha de ser anterior a la data de fi',
+                          ),
                         ),
                       );
                       return;

@@ -15,11 +15,13 @@ class TestAuditLogger implements AuditLogger {
     Map<String, dynamic> payload, {
     String? traceId,
   }) {
-    _events.add(AuditEvent(
-      operation: operation,
-      phase: phase,
-      payload: Map<String, dynamic>.from(payload),
-      traceId: traceId,
-    ));
+    _events.add(
+      AuditEvent(
+        operation: operation,
+        phase: phase,
+        payload: Map<String, dynamic>.from(payload),
+        traceId: traceId,
+      ),
+    );
   }
 }

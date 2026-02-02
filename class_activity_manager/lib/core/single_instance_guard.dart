@@ -61,6 +61,7 @@ class SingleInstanceGuard {
     }
 
     final home = env['HOME'];
+
     if (home == null) {
       return null;
     }

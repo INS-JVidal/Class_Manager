@@ -67,8 +67,8 @@ class AppState {
 /// Notifier that holds and updates [AppState] with local-first caching.
 class AppStateNotifier extends StateNotifier<AppState> {
   AppStateNotifier(this._db, this._cacheService, [AuditLogger? logger])
-      : _audit = logger,
-        super(AppState(recurringHolidays: _defaultRecurringHolidays()));
+    : _audit = logger,
+      super(AppState(recurringHolidays: _defaultRecurringHolidays()));
 
   final DatabaseService? _db;
   final CacheService _cacheService;
@@ -113,15 +113,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
     try {
       final db = _connectedDb;
+
       if (db != null) {
-        _audit?.log(
-            'AppState.loadFromDatabase', 'action', {'step': 'pullFromRemote'},
-            traceId: traceId);
+        _audit?.log('AppState.loadFromDatabase', 'action', {
+          'step': 'pullFromRemote',
+        }, traceId: traceId);
         await _pullFromRemote(db);
       } else {
-        _audit?.log(
-            'AppState.loadFromDatabase', 'action', {'step': 'loadFromLocalCache'},
-            traceId: traceId);
+        _audit?.log('AppState.loadFromDatabase', 'action', {
+          'step': 'loadFromLocalCache',
+        }, traceId: traceId);
         await _loadFromLocalCache();
       }
 
@@ -130,22 +131,25 @@ class AppStateNotifier extends StateNotifier<AppState> {
       // If holidays were empty, persist the defaults
       if (state.recurringHolidays.isNotEmpty &&
           (await _recurringHolidayRepo.findAll()).isEmpty) {
-        _audit?.log('AppState.loadFromDatabase', 'action',
-            {'step': 'persistDefaultHolidays'}, traceId: traceId);
+        _audit?.log('AppState.loadFromDatabase', 'action', {
+          'step': 'persistDefaultHolidays',
+        }, traceId: traceId);
         for (final holiday in state.recurringHolidays) {
           await _recurringHolidayRepo.insert(holiday);
         }
       }
 
-      _audit?.log('AppState.loadFromDatabase', 'action', {'step': 'triggerSync'},
-          traceId: traceId);
+      _audit?.log('AppState.loadFromDatabase', 'action', {
+        'step': 'triggerSync',
+      }, traceId: traceId);
       await _cacheService.triggerSync();
-      _audit?.log(
-          'AppState.loadFromDatabase', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('AppState.loadFromDatabase', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('AppState.loadFromDatabase', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('AppState.loadFromDatabase', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       // On error, fall back to local cache or defaults
       try {
         await _loadFromLocalCache();
@@ -238,37 +242,43 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Academic year
   Future<void> setCurrentYear(AcademicYear year) async {
     final traceId = _uuid.v4();
-    _audit?.log('AcademicYear.set', 'started', {'yearId': year.id},
-        traceId: traceId);
+    _audit?.log('AcademicYear.set', 'started', {
+      'yearId': year.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _academicYearRepo.insert(year);
       await _academicYearRepo.setActiveYear(year.id);
       await _cacheService.triggerSync();
       state = state.copyWith(currentYear: year);
-      _audit?.log('AcademicYear.set', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('AcademicYear.set', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('AcademicYear.set', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('AcademicYear.set', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> updateCurrentYear(AcademicYear year) async {
     final traceId = _uuid.v4();
-    _audit?.log('AcademicYear.update', 'started', {'yearId': year.id},
-        traceId: traceId);
+    _audit?.log('AcademicYear.update', 'started', {
+      'yearId': year.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _academicYearRepo.update(year);
       await _cacheService.triggerSync();
       state = state.copyWith(currentYear: year);
-      _audit?.log('AcademicYear.update', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('AcademicYear.update', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('AcademicYear.update', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('AcademicYear.update', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -285,11 +295,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
         await _cacheService.triggerSync();
       }
       state = state.copyWith(currentYear: null);
-      _audit?.log('AcademicYear.clear', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('AcademicYear.clear', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('AcademicYear.clear', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('AcademicYear.clear', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -297,14 +309,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Vacation periods (on current year)
   Future<void> addVacationPeriod(VacationPeriod period) async {
     final traceId = _uuid.v4();
-    _audit?.log('VacationPeriod.add', 'started', {'periodId': period.id},
-        traceId: traceId);
+    _audit?.log('VacationPeriod.add', 'started', {
+      'periodId': period.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final year = state.currentYear;
       if (year == null) {
-        _audit?.log('VacationPeriod.add', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('VacationPeriod.add', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final updated = List<VacationPeriod>.from(year.vacationPeriods)
@@ -313,25 +327,29 @@ class AppStateNotifier extends StateNotifier<AppState> {
       await _academicYearRepo.update(newYear);
       await _cacheService.triggerSync();
       state = state.copyWith(currentYear: newYear);
-      _audit?.log('VacationPeriod.add', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.add', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('VacationPeriod.add', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.add', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> updateVacationPeriod(VacationPeriod period) async {
     final traceId = _uuid.v4();
-    _audit?.log('VacationPeriod.update', 'started', {'periodId': period.id},
-        traceId: traceId);
+    _audit?.log('VacationPeriod.update', 'started', {
+      'periodId': period.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final year = state.currentYear;
       if (year == null) {
-        _audit?.log('VacationPeriod.update', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('VacationPeriod.update', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final updated = year.vacationPeriods
@@ -341,25 +359,29 @@ class AppStateNotifier extends StateNotifier<AppState> {
       await _academicYearRepo.update(newYear);
       await _cacheService.triggerSync();
       state = state.copyWith(currentYear: newYear);
-      _audit?.log('VacationPeriod.update', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.update', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('VacationPeriod.update', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.update', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeVacationPeriod(String id) async {
     final traceId = _uuid.v4();
-    _audit?.log('VacationPeriod.remove', 'started', {'periodId': id},
-        traceId: traceId);
+    _audit?.log('VacationPeriod.remove', 'started', {
+      'periodId': id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final year = state.currentYear;
       if (year == null) {
-        _audit?.log('VacationPeriod.remove', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('VacationPeriod.remove', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final updated = year.vacationPeriods.where((p) => p.id != id).toList();
@@ -367,11 +389,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       await _academicYearRepo.update(newYear);
       await _cacheService.triggerSync();
       state = state.copyWith(currentYear: newYear);
-      _audit?.log('VacationPeriod.remove', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.remove', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('VacationPeriod.remove', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('VacationPeriod.remove', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -379,8 +403,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Recurring holidays
   Future<void> addRecurringHoliday(RecurringHoliday holiday) async {
     final traceId = _uuid.v4();
-    _audit?.log('RecurringHoliday.add', 'started', {'holidayId': holiday.id},
-        traceId: traceId);
+    _audit?.log('RecurringHoliday.add', 'started', {
+      'holidayId': holiday.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _recurringHolidayRepo.insert(holiday);
@@ -388,19 +413,22 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         recurringHolidays: [...state.recurringHolidays, holiday],
       );
-      _audit?.log('RecurringHoliday.add', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.add', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('RecurringHoliday.add', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.add', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> updateRecurringHoliday(RecurringHoliday holiday) async {
     final traceId = _uuid.v4();
-    _audit?.log('RecurringHoliday.update', 'started', {'holidayId': holiday.id},
-        traceId: traceId);
+    _audit?.log('RecurringHoliday.update', 'started', {
+      'holidayId': holiday.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _recurringHolidayRepo.update(holiday);
@@ -410,19 +438,22 @@ class AppStateNotifier extends StateNotifier<AppState> {
             .map((h) => h.id == holiday.id ? holiday : h)
             .toList(),
       );
-      _audit?.log('RecurringHoliday.update', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.update', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('RecurringHoliday.update', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.update', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeRecurringHoliday(String id) async {
     final traceId = _uuid.v4();
-    _audit?.log('RecurringHoliday.remove', 'started', {'holidayId': id},
-        traceId: traceId);
+    _audit?.log('RecurringHoliday.remove', 'started', {
+      'holidayId': id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _recurringHolidayRepo.delete(id);
@@ -432,11 +463,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
             .where((h) => h.id != id)
             .toList(),
       );
-      _audit?.log('RecurringHoliday.remove', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.remove', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('RecurringHoliday.remove', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('RecurringHoliday.remove', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -444,26 +477,28 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Groups
   Future<void> addGroup(Group group) async {
     final traceId = _uuid.v4();
-    _audit?.log('Group.add', 'started', {'groupId': group.id},
-        traceId: traceId);
+    _audit?.log('Group.add', 'started', {
+      'groupId': group.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _groupRepo.insert(group);
       await _cacheService.triggerSync();
       state = state.copyWith(groups: [...state.groups, group]);
-      _audit?.log('Group.add', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Group.add', 'completed', {'result': 'ok'}, traceId: traceId);
     } catch (e) {
-      _audit?.log('Group.add', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Group.add', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> updateGroup(Group group) async {
     final traceId = _uuid.v4();
-    _audit?.log('Group.update', 'started', {'groupId': group.id},
-        traceId: traceId);
+    _audit?.log('Group.update', 'started', {
+      'groupId': group.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _groupRepo.update(group);
@@ -471,19 +506,20 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         groups: state.groups.map((g) => g.id == group.id ? group : g).toList(),
       );
-      _audit?.log('Group.update', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Group.update', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Group.update', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Group.update', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeGroup(String id) async {
     final traceId = _uuid.v4();
-    _audit?.log('Group.remove', 'started', {'groupId': id},
-        traceId: traceId);
+    _audit?.log('Group.remove', 'started', {'groupId': id}, traceId: traceId);
     try {
       _ensureRepos();
       await _groupRepo.delete(id);
@@ -491,11 +527,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         groups: state.groups.where((g) => g.id != id).toList(),
       );
-      _audit?.log('Group.remove', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Group.remove', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Group.remove', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Group.remove', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -503,26 +541,28 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Moduls
   Future<void> addModul(Modul modul) async {
     final traceId = _uuid.v4();
-    _audit?.log('Modul.add', 'started', {'modulId': modul.id},
-        traceId: traceId);
+    _audit?.log('Modul.add', 'started', {
+      'modulId': modul.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _modulRepo.insert(modul);
       await _cacheService.triggerSync();
       state = state.copyWith(moduls: [...state.moduls, modul]);
-      _audit?.log('Modul.add', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.add', 'completed', {'result': 'ok'}, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.add', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.add', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> updateModul(Modul modul) async {
     final traceId = _uuid.v4();
-    _audit?.log('Modul.update', 'started', {'modulId': modul.id},
-        traceId: traceId);
+    _audit?.log('Modul.update', 'started', {
+      'modulId': modul.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       await _modulRepo.update(modul);
@@ -530,19 +570,20 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         moduls: state.moduls.map((m) => m.id == modul.id ? modul : m).toList(),
       );
-      _audit?.log('Modul.update', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.update', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.update', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.update', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeModul(String id) async {
     final traceId = _uuid.v4();
-    _audit?.log('Modul.remove', 'started', {'modulId': id},
-        traceId: traceId);
+    _audit?.log('Modul.remove', 'started', {'modulId': id}, traceId: traceId);
     try {
       _ensureRepos();
       await _modulRepo.delete(id);
@@ -550,11 +591,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         moduls: state.moduls.where((m) => m.id != id).toList(),
       );
-      _audit?.log('Modul.remove', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.remove', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.remove', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.remove', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -584,8 +627,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
             modul.copyWith(cicleCodes: [...modul.cicleCodes, cicleCode]),
           );
         }
-        _audit?.log('Modul.importFromCurriculum', 'completed', {'result': 'updated'},
-            traceId: traceId);
+        _audit?.log('Modul.importFromCurriculum', 'completed', {
+          'result': 'updated',
+        }, traceId: traceId);
         return;
       }
       final ras = <RA>[];
@@ -611,11 +655,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
         cicleCodes: [cicleCode],
       );
       await addModul(modul);
-      _audit?.log('Modul.importFromCurriculum', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.importFromCurriculum', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.importFromCurriculum', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.importFromCurriculum', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -623,14 +669,17 @@ class AppStateNotifier extends StateNotifier<AppState> {
   /// Add or update RA in a module.
   Future<void> setModulRA(String modulId, RA ra) async {
     final traceId = _uuid.v4();
-    _audit?.log('Modul.setRA', 'started', {'modulId': modulId, 'raId': ra.id},
-        traceId: traceId);
+    _audit?.log('Modul.setRA', 'started', {
+      'modulId': modulId,
+      'raId': ra.id,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final list = state.moduls.where((m) => m.id == modulId).toList();
       if (list.isEmpty) {
-        _audit?.log('Modul.setRA', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('Modul.setRA', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final modul = list.first;
@@ -639,35 +688,42 @@ class AppStateNotifier extends StateNotifier<AppState> {
           ? [...modul.ras, ra]
           : modul.ras.map((r) => r.id == ra.id ? ra : r).toList();
       await updateModul(modul.copyWith(ras: ras));
-      _audit?.log('Modul.setRA', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.setRA', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.setRA', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.setRA', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeModulRA(String modulId, String raId) async {
     final traceId = _uuid.v4();
-    _audit?.log('Modul.removeRA', 'started', {'modulId': modulId, 'raId': raId},
-        traceId: traceId);
+    _audit?.log('Modul.removeRA', 'started', {
+      'modulId': modulId,
+      'raId': raId,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final list = state.moduls.where((m) => m.id == modulId).toList();
       if (list.isEmpty) {
-        _audit?.log('Modul.removeRA', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('Modul.removeRA', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final modul = list.first;
       final ras = modul.ras.where((r) => r.id != raId).toList();
       await updateModul(modul.copyWith(ras: ras));
-      _audit?.log('Modul.removeRA', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Modul.removeRA', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Modul.removeRA', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Modul.removeRA', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -684,54 +740,66 @@ class AppStateNotifier extends StateNotifier<AppState> {
       final notes = state.dailyNotes
           .where((n) => !_isSameDailyNote(n, note))
           .toList();
+
       if (_isDailyNoteEmpty(note) && !note.completed) {
         final existing = state.dailyNotes
             .where((n) => _isSameDailyNote(n, note))
             .toList();
         if (existing.isNotEmpty) {
-          _audit?.log('DailyNote.save', 'action', {'step': 'delete'},
-              traceId: traceId);
+          _audit?.log('DailyNote.save', 'action', {
+            'step': 'delete',
+          }, traceId: traceId);
           await _dailyNoteRepo.delete(existing.first.id);
-          _audit?.log('DailyNote.save', 'action', {'step': 'triggerSync'},
-              traceId: traceId);
+          _audit?.log('DailyNote.save', 'action', {
+            'step': 'triggerSync',
+          }, traceId: traceId);
           await _cacheService.triggerSync();
         }
         state = state.copyWith(dailyNotes: notes);
-        _audit?.log('DailyNote.save', 'completed', {'result': 'deleted'},
-            traceId: traceId);
+        _audit?.log('DailyNote.save', 'completed', {
+          'result': 'deleted',
+        }, traceId: traceId);
         return;
       }
 
-      _audit?.log('DailyNote.save', 'action', {'step': 'findByGroupRaDate'},
-          traceId: traceId);
+      _audit?.log('DailyNote.save', 'action', {
+        'step': 'findByGroupRaDate',
+      }, traceId: traceId);
       final existingNote = await _dailyNoteRepo.findByGroupRaDate(
         note.groupId,
         note.raId,
         note.date,
       );
+
       if (existingNote != null) {
         final updatedNote = note.copyWith(id: existingNote.id);
-        _audit?.log('DailyNote.save', 'action', {'step': 'update'},
-            traceId: traceId);
+        _audit?.log('DailyNote.save', 'action', {
+          'step': 'update',
+        }, traceId: traceId);
         await _dailyNoteRepo.update(updatedNote);
-        _audit?.log('DailyNote.save', 'action', {'step': 'triggerSync'},
-            traceId: traceId);
+        _audit?.log('DailyNote.save', 'action', {
+          'step': 'triggerSync',
+        }, traceId: traceId);
         _cacheService.triggerSync(); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, updatedNote]);
       } else {
-        _audit?.log('DailyNote.save', 'action', {'step': 'insert'},
-            traceId: traceId);
+        _audit?.log('DailyNote.save', 'action', {
+          'step': 'insert',
+        }, traceId: traceId);
         await _dailyNoteRepo.insert(note);
-        _audit?.log('DailyNote.save', 'action', {'step': 'triggerSync'},
-            traceId: traceId);
+        _audit?.log('DailyNote.save', 'action', {
+          'step': 'triggerSync',
+        }, traceId: traceId);
         _cacheService.triggerSync(); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, note]);
       }
-      _audit?.log('DailyNote.save', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('DailyNote.save', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('DailyNote.save', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('DailyNote.save', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
@@ -761,42 +829,53 @@ class AppStateNotifier extends StateNotifier<AppState> {
   // Group-Module relationship methods
   Future<void> addModuleToGroup(String groupId, String modulId) async {
     final traceId = _uuid.v4();
-    _audit?.log('Group.addModule', 'started', {'groupId': groupId, 'modulId': modulId},
-        traceId: traceId);
+    _audit?.log('Group.addModule', 'started', {
+      'groupId': groupId,
+      'modulId': modulId,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final list = state.groups.where((g) => g.id == groupId).toList();
       if (list.isEmpty) {
-        _audit?.log('Group.addModule', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('Group.addModule', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final group = list.first;
       if (group.moduleIds.contains(modulId)) {
-        _audit?.log('Group.addModule', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('Group.addModule', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
-      await updateGroup(group.copyWith(moduleIds: [...group.moduleIds, modulId]));
-      _audit?.log('Group.addModule', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      await updateGroup(
+        group.copyWith(moduleIds: [...group.moduleIds, modulId]),
+      );
+      _audit?.log('Group.addModule', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Group.addModule', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Group.addModule', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }
 
   Future<void> removeModuleFromGroup(String groupId, String modulId) async {
     final traceId = _uuid.v4();
-    _audit?.log('Group.removeModule', 'started', {'groupId': groupId, 'modulId': modulId},
-        traceId: traceId);
+    _audit?.log('Group.removeModule', 'started', {
+      'groupId': groupId,
+      'modulId': modulId,
+    }, traceId: traceId);
     try {
       _ensureRepos();
       final list = state.groups.where((g) => g.id == groupId).toList();
       if (list.isEmpty) {
-        _audit?.log('Group.removeModule', 'completed', {'result': 'noop'},
-            traceId: traceId);
+        _audit?.log('Group.removeModule', 'completed', {
+          'result': 'noop',
+        }, traceId: traceId);
         return;
       }
       final group = list.first;
@@ -805,11 +884,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
           moduleIds: group.moduleIds.where((id) => id != modulId).toList(),
         ),
       );
-      _audit?.log('Group.removeModule', 'completed', {'result': 'ok'},
-          traceId: traceId);
+      _audit?.log('Group.removeModule', 'completed', {
+        'result': 'ok',
+      }, traceId: traceId);
     } catch (e) {
-      _audit?.log('Group.removeModule', 'failed', {'error': e.toString()},
-          traceId: traceId);
+      _audit?.log('Group.removeModule', 'failed', {
+        'error': e.toString(),
+      }, traceId: traceId);
       rethrow;
     }
   }

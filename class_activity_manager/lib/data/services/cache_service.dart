@@ -33,6 +33,7 @@ class CacheService {
     yield _currentStatus;
     yield* _statusController.stream;
   }
+
   CacheStatus get currentStatus => _currentStatus;
 
   /// Stream of sync conflicts for UI notification.
@@ -103,7 +104,7 @@ class CacheService {
         } on ConflictException catch (e) {
           // Conflict detected - remove from queue and notify listeners
           await _queue.remove(op.id);
-          
+
           // FIX: Update local cache version to match server version
           // This prevents repeated conflicts on subsequent edits
           if (e.type == SyncConflictType.versionMismatch &&
@@ -115,13 +116,15 @@ class CacheService {
               serverVersion,
             );
           }
-          
-          _conflictController.add(SyncConflict(
-            entityType: e.entityType,
-            entityId: e.entityId,
-            type: e.type,
-            serverDocument: e.serverDocument,
-          ));
+
+          _conflictController.add(
+            SyncConflict(
+              entityType: e.entityType,
+              entityId: e.entityId,
+              type: e.type,
+              serverDocument: e.serverDocument,
+            ),
+          );
           stderr.writeln(
             'Sync conflict: ${e.type.name} for ${e.entityType}/${e.entityId}',
           );
@@ -188,15 +191,14 @@ class CacheService {
         // Read current version from local cache (not from payload which may be stale)
         final localVersion =
             await _getLocalCacheVersion(entityType, entityId) ??
-                payload['version'] as int? ??
-                1;
+            payload['version'] as int? ??
+            1;
 
         int newVersion;
         _updateStatus(CacheStatus.syncing);
         try {
           // Fetch current server document
-          final serverDoc =
-              await collection.findOne(where.eq('_id', entityId));
+          final serverDoc = await collection.findOne(where.eq('_id', entityId));
 
           if (serverDoc == null) {
             // Document was deleted on server - conflict
@@ -222,10 +224,7 @@ class CacheService {
           // Versions match - safe to update with incremented version
           newVersion = localVersion + 1;
           payload['version'] = newVersion;
-          await collection.replaceOne(
-            where.eq('_id', entityId),
-            payload,
-          );
+          await collection.replaceOne(where.eq('_id', entityId), payload);
         } finally {
           _updateStatus(CacheStatus.online);
         }
@@ -353,16 +352,16 @@ class CacheService {
           }
           break;
         case 'recurringHoliday':
-          final cache =
-              await _local.db.recurringHolidayCaches.getById(entityId);
+          final cache = await _local.db.recurringHolidayCaches.getById(
+            entityId,
+          );
           if (cache != null) {
             cache.version = newVersion;
             await _local.db.recurringHolidayCaches.put(cache);
           }
           break;
         case 'userPreferences':
-          final cache =
-              await _local.db.userPreferencesCaches.getById(entityId);
+          final cache = await _local.db.userPreferencesCaches.getById(entityId);
           if (cache != null) {
             cache.version = newVersion;
             await _local.db.userPreferencesCaches.put(cache);

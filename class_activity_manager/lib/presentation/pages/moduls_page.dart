@@ -23,7 +23,10 @@ class ModulsListPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.modules, style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                l10n.modules,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               OutlinedButton.icon(
                 onPressed: () => context.go('/setup-curriculum'),
                 icon: const Icon(Icons.menu_book),
@@ -87,6 +90,7 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
     final moduls = ref.read(appStateProvider).moduls;
     final modulList = moduls.where((x) => x.id == widget.modulId).toList();
     final m = modulList.isEmpty ? null : modulList.first;
+
     if (m != null) {
       _codeController.text = m.code;
       _nameController.text = m.name;
@@ -205,7 +209,9 @@ class _ModulFormPageState extends ConsumerState<ModulFormPage> {
                         objectives: objectives,
                       ),
                     );
-                    if (context.mounted) context.go('/moduls/${_existingModul!.id}');
+                    if (context.mounted) {
+                      context.go('/moduls/${_existingModul!.id}');
+                    }
                   } else {
                     final modul = Modul(
                       id: notifier.nextId(),
@@ -249,6 +255,7 @@ class ModulDetailPage extends ConsumerWidget {
     final moduls = ref.watch(appStateProvider).moduls;
     final modulList = moduls.where((m) => m.id == modulId).toList();
     final modul = modulList.isEmpty ? null : modulList.first;
+
     if (modul == null) {
       return Center(child: Text(l10n.noModules));
     }
@@ -373,7 +380,10 @@ class ModulDetailPage extends ConsumerWidget {
   }
 
   static Future<void> _confirmDelete(
-      BuildContext context, WidgetRef ref, Modul modul) async {
+    BuildContext context,
+    WidgetRef ref,
+    Modul modul,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showConfirmDialog(
       context,
@@ -434,10 +444,13 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
   void _loadRA() {
     final moduls = ref.read(appStateProvider).moduls;
     final modulList = moduls.where((m) => m.id == widget.modulId).toList();
+
     if (modulList.isEmpty) return;
+
     final modul = modulList.first;
     final raList = modul.ras.where((r) => r.id == widget.raId).toList();
     final ra = raList.isEmpty ? null : raList.first;
+
     if (ra != null) {
       _numberController.text = ra.number.toString();
       _codeController.text = ra.code;
@@ -552,7 +565,10 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                       durationHours: hours,
                     );
                     await notifier.setModulRA(widget.modulId, ra);
-                    if (context.mounted) context.go('/moduls/${widget.modulId}');
+
+                    if (context.mounted) {
+                      context.go('/moduls/${widget.modulId}');
+                    }
                   } else {
                     final ra = RA(
                       id: notifier.nextId(),
@@ -566,7 +582,10 @@ class _RAFormPageState extends ConsumerState<RAFormPage> {
                       order: 0,
                     );
                     await notifier.setModulRA(widget.modulId, ra);
-                    if (context.mounted) context.go('/moduls/${widget.modulId}');
+
+                    if (context.mounted) {
+                      context.go('/moduls/${widget.modulId}');
+                    }
                   }
                 },
                 child: Text(l10n.save),

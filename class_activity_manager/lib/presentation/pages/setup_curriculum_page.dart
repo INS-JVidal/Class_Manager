@@ -196,14 +196,17 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                                             .firstOrNull;
                                         if (modul == null) continue;
                                         try {
-                                          await notifier.importModulFromCurriculum(
-                                            cicleCode,
-                                            modul,
-                                          );
+                                          await notifier
+                                              .importModulFromCurriculum(
+                                                cicleCode,
+                                                modul,
+                                              );
                                           importedCount++;
                                         } catch (e) {
                                           // Log but continue with remaining imports
-                                          debugPrint('Failed to import ${modul.codi}: $e');
+                                          debugPrint(
+                                            'Failed to import ${modul.codi}: $e',
+                                          );
                                         }
                                       }
                                       setState(
@@ -211,9 +214,13 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
                                       );
                                       if (context.mounted) {
                                         if (importedCount > 0) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
-                                              content: Text('$importedCount mòduls importats'),
+                                              content: Text(
+                                                '$importedCount mòduls importats',
+                                              ),
                                             ),
                                           );
                                         }

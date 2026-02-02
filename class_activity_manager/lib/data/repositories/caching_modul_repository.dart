@@ -11,8 +11,7 @@ import 'base_caching_repository.dart';
 ///
 /// Extends [BaseCachingRepository] to inherit common CRUD operations
 /// with automatic sync queue management.
-class CachingModulRepository
-    extends BaseCachingRepository<Modul, ModulCache> {
+class CachingModulRepository extends BaseCachingRepository<Modul, ModulCache> {
   CachingModulRepository(super.local, super.queue);
 
   @override

@@ -47,7 +47,8 @@ class MongoDbDatasource {
   /// Parses URI to determine mode and create masked version.
   MongoConnectionInfo _parseConnectionInfo(String uri) {
     // Check if local connection
-    final isLocal = uri.contains('localhost') ||
+    final isLocal =
+        uri.contains('localhost') ||
         uri.contains('127.0.0.1') ||
         uri.contains('0.0.0.0');
 

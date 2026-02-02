@@ -76,7 +76,10 @@ Future<void> main() async {
   // Load saved locale preference before runApp
   Locale savedLocale = const Locale('ca');
   try {
-    final prefsRepo = CachingUserPreferencesRepository(localDatasource, syncQueue);
+    final prefsRepo = CachingUserPreferencesRepository(
+      localDatasource,
+      syncQueue,
+    );
     final prefs = await prefsRepo.findActive();
     if (prefs != null) {
       savedLocale = Locale(prefs.languageCode);
