@@ -9,7 +9,7 @@ A Flutter desktop application for managing professional training modules, learni
 - **Modules Management**: Create, edit, and organize professional training modules (Mòduls)
 - **Daily Notes**: Record session notes linked to specific RAs and dates with Markdown support
 - **Groups**: Manage student groups/classes with color-coding
-- **RA Configuration**: Configure learning outcomes and evaluation criteria
+- **RA Configuration**: Configure learning outcomes with date ranges and duration
 - **Curriculum Import**: Import official Catalan curriculum data from YAML files
 - **Offline-First**: Local Isar database with optional MongoDB Atlas cloud synchronization
 - **Multi-Platform**: Runs on Linux, macOS, and Windows desktops
@@ -124,7 +124,6 @@ lib/
 ### Domain Models
 - **Modul**: Professional training module (e.g., MP06)
 - **RA** (Resultat d'Aprenentatge): Learning outcome within a module
-- **CriteriAvaluacio**: Evaluation criteria for each RA
 - **Group**: Student group/class
 - **DailyNote**: Session notes linked to RA + date
 - **AcademicYear**: Academic year with vacation periods

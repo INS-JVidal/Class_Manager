@@ -294,27 +294,6 @@ class AppLocalizationsCa extends AppLocalizations {
   }
 
   @override
-  String get evaluationCriteria => 'Criteris d\'avaluació';
-
-  @override
-  String get addCriterion => 'Afegir criteri';
-
-  @override
-  String get editCriterion => 'Editar criteri';
-
-  @override
-  String get deleteCriterion => 'Eliminar criteri';
-
-  @override
-  String get noCriteria => 'Cap criteri';
-
-  @override
-  String get criterionCode => 'Codi del criteri';
-
-  @override
-  String get criterionCodeHint => 'p.ex. CA1.1';
-
-  @override
   String get group => 'Grup';
 
   @override

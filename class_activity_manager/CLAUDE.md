@@ -46,7 +46,6 @@ lib/
 ### Domain Models
 - **Modul**: Professional training module (e.g., MP06) with code, hours, RAs
 - **RA** (Resultat d'Aprenentatge): Learning outcome within a module
-- **CriteriAvaluacio**: Evaluation criteria for each RA
 - **Group**: Student group/class
 - **DailyNote**: Session notes linked to RA + date
 - **AcademicYear**: Academic year with vacation periods and holidays
