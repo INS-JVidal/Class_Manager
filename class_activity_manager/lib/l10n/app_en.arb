@@ -104,14 +104,6 @@
   "raNotScheduled": "Not scheduled",
   "raActiveCount": "{count} active LOs",
 
-  "evaluationCriteria": "Evaluation criteria",
-  "addCriterion": "Add criterion",
-  "editCriterion": "Edit criterion",
-  "deleteCriterion": "Delete criterion",
-  "noCriteria": "No criteria",
-  "criterionCode": "Criterion code",
-  "criterionCodeHint": "e.g. EC1.1",
-
   "group": "Group",
   "groups": "Groups",
   "addGroup": "Add group",

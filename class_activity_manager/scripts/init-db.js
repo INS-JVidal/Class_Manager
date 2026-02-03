@@ -93,19 +93,7 @@ db.createCollection("moduls", {
               durationHours: { bsonType: "int" },
               order: { bsonType: "int" },
               startDate: { bsonType: "date" },
-              endDate: { bsonType: "date" },
-              criterisAvaluacio: {
-                bsonType: "array",
-                items: {
-                  bsonType: "object",
-                  required: ["code", "description"],
-                  properties: {
-                    code: { bsonType: "string" },
-                    description: { bsonType: "string" },
-                    order: { bsonType: "int" }
-                  }
-                }
-              }
+              endDate: { bsonType: "date" }
             }
           }
         }

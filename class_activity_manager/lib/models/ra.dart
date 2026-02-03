@@ -1,7 +1,5 @@
 import 'package:uuid/uuid.dart';
 
-import 'criteri_avaluacio.dart';
-
 const _uuid = Uuid();
 
 /// Resultat d'Aprenentatge (RA) dins d'un mòdul.
@@ -14,7 +12,6 @@ class RA {
     this.description,
     required this.durationHours,
     this.order = 0,
-    this.criterisAvaluacio = const [],
     this.startDate,
     this.endDate,
   });
@@ -26,7 +23,6 @@ class RA {
   final String? description;
   final int durationHours;
   final int order;
-  final List<CriteriAvaluacio> criterisAvaluacio;
   final DateTime? startDate;
   final DateTime? endDate;
 
@@ -38,7 +34,6 @@ class RA {
     String? description,
     int? durationHours,
     int? order,
-    List<CriteriAvaluacio>? criterisAvaluacio,
     DateTime? startDate,
     DateTime? endDate,
   }) {
@@ -50,7 +45,6 @@ class RA {
       description: description ?? this.description,
       durationHours: durationHours ?? this.durationHours,
       order: order ?? this.order,
-      criterisAvaluacio: criterisAvaluacio ?? this.criterisAvaluacio,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
     );
@@ -64,7 +58,6 @@ class RA {
     if (description != null) 'description': description,
     'durationHours': durationHours,
     'order': order,
-    'criterisAvaluacio': criterisAvaluacio.map((ca) => ca.toJson()).toList(),
     if (startDate != null) 'startDate': startDate!.toIso8601String(),
     if (endDate != null) 'endDate': endDate!.toIso8601String(),
   };
@@ -77,11 +70,6 @@ class RA {
     description: json['description'] as String?,
     durationHours: json['durationHours'] as int,
     order: json['order'] as int? ?? 0,
-    criterisAvaluacio:
-        (json['criterisAvaluacio'] as List<dynamic>?)
-            ?.map((e) => CriteriAvaluacio.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
     startDate: json['startDate'] != null
         ? _parseDateTime(json['startDate'])
         : null,

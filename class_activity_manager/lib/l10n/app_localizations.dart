@@ -656,48 +656,6 @@ abstract class AppLocalizations {
   /// **'{count} RAs actius'**
   String raActiveCount(int count);
 
-  /// No description provided for @evaluationCriteria.
-  ///
-  /// In ca, this message translates to:
-  /// **'Criteris d\'avaluació'**
-  String get evaluationCriteria;
-
-  /// No description provided for @addCriterion.
-  ///
-  /// In ca, this message translates to:
-  /// **'Afegir criteri'**
-  String get addCriterion;
-
-  /// No description provided for @editCriterion.
-  ///
-  /// In ca, this message translates to:
-  /// **'Editar criteri'**
-  String get editCriterion;
-
-  /// No description provided for @deleteCriterion.
-  ///
-  /// In ca, this message translates to:
-  /// **'Eliminar criteri'**
-  String get deleteCriterion;
-
-  /// No description provided for @noCriteria.
-  ///
-  /// In ca, this message translates to:
-  /// **'Cap criteri'**
-  String get noCriteria;
-
-  /// No description provided for @criterionCode.
-  ///
-  /// In ca, this message translates to:
-  /// **'Codi del criteri'**
-  String get criterionCode;
-
-  /// No description provided for @criterionCodeHint.
-  ///
-  /// In ca, this message translates to:
-  /// **'p.ex. CA1.1'**
-  String get criterionCodeHint;
-
   /// No description provided for @group.
   ///
   /// In ca, this message translates to:

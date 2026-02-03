@@ -294,27 +294,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get evaluationCriteria => 'Evaluation criteria';
-
-  @override
-  String get addCriterion => 'Add criterion';
-
-  @override
-  String get editCriterion => 'Edit criterion';
-
-  @override
-  String get deleteCriterion => 'Delete criterion';
-
-  @override
-  String get noCriteria => 'No criteria';
-
-  @override
-  String get criterionCode => 'Criterion code';
-
-  @override
-  String get criterionCodeHint => 'e.g. EC1.1';
-
-  @override
   String get group => 'Group';
 
   @override

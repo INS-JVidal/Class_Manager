@@ -119,14 +119,6 @@
     }
   },
 
-  "evaluationCriteria": "Criteris d'avaluació",
-  "addCriterion": "Afegir criteri",
-  "editCriterion": "Editar criteri",
-  "deleteCriterion": "Eliminar criteri",
-  "noCriteria": "Cap criteri",
-  "criterionCode": "Codi del criteri",
-  "criterionCodeHint": "p.ex. CA1.1",
-
   "group": "Grup",
   "groups": "Grups",
   "addGroup": "Afegir grup",
