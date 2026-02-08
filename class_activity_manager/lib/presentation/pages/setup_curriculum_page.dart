@@ -258,10 +258,3 @@ class _SetupCurriculumPageState extends ConsumerState<SetupCurriculumPage> {
   }
 }
 
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final it = iterator;
-    if (it.moveNext()) return it.current;
-    return null;
-  }
-}

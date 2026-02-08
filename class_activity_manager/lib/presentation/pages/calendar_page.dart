@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/utils/color_utils.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
 import '../widgets/dual_date_picker.dart';
@@ -268,7 +269,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                           itemBuilder: (context, index) {
                             final info = selectedRas[index];
                             final groupColor = info.group.color != null
-                                ? _hexToColor(info.group.color!)
+                                ? hexToColor(info.group.color!)
                                 : Theme.of(context).colorScheme.primary;
                             return Card(
                               clipBehavior: Clip.antiAlias,
@@ -406,7 +407,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       // Get unique colors from RAs on this day
       final colors = ras
           .where((info) => info.group.color != null)
-          .map((info) => _hexToColor(info.group.color!))
+          .map((info) => hexToColor(info.group.color!))
           .toSet()
           .toList();
 
@@ -506,9 +507,3 @@ class _RaInfo {
   final RA ra;
 }
 
-Color _hexToColor(String hex) {
-  final buffer = StringBuffer();
-  if (hex.length == 7) buffer.write('FF');
-  buffer.write(hex.replaceFirst('#', ''));
-  return Color(int.parse(buffer.toString(), radix: 16));
-}

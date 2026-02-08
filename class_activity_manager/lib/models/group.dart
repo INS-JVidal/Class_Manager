@@ -1,6 +1,10 @@
-import 'package:uuid/uuid.dart';
+import '../core/utils/date_formats.dart';
 
-const _uuid = Uuid();
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// Grup d'alumnes (classe): DAW1-A, SMX2-B, etc.
 class Group {
@@ -31,22 +35,35 @@ class Group {
   Group copyWith({
     String? id,
     String? name,
-    String? notes,
-    String? academicYearId,
+    Object? notes = _absent,
+    Object? academicYearId = _absent,
     List<String>? moduleIds,
-    String? color,
+    Object? color = _absent,
     int? version,
   }) {
     return Group(
       id: id ?? this.id,
       name: name ?? this.name,
-      notes: notes ?? this.notes,
-      academicYearId: academicYearId ?? this.academicYearId,
+      notes: notes == _absent
+          ? this.notes
+          : notes as String?,
+      academicYearId: academicYearId == _absent
+          ? this.academicYearId
+          : academicYearId as String?,
       moduleIds: moduleIds ?? this.moduleIds,
-      color: color ?? this.color,
+      color: color == _absent
+          ? this.color
+          : color as String?,
       version: version ?? this.version,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is Group && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   Map<String, dynamic> toJson() => {
     '_id': id,
@@ -59,7 +76,7 @@ class Group {
   };
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     name: json['name'] as String,
     notes: json['notes'] as String?,
     academicYearId: json['academicYearId']?.toString(),
@@ -71,4 +88,7 @@ class Group {
     color: json['color'] as String?,
     version: json['version'] as int? ?? 1,
   );
+
+  @override
+  String toString() => 'Group($id, "$name")';
 }

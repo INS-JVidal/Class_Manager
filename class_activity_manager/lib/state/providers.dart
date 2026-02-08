@@ -1,12 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/cache/sync_conflict.dart';
 import '../data/cache/sync_queue.dart';
 import '../data/datasources/local_datasource.dart';
 import '../data/services/cache_service.dart';
 import '../data/services/database_service.dart';
+import '../router/app_router.dart';
 
 /// Provider for the database service.
 /// Returns null if database is not connected.
@@ -51,3 +53,6 @@ final conflictStreamProvider = StreamProvider<SyncConflict>((ref) {
 /// Provider for app locale (language).
 /// Default is Catalan ('ca'). Can be changed via settings.
 final localeProvider = StateProvider<Locale>((ref) => const Locale('ca'));
+
+/// Provider for the GoRouter instance (created once, reused across rebuilds).
+final routerProvider = Provider<GoRouter>((ref) => createAppRouter());

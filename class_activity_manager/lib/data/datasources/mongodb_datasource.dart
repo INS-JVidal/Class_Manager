@@ -36,8 +36,18 @@ class MongoDbDatasource {
       throw StateError('MONGO_URI not found in environment');
     }
 
-    _db = await Db.create(uri);
-    await _db!.open();
+    final db = await Db.create(uri);
+    try {
+      await db.open();
+    } catch (e) {
+      try {
+        await db.close();
+      } catch (_) {}
+      _db = null;
+      _connectionInfo = null;
+      rethrow;
+    }
+    _db = db;
 
     // Determine connection mode and create masked URI
     _connectionInfo = _parseConnectionInfo(uri);

@@ -1,6 +1,4 @@
-import 'package:uuid/uuid.dart';
-
-const _uuid = Uuid();
+import '../core/utils/date_formats.dart';
 
 /// Festiu recurrent (mateixa data cada any): Nadal, Diada, etc.
 class RecurringHoliday {
@@ -11,7 +9,8 @@ class RecurringHoliday {
     required this.day,
     this.isEnabled = true,
     this.version = 1,
-  });
+  }) : assert(month >= 1 && month <= 12, 'month must be 1-12'),
+       assert(day >= 1 && day <= 31, 'day must be 1-31');
 
   final String id;
   final String name;
@@ -40,6 +39,13 @@ class RecurringHoliday {
     );
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is RecurringHoliday && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   Map<String, dynamic> toJson() => {
     '_id': id,
     'name': name,
@@ -51,11 +57,14 @@ class RecurringHoliday {
 
   factory RecurringHoliday.fromJson(Map<String, dynamic> json) =>
       RecurringHoliday(
-        id: json['_id']?.toString() ?? _uuid.v4(),
+        id: json['_id']?.toString() ?? sharedUuid.v4(),
         name: json['name'] as String,
         month: json['month'] as int,
         day: json['day'] as int,
         isEnabled: json['isEnabled'] as bool? ?? true,
         version: json['version'] as int? ?? 1,
       );
+
+  @override
+  String toString() => 'RecurringHoliday("$name", $day/$month)';
 }

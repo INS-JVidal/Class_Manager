@@ -1,6 +1,10 @@
-import 'package:uuid/uuid.dart';
+import '../core/utils/date_formats.dart';
 
-const _uuid = Uuid();
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// Nota diària per una sessió (RA + data + grup).
 class DailyNote {
@@ -42,9 +46,9 @@ class DailyNote {
     String? modulId,
     String? groupId,
     DateTime? date,
-    String? plannedContent,
-    String? actualContent,
-    String? notes,
+    Object? plannedContent = _absent,
+    Object? actualContent = _absent,
+    Object? notes = _absent,
     bool? completed,
     int? version,
   }) {
@@ -54,13 +58,26 @@ class DailyNote {
       modulId: modulId ?? this.modulId,
       groupId: groupId ?? this.groupId,
       date: date ?? this.date,
-      plannedContent: plannedContent ?? this.plannedContent,
-      actualContent: actualContent ?? this.actualContent,
-      notes: notes ?? this.notes,
+      plannedContent: plannedContent == _absent
+          ? this.plannedContent
+          : plannedContent as String?,
+      actualContent: actualContent == _absent
+          ? this.actualContent
+          : actualContent as String?,
+      notes: notes == _absent
+          ? this.notes
+          : notes as String?,
       completed: completed ?? this.completed,
       version: version ?? this.version,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is DailyNote && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   Map<String, dynamic> toJson() => {
     '_id': id,
@@ -76,11 +93,11 @@ class DailyNote {
   };
 
   factory DailyNote.fromJson(Map<String, dynamic> json) => DailyNote(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     raId: json['raId'] as String,
     modulId: json['modulId'] as String,
     groupId: json['groupId'] as String,
-    date: _parseDateTime(json['date']),
+    date: parseDateTime(json['date']),
     plannedContent: json['plannedContent'] as String?,
     actualContent: json['actualContent'] as String?,
     notes: json['notes'] as String?,
@@ -88,8 +105,6 @@ class DailyNote {
     version: json['version'] as int? ?? 1,
   );
 
-  static DateTime _parseDateTime(dynamic value) {
-    if (value is DateTime) return value;
-    return DateTime.parse(value as String);
-  }
+  @override
+  String toString() => 'DailyNote($id, ra:$raId, ${date.toIso8601String().substring(0, 10)})';
 }

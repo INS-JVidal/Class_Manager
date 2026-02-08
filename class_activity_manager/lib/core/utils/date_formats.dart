@@ -1,4 +1,15 @@
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
+/// Shared Uuid instance to avoid creating one per model file.
+const sharedUuid = Uuid();
+
+/// Parses a DateTime from a dynamic value (String or DateTime).
+/// Used by model fromJson factories.
+DateTime parseDateTime(dynamic value) {
+  if (value is DateTime) return value;
+  return DateTime.parse(value as String);
+}
 
 /// Centralized date formatters for consistent date display across the app.
 ///

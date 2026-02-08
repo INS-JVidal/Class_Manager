@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,11 +20,14 @@ const _catalanDayNames = [
   'Diumenge',
 ];
 
-/// Calculate ISO week number for a date.
+/// Calculate ISO 8601 week number for a date.
 int _weekNumber(DateTime date) {
-  final firstDayOfYear = DateTime(date.year, 1, 1);
-  final daysDiff = date.difference(firstDayOfYear).inDays;
-  return ((daysDiff + firstDayOfYear.weekday) / 7).ceil();
+  // ISO 8601: weeks start on Monday, week 1 contains January 4th.
+  // Find the Thursday of this date's week (ISO week belongs to the year of its Thursday).
+  final thursday = date.add(Duration(days: DateTime.thursday - date.weekday));
+  final jan4 = DateTime(thursday.year, 1, 4);
+  final jan4Monday = jan4.subtract(Duration(days: jan4.weekday - 1));
+  return ((thursday.difference(jan4Monday).inDays) ~/ 7) + 1;
 }
 
 class DailyNotesPage extends ConsumerStatefulWidget {
@@ -71,15 +76,19 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
     final groups = appState.groups;
     final allModuls = appState.moduls;
 
+    // Compute effective selections (auto-select when only one option).
+    // Use local variables so the rest of build sees correct values immediately.
+    var effectiveGroupId = _selectedGroupId;
+    var effectiveModulId = _selectedModulId;
+    var effectiveRaId = _selectedRaId;
+
     // Auto-select if only one group
-    if (groups.length == 1 && _selectedGroupId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _selectedGroupId = groups.first.id);
-      });
+    if (groups.length == 1 && effectiveGroupId == null) {
+      effectiveGroupId = groups.first.id;
     }
 
     // Get selected group
-    final groupList = groups.where((g) => g.id == _selectedGroupId).toList();
+    final groupList = groups.where((g) => g.id == effectiveGroupId).toList();
     final selectedGroup = groupList.isEmpty ? null : groupList.first;
 
     // Filter modules by selected group's moduleIds
@@ -90,40 +99,48 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
         : <Modul>[];
 
     // Auto-select if only one module
-    if (moduls.length == 1 && _selectedModulId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _selectedModulId = moduls.first.id);
-      });
+    if (moduls.length == 1 && effectiveModulId == null) {
+      effectiveModulId = moduls.first.id;
     }
 
     // Reset modulId if not in filtered list
-    if (_selectedModulId != null &&
-        !moduls.any((m) => m.id == _selectedModulId)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _selectedModulId = null;
-            _selectedRaId = null;
-          });
-        }
-      });
+    if (effectiveModulId != null &&
+        !moduls.any((m) => m.id == effectiveModulId)) {
+      effectiveModulId = null;
+      effectiveRaId = null;
     }
 
-    final modulList = moduls.where((m) => m.id == _selectedModulId).toList();
+    final modulList = moduls.where((m) => m.id == effectiveModulId).toList();
     final modul = modulList.isEmpty ? null : modulList.first;
     final ras = modul?.ras ?? [];
 
     // Auto-select if only one RA
-    if (ras.length == 1 && _selectedRaId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _selectedRaId = ras.first.id);
-      });
+    if (ras.length == 1 && effectiveRaId == null) {
+      effectiveRaId = ras.first.id;
     }
 
-    final raList = ras.where((r) => r.id == _selectedRaId).toList();
+    final raList = ras.where((r) => r.id == effectiveRaId).toList();
     final ra = raList.isEmpty ? null : raList.first;
+
+    // Persist auto-selections back to state fields (single post-frame callback)
+    if (effectiveGroupId != _selectedGroupId ||
+        effectiveModulId != _selectedModulId ||
+        effectiveRaId != _selectedRaId) {
+      final newGroupId = effectiveGroupId;
+      final newModulId = effectiveModulId;
+      final newRaId = effectiveRaId;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _selectedGroupId = newGroupId;
+            _selectedModulId = newModulId;
+            _selectedRaId = newRaId;
+          });
+        }
+      });
+    }
     final isSelectedRaValid =
-        _selectedRaId != null && ras.any((r) => r.id == _selectedRaId);
+        effectiveRaId != null && ras.any((r) => r.id == effectiveRaId);
 
     List<DateTime> days = [];
     if (ra != null && ra.startDate != null && ra.endDate != null) {
@@ -147,16 +164,16 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
       (d) =>
           d.year == today.year && d.month == today.month && d.day == today.day,
     );
-    final focusToken = ra == null || _selectedGroupId == null
+    final focusToken = ra == null || effectiveGroupId == null
         ? null
-        : '$_selectedGroupId-${ra.id}-${ra.startDate?.millisecondsSinceEpoch}-${ra.endDate?.millisecondsSinceEpoch}';
+        : '$effectiveGroupId-${ra.id}-${ra.startDate?.millisecondsSinceEpoch}-${ra.endDate?.millisecondsSinceEpoch}';
     _focusTodayIfNeeded(focusToken, todayIndex != -1);
 
     // Filter daily notes by group and RA
     final allDailyNotes = appState.dailyNotes;
-    final dailyNotes = (ra != null && _selectedGroupId != null)
+    final dailyNotes = (ra != null && effectiveGroupId != null)
         ? allDailyNotes
-              .where((n) => n.raId == ra.id && n.groupId == _selectedGroupId)
+              .where((n) => n.raId == ra.id && n.groupId == effectiveGroupId)
               .toList()
         : <DailyNote>[];
     DailyNote? noteFor(DateTime date) {
@@ -197,7 +214,7 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                     SizedBox(
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
-                        initialValue: _selectedGroupId,
+                        initialValue: effectiveGroupId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Grup',
@@ -223,8 +240,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                     SizedBox(
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
-                        key: ValueKey('modul-$_selectedGroupId'),
-                        initialValue: _selectedModulId,
+                        key: ValueKey('modul-$effectiveGroupId'),
+                        initialValue: effectiveModulId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Mòdul',
@@ -251,8 +268,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                     SizedBox(
                       width: double.infinity,
                       child: DropdownButtonFormField<String>(
-                        key: ValueKey('ra-$_selectedModulId'),
-                        initialValue: isSelectedRaValid ? _selectedRaId : null,
+                        key: ValueKey('ra-$effectiveModulId'),
+                        initialValue: isSelectedRaValid ? effectiveRaId : null,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'RA',
@@ -280,7 +297,7 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   // Group selector
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      initialValue: _selectedGroupId,
+                      initialValue: effectiveGroupId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Grup',
@@ -305,8 +322,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   // Module selector
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      key: ValueKey('modul-$_selectedGroupId'),
-                      initialValue: _selectedModulId,
+                      key: ValueKey('modul-$effectiveGroupId'),
+                      initialValue: effectiveModulId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Mòdul',
@@ -332,8 +349,8 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                   // RA selector
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      key: ValueKey('ra-$_selectedModulId'),
-                      initialValue: isSelectedRaValid ? _selectedRaId : null,
+                      key: ValueKey('ra-$effectiveModulId'),
+                      initialValue: isSelectedRaValid ? effectiveRaId : null,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'RA',
@@ -433,7 +450,7 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                 ),
               ),
             )
-          else if (_selectedGroupId == null)
+          else if (effectiveGroupId == null)
             const Card(
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -472,7 +489,7 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                 ),
               ),
             )
-          else if (_selectedModulId == null)
+          else if (effectiveModulId == null)
             const Card(
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -548,7 +565,7 @@ class _DailyNotesPageState extends ConsumerState<DailyNotesPage> {
                       note: note,
                       modulId: modul!.id,
                       raId: ra.id,
-                      groupId: _selectedGroupId!,
+                      groupId: effectiveGroupId!,
                       notifier: ref.read(appStateProvider.notifier),
                       dateFormat: _dateFormat,
                     ),
@@ -590,6 +607,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
   late TextEditingController _actualController;
   late TextEditingController _notesController;
   late bool _completed;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -623,10 +641,16 @@ class _DayNoteCardState extends State<_DayNoteCard> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _plannedController.dispose();
     _actualController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  void _debouncedSave() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), _save);
   }
 
   void _save() {
@@ -712,7 +736,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
               maxLines: 4,
               onChanged: (v) {
                 _plannedController.text = v;
-                _save();
+                _debouncedSave();
               },
             ),
             const SizedBox(height: 12),
@@ -730,7 +754,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
               maxLines: 4,
               onChanged: (v) {
                 _actualController.text = v;
-                _save();
+                _debouncedSave();
               },
             ),
             const SizedBox(height: 12),
@@ -748,7 +772,7 @@ class _DayNoteCardState extends State<_DayNoteCard> {
               maxLines: 4,
               onChanged: (v) {
                 _notesController.text = v;
-                _save();
+                _debouncedSave();
               },
             ),
           ],

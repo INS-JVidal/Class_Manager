@@ -30,8 +30,12 @@ Future<void> main() async {
     exit(0);
   }
 
-  // Load environment variables
-  await dotenv.load(fileName: 'lib/.env');
+  // Load environment variables (optional — app works in offline mode without .env)
+  try {
+    await dotenv.load(fileName: 'lib/.env');
+  } catch (e) {
+    stderr.writeln('Could not load .env file: $e');
+  }
 
   // 1. Initialize local storage FIRST (always available)
   final localDatasource = LocalDatasource();
@@ -175,11 +179,13 @@ class _AppWithDatabaseInitState extends ConsumerState<_AppWithDatabaseInit> {
 
     if (_error != null) {
       // Show error but still allow app to run (in offline mode)
+      final errorMessage = _error;
+      _error = null;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error de connexió: $_error'),
+              content: Text('Error de connexió: $errorMessage'),
               backgroundColor: Colors.orange,
               duration: const Duration(seconds: 5),
             ),

@@ -15,6 +15,34 @@ import '../presentation/shell/app_shell.dart';
 GoRouter createAppRouter() {
   return GoRouter(
     initialLocation: '/',
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Pàgina no trobada',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.uri.toString(),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => GoRouter.of(context).go('/'),
+              icon: const Icon(Icons.home),
+              label: const Text('Torna a l\'inici'),
+            ),
+          ],
+        ),
+      ),
+    ),
     routes: [
       ShellRoute(
         builder: (_, state, child) {

@@ -216,13 +216,13 @@ class _ActiveRaInfo {
   }
 }
 
-class _TodayClassCard extends ConsumerWidget {
+class _TodayClassCard extends StatelessWidget {
   const _TodayClassCard({required this.info});
 
   final _ActiveRaInfo info;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final groupColor = info.group.color != null
         ? _hexToColor(info.group.color!)
         : null;
@@ -306,7 +306,7 @@ class _TodayClassCard extends ConsumerWidget {
   }
 }
 
-class _ActiveRaCard extends ConsumerWidget {
+class _ActiveRaCard extends StatelessWidget {
   const _ActiveRaCard({required this.info});
 
   final _ActiveRaInfo info;
@@ -314,7 +314,7 @@ class _ActiveRaCard extends ConsumerWidget {
   static final _dateFormat = DateFormat('dd/MM');
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final groupColor = info.group.color != null
         ? _hexToColor(info.group.color!)
         : null;

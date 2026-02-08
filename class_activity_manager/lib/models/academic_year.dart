@@ -1,8 +1,5 @@
-import 'package:uuid/uuid.dart';
-
+import '../core/utils/date_formats.dart';
 import 'vacation_period.dart';
-
-const _uuid = Uuid();
 
 /// Curs acadèmic amb dates i períodes de vacances.
 class AcademicYear {
@@ -14,7 +11,7 @@ class AcademicYear {
     this.vacationPeriods = const [],
     this.isActive = true,
     this.version = 1,
-  });
+  }) : assert(!startDate.isAfter(endDate), 'startDate must be <= endDate');
 
   final String id;
   final String name;
@@ -46,6 +43,13 @@ class AcademicYear {
     );
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is AcademicYear && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   Map<String, dynamic> toJson() => {
     '_id': id,
     'name': name,
@@ -57,10 +61,10 @@ class AcademicYear {
   };
 
   factory AcademicYear.fromJson(Map<String, dynamic> json) => AcademicYear(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     name: json['name'] as String,
-    startDate: _parseDateTime(json['startDate']),
-    endDate: _parseDateTime(json['endDate']),
+    startDate: parseDateTime(json['startDate']),
+    endDate: parseDateTime(json['endDate']),
     vacationPeriods:
         (json['vacationPeriods'] as List<dynamic>?)
             ?.map((e) => VacationPeriod.fromJson(e as Map<String, dynamic>))
@@ -70,8 +74,6 @@ class AcademicYear {
     version: json['version'] as int? ?? 1,
   );
 
-  static DateTime _parseDateTime(dynamic value) {
-    if (value is DateTime) return value;
-    return DateTime.parse(value as String);
-  }
+  @override
+  String toString() => 'AcademicYear("$name", $startDate — $endDate)';
 }

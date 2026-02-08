@@ -197,6 +197,6 @@ class RaConfigPage extends ConsumerWidget {
           );
         },
       ),
-    );
+    ).then((_) => hoursController.dispose());
   }
 }

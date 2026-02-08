@@ -23,6 +23,7 @@ class CacheService {
 
   Timer? _connectivityTimer;
   bool _isSyncing = false;
+  Completer<void>? _syncCompleter;
   CacheStatus _currentStatus = CacheStatus.offline;
 
   final _statusController = StreamController<CacheStatus>.broadcast();
@@ -73,20 +74,30 @@ class CacheService {
   }
 
   Future<void> _checkAndSync() async {
-    if (_isSyncing) return;
-
-    if (!_remote.isConnected) {
-      try {
-        await _remote.connect();
-        _updateStatus(CacheStatus.online);
-        stderr.writeln('Reconnected to MongoDB');
-      } catch (e) {
-        _updateStatus(CacheStatus.offline);
-        return;
-      }
+    // If a sync is already in progress, wait for it instead of starting another
+    if (_syncCompleter != null) {
+      return _syncCompleter!.future;
     }
 
-    await _processSyncQueue();
+    _syncCompleter = Completer<void>();
+    try {
+      if (!_remote.isConnected) {
+        try {
+          await _remote.connect();
+          _updateStatus(CacheStatus.online);
+          stderr.writeln('Reconnected to MongoDB');
+        } catch (e) {
+          _updateStatus(CacheStatus.offline);
+          return;
+        }
+      }
+
+      await _processSyncQueue();
+    } finally {
+      final completer = _syncCompleter;
+      _syncCompleter = null;
+      completer?.complete();
+    }
   }
 
   Future<void> _processSyncQueue() async {
@@ -262,6 +273,7 @@ class CacheService {
         await _remote.connect();
         _updateStatus(CacheStatus.online);
       } catch (e) {
+        _updateStatus(CacheStatus.offline);
         throw StateError('Cannot sync: MongoDB not available');
       }
     }

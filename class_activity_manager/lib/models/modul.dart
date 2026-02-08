@@ -1,8 +1,11 @@
-import 'package:uuid/uuid.dart';
-
+import '../core/utils/date_formats.dart';
 import 'ra.dart';
 
-const _uuid = Uuid();
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// Mòdul professional (assignatura): MP06, etc.
 class Modul {
@@ -17,7 +20,7 @@ class Modul {
     this.ras = const [],
     this.cicleCodes = const [],
     this.version = 1,
-  });
+  }) : assert(totalHours >= 0, 'totalHours must be non-negative');
 
   final String id;
   final String code;
@@ -41,10 +44,10 @@ class Modul {
     String? id,
     String? code,
     String? name,
-    String? description,
+    Object? description = _absent,
     int? totalHours,
     List<String>? objectives,
-    String? officialReference,
+    Object? officialReference = _absent,
     List<RA>? ras,
     List<String>? cicleCodes,
     int? version,
@@ -53,10 +56,14 @@ class Modul {
       id: id ?? this.id,
       code: code ?? this.code,
       name: name ?? this.name,
-      description: description ?? this.description,
+      description: description == _absent
+          ? this.description
+          : description as String?,
       totalHours: totalHours ?? this.totalHours,
       objectives: objectives ?? this.objectives,
-      officialReference: officialReference ?? this.officialReference,
+      officialReference: officialReference == _absent
+          ? this.officialReference
+          : officialReference as String?,
       ras: ras ?? this.ras,
       cicleCodes: cicleCodes ?? this.cicleCodes,
       version: version ?? this.version,
@@ -76,8 +83,15 @@ class Modul {
     'version': version,
   };
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is Modul && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   factory Modul.fromJson(Map<String, dynamic> json) => Modul(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     code: json['code'] as String,
     name: json['name'] as String,
     description: json['description'] as String?,
@@ -92,4 +106,7 @@ class Modul {
     cicleCodes: (json['cicleCodes'] as List<dynamic>?)?.cast<String>() ?? [],
     version: json['version'] as int? ?? 1,
   );
+
+  @override
+  String toString() => 'Modul($code, "$name", ${ras.length} RAs)';
 }

@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../core/audit/audit_logger.dart';
+import '../core/utils/date_formats.dart';
 import '../data/models/curriculum/curriculum.dart';
 import '../data/repositories/caching_academic_year_repository.dart';
 import '../data/repositories/caching_daily_note_repository.dart';
@@ -13,7 +15,12 @@ import '../data/services/database_service.dart';
 import '../models/models.dart';
 import 'providers.dart';
 
-const _uuid = Uuid();
+/// Sentinel value to distinguish "not provided" from explicit `null` in copyWith.
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// In-memory app state: academic year, holidays, groups, modules.
 class AppState {
@@ -42,7 +49,7 @@ class AppState {
   final bool isInitialized;
 
   AppState copyWith({
-    AcademicYear? currentYear,
+    Object? currentYear = _absent,
     List<RecurringHoliday>? recurringHolidays,
     List<Group>? groups,
     List<Modul>? moduls,
@@ -52,7 +59,9 @@ class AppState {
     bool? isInitialized,
   }) {
     return AppState(
-      currentYear: currentYear ?? this.currentYear,
+      currentYear: currentYear == _absent
+          ? this.currentYear
+          : currentYear as AcademicYear?,
       recurringHolidays: recurringHolidays ?? this.recurringHolidays,
       groups: groups ?? this.groups,
       moduls: moduls ?? this.moduls,
@@ -106,7 +115,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   /// Load all data from database on startup.
   /// Uses remote MongoDB if connected, otherwise local cache.
   Future<void> loadFromDatabase() async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('AppState.loadFromDatabase', 'started', {}, traceId: traceId);
     _ensureRepos();
     state = state.copyWith(isLoading: true);
@@ -229,7 +238,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     return defaults
         .map(
           (e) => RecurringHoliday(
-            id: _uuid.v4(),
+            id: sharedUuid.v4(),
             name: e.$3,
             month: e.$1,
             day: e.$2,
@@ -241,7 +250,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Academic year
   Future<void> setCurrentYear(AcademicYear year) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('AcademicYear.set', 'started', {
       'yearId': year.id,
     }, traceId: traceId);
@@ -263,7 +272,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> updateCurrentYear(AcademicYear year) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('AcademicYear.update', 'started', {
       'yearId': year.id,
     }, traceId: traceId);
@@ -284,7 +293,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> clearCurrentYear() async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('AcademicYear.clear', 'started', {}, traceId: traceId);
     try {
       _ensureRepos();
@@ -308,7 +317,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Vacation periods (on current year)
   Future<void> addVacationPeriod(VacationPeriod period) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('VacationPeriod.add', 'started', {
       'periodId': period.id,
     }, traceId: traceId);
@@ -339,7 +348,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> updateVacationPeriod(VacationPeriod period) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('VacationPeriod.update', 'started', {
       'periodId': period.id,
     }, traceId: traceId);
@@ -371,7 +380,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeVacationPeriod(String id) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('VacationPeriod.remove', 'started', {
       'periodId': id,
     }, traceId: traceId);
@@ -402,7 +411,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Recurring holidays
   Future<void> addRecurringHoliday(RecurringHoliday holiday) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('RecurringHoliday.add', 'started', {
       'holidayId': holiday.id,
     }, traceId: traceId);
@@ -425,7 +434,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> updateRecurringHoliday(RecurringHoliday holiday) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('RecurringHoliday.update', 'started', {
       'holidayId': holiday.id,
     }, traceId: traceId);
@@ -450,7 +459,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeRecurringHoliday(String id) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('RecurringHoliday.remove', 'started', {
       'holidayId': id,
     }, traceId: traceId);
@@ -476,7 +485,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Groups
   Future<void> addGroup(Group group) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Group.add', 'started', {
       'groupId': group.id,
     }, traceId: traceId);
@@ -495,7 +504,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> updateGroup(Group group) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Group.update', 'started', {
       'groupId': group.id,
     }, traceId: traceId);
@@ -518,7 +527,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeGroup(String id) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Group.remove', 'started', {'groupId': id}, traceId: traceId);
     try {
       _ensureRepos();
@@ -540,7 +549,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Moduls
   Future<void> addModul(Modul modul) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.add', 'started', {
       'modulId': modul.id,
     }, traceId: traceId);
@@ -559,7 +568,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> updateModul(Modul modul) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.update', 'started', {
       'modulId': modul.id,
     }, traceId: traceId);
@@ -582,7 +591,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeModul(String id) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.remove', 'started', {'modulId': id}, traceId: traceId);
     try {
       _ensureRepos();
@@ -612,7 +621,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     String cicleCode,
     CurriculumModul cm,
   ) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.importFromCurriculum', 'started', {
       'cicleCode': cicleCode,
       'modulCode': cm.codi,
@@ -668,7 +677,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Add or update RA in a module.
   Future<void> setModulRA(String modulId, RA ra) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.setRA', 'started', {
       'modulId': modulId,
       'raId': ra.id,
@@ -700,7 +709,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeModulRA(String modulId, String raId) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Modul.removeRA', 'started', {
       'modulId': modulId,
       'raId': raId,
@@ -729,7 +738,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> setDailyNote(DailyNote note) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('DailyNote.save', 'started', {
       'groupId': note.groupId,
       'raId': note.raId,
@@ -780,7 +789,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         _audit?.log('DailyNote.save', 'action', {
           'step': 'triggerSync',
         }, traceId: traceId);
-        _cacheService.triggerSync(); // Fire-and-forget, don't block UI
+        unawaited(_cacheService.triggerSync()); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, updatedNote]);
       } else {
         _audit?.log('DailyNote.save', 'action', {
@@ -790,7 +799,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         _audit?.log('DailyNote.save', 'action', {
           'step': 'triggerSync',
         }, traceId: traceId);
-        _cacheService.triggerSync(); // Fire-and-forget, don't block UI
+        unawaited(_cacheService.triggerSync()); // Fire-and-forget, don't block UI
         state = state.copyWith(dailyNotes: [...notes, note]);
       }
       _audit?.log('DailyNote.save', 'completed', {
@@ -828,7 +837,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   // Group-Module relationship methods
   Future<void> addModuleToGroup(String groupId, String modulId) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Group.addModule', 'started', {
       'groupId': groupId,
       'modulId': modulId,
@@ -864,7 +873,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> removeModuleFromGroup(String groupId, String modulId) async {
-    final traceId = _uuid.v4();
+    final traceId = sharedUuid.v4();
     _audit?.log('Group.removeModule', 'started', {
       'groupId': groupId,
       'modulId': modulId,
@@ -899,7 +908,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     return state.groups.where((g) => g.moduleIds.contains(modulId)).toList();
   }
 
-  String nextId() => _uuid.v4();
+  String nextId() => sharedUuid.v4();
 
   static bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;

@@ -1,6 +1,10 @@
-import 'package:uuid/uuid.dart';
+import '../core/utils/date_formats.dart';
 
-const _uuid = Uuid();
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// Resultat d'Aprenentatge (RA) dins d'un mòdul.
 class RA {
@@ -14,7 +18,7 @@ class RA {
     this.order = 0,
     this.startDate,
     this.endDate,
-  });
+  }) : assert(durationHours >= 0, 'durationHours must be non-negative');
 
   final String id;
   final int number;
@@ -31,24 +35,37 @@ class RA {
     int? number,
     String? code,
     String? title,
-    String? description,
+    Object? description = _absent,
     int? durationHours,
     int? order,
-    DateTime? startDate,
-    DateTime? endDate,
+    Object? startDate = _absent,
+    Object? endDate = _absent,
   }) {
     return RA(
       id: id ?? this.id,
       number: number ?? this.number,
       code: code ?? this.code,
       title: title ?? this.title,
-      description: description ?? this.description,
+      description: description == _absent
+          ? this.description
+          : description as String?,
       durationHours: durationHours ?? this.durationHours,
       order: order ?? this.order,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
+      startDate: startDate == _absent
+          ? this.startDate
+          : startDate as DateTime?,
+      endDate: endDate == _absent
+          ? this.endDate
+          : endDate as DateTime?,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is RA && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   Map<String, dynamic> toJson() => {
     '_id': id,
@@ -63,7 +80,7 @@ class RA {
   };
 
   factory RA.fromJson(Map<String, dynamic> json) => RA(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     number: json['number'] as int,
     code: json['code'] as String,
     title: json['title'] as String,
@@ -71,13 +88,11 @@ class RA {
     durationHours: json['durationHours'] as int,
     order: json['order'] as int? ?? 0,
     startDate: json['startDate'] != null
-        ? _parseDateTime(json['startDate'])
+        ? parseDateTime(json['startDate'])
         : null,
-    endDate: json['endDate'] != null ? _parseDateTime(json['endDate']) : null,
+    endDate: json['endDate'] != null ? parseDateTime(json['endDate']) : null,
   );
 
-  static DateTime _parseDateTime(dynamic value) {
-    if (value is DateTime) return value;
-    return DateTime.parse(value as String);
-  }
+  @override
+  String toString() => 'RA($code, "$title", ${durationHours}h)';
 }

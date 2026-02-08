@@ -1,6 +1,10 @@
-import 'package:uuid/uuid.dart';
+import '../core/utils/date_formats.dart';
 
-const _uuid = Uuid();
+const _absent = _Absent();
+
+class _Absent {
+  const _Absent();
+}
 
 /// Període de vacances específic d'un curs acadèmic (Nadal, Setmana Santa).
 class VacationPeriod {
@@ -10,7 +14,7 @@ class VacationPeriod {
     required this.startDate,
     required this.endDate,
     this.note,
-  });
+  }) : assert(!startDate.isAfter(endDate), 'startDate must be <= endDate');
 
   final String id;
   final String name;
@@ -23,16 +27,25 @@ class VacationPeriod {
     String? name,
     DateTime? startDate,
     DateTime? endDate,
-    String? note,
+    Object? note = _absent,
   }) {
     return VacationPeriod(
       id: id ?? this.id,
       name: name ?? this.name,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      note: note ?? this.note,
+      note: note == _absent
+          ? this.note
+          : note as String?,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is VacationPeriod && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   Map<String, dynamic> toJson() => {
     '_id': id,
@@ -43,15 +56,13 @@ class VacationPeriod {
   };
 
   factory VacationPeriod.fromJson(Map<String, dynamic> json) => VacationPeriod(
-    id: json['_id']?.toString() ?? _uuid.v4(),
+    id: json['_id']?.toString() ?? sharedUuid.v4(),
     name: json['name'] as String,
-    startDate: _parseDateTime(json['startDate']),
-    endDate: _parseDateTime(json['endDate']),
+    startDate: parseDateTime(json['startDate']),
+    endDate: parseDateTime(json['endDate']),
     note: json['note'] as String?,
   );
 
-  static DateTime _parseDateTime(dynamic value) {
-    if (value is DateTime) return value;
-    return DateTime.parse(value as String);
-  }
+  @override
+  String toString() => 'VacationPeriod("$name", $startDate — $endDate)';
 }

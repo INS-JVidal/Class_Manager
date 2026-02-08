@@ -1,6 +1,4 @@
-import 'package:uuid/uuid.dart';
-
-const _uuid = Uuid();
+import '../core/utils/date_formats.dart';
 
 /// User preferences including language setting.
 /// There should only be one active UserPreferences document per user/device.
@@ -27,6 +25,13 @@ class UserPreferences {
     );
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is UserPreferences && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   Map<String, dynamic> toJson() => {
     '_id': id,
     'languageCode': languageCode,
@@ -35,12 +40,15 @@ class UserPreferences {
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) =>
       UserPreferences(
-        id: json['_id']?.toString() ?? _uuid.v4(),
+        id: json['_id']?.toString() ?? sharedUuid.v4(),
         languageCode: json['languageCode'] as String? ?? 'ca',
         version: json['version'] as int? ?? 1,
       );
 
   /// Create default preferences with a new ID.
   factory UserPreferences.defaults() =>
-      UserPreferences(id: _uuid.v4(), languageCode: 'ca');
+      UserPreferences(id: sharedUuid.v4(), languageCode: 'ca');
+
+  @override
+  String toString() => 'UserPreferences($id, lang:$languageCode)';
 }
